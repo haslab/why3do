@@ -3,10 +3,8 @@ Why3-do: a WhyML library for reasoning about state machine specifications and di
 
 ## Library Modules
 
-* [inductiveness.mlw](stateMachineModels/inductiveness.mlw): simple theory for
+* [stateMachineModels](stateMachineModels): simple theory for
 establishing inductive invariants of state machine specifications
-* [refinement.mlw](stateMachineModels/refinement.mlw): theory of refinement mappings
-  between state machine specifications
 
 ## List of Examples
 
