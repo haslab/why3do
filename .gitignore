@@ -3,5 +3,5 @@
 .DS_Store
 
 # Backup files
-.bak
+*.bak
 

@@ -6,6 +6,13 @@ following Lamport's TLA+ development.
 It is a two step development, with the Voting algorithm standing
 between the Consensus abstract spec and the Paxos concrete algorithm. 
 
+## Files 
+
+  * [consensus.mlw](consensus.mlw): abstract specification
+  * [voting.mlw](voting.mlw): implementation 
+  * [paxos.mlw](paxos.mlw): implementation 
+
+
 Notes: 
 
 1. Voting and Paxos are formalized in a single module each, including

@@ -17,6 +17,8 @@ establishing inductive invariants of state machine specifications
 * [mutualExclusionToken](examples/mutualExclusionToken): Closure property of Dijkstra's
   self-stabilizing ring and bidirectional array systems, refined from
   the same abstract specification
+* [paxos](examples/paxos): Paxos consensus algorithm. Two-step
+  refinement from a specification of the consensus problem
 
 ## Example commands
 
