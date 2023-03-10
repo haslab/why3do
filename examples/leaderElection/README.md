@@ -1,7 +1,6 @@
 # Leader Election 
 
-Formalization, by a two-step refinement, of two versions of Chang and
-Roberts' algorithm.
+Formalization, by a two-step refinement, of two versions of Chang and Roberts' algorithm.
 
 ## Files 
 
