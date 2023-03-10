@@ -8,8 +8,8 @@ establishing inductive invariants of state machine specifications
 
 ## List of Examples
 
-* [twoPhase](examples/twoPhase)# Two-phase handshake protocol, refined
-  from an abstract specification.
+* [twoPhase](examples/twoPhase) Two-phase handshake protocol, refined
+  from abstract specification
 * [counter](examples/counter): concurrent counter using a lock,
   refined from abstract specification 
 * [leaderElection](examples/leaderElection/): Chang-Roberts leader
