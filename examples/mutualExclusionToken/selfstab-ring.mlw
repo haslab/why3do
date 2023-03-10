@@ -52,9 +52,8 @@ module SelfStab_Ring
 
 
   predicate inv (w:world) = 
-    (* forall n :int. validNd n -> 0 <= w.ring[n] < k_states *)
-    (* /\ *)
-
+    forall n :int. validNd n -> 0 <= w.ring[n] < k_states
+    /\
     (w.ring[0] = w.ring[n_nodes-1] ->
       forall k :int.
         (0<k<n_nodes -> w.ring[k] = w.ring[0] /\ not has_token w k))

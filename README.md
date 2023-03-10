@@ -1,5 +1,5 @@
-# why3do
-Why3-do: a WhyML library for reasoning about state machine specifications and distributed systems
+# Why3-do
+A WhyML library for reasoning about state machine specifications and distributed systems
 
 ## Library Modules
 
@@ -11,7 +11,7 @@ establishing inductive invariants of state machine specifications
 * [twoPhase](examples/twoPhase) Two-phase handshake protocol, refined
   from abstract specification
 * [counter](examples/counter): concurrent counter using a lock,
-  refined from abstract specification 
+  by refinement from abstract specification 
 * [leaderElection](examples/leaderElection/): Chang-Roberts leader
   election ring algorithm, refined from an abstract specification
 * [mutualExclusionToken](examples/mutualExclusionToken): Closure property of Dijkstra's
