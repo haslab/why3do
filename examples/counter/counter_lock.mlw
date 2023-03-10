@@ -1,0 +1,140 @@
+
+(*
+
+This is an example inspired by a blog post by Hillel Wayne [https://www.hillelwayne.com/post/refinement/]
+
+The idea is to specifiy a counter by a single abstract action that increments its value, moving the state of the thread from Start to Done. This assumes an atomic update operation that is unavailable for implementation, and must then be refined into atomic read and write actions, controlled by a lock.
+
+## Files
+
+  * Abstract.mlw: abstract spec
+  * Impl_lock.mlw: the previous file with all required annotations
+  * core.mlw: library modules for induction and refinement
+
+*)
+
+
+(* This particular module contains a refinement of the abstract counter
+   by Jorge Sousa Pinto
+
+  An example where 
+   - the abstract invariant is a type invariant, stating that 
+     the integer counter value is nonnegative. This is not part of 
+     the original spec found online
+   - contracts are not required in (at least) one of the action functions
+   - but these are just canonical postconds for refinement:
+     inv w -> refn result = refn w \/ Abstract.stepind (refn w) (refn result)
+   - we make use of a new version of core.mlw where initial states 
+     are described  by a predicate rather than constants
+ *)
+
+
+
+
+
+(* Implementation of Abstract counter spec without atomic updates,
+   using local counters and a lock *)
+
+module CounterImpl
+
+  use counter.Counter
+
+  type state = Start | Inc | Done
+  type lock = Unlocked | Locked thread
+
+  type world = { pcc :map thread state ;
+       	       	 counterc :int ;
+		 tmp :map thread int ;
+		 lock :lock }
+  
+
+
+  (* refinement mapping: Inc state is mapped to Start at abstract level
+   *) 
+
+  let function refn (w:world) : Counter.world
+  = let pc' (t:thread) = match w.pcc[t] with
+                         | Done -> Counter.Done  | _ -> Counter.Start  end
+    in { pc = pc' ; counter = w.counterc  }
+
+  (* inductive invariant 
+   *)
+  predicate inv (w:world) = 
+    forall t :thread. (w.lock = Locked t -> w.tmp[t] = w.counterc)
+    (* /\ *)
+    (* (w.lock = Locked t <-> w.pcc[t] = Inc) *)       (* not required *)
+
+  (* Initial configurations -- unlocked; local counters at 0
+   *) 
+  predicate initWorld_p (w:world) = 
+    w.pcc = const Start /\ w.counterc = 0 /\ w.tmp = const 0 /\ w.lock = Unlocked 
+
+  let ghost predicate initWorld (w:world)
+    ensures { result -> inv w }
+    ensures { result -> Counter.initWorld (refn w) }
+  = initWorld_p w 
+    
+
+
+  (* If in Start state and unlocked: copy global counter to local; lock and move into Inc State
+   *)
+  predicate transSI_enbld (w:world) (t:thread) = 
+    w.pcc[t] = Start
+    /\ 
+    w.lock = Unlocked
+
+
+  let ghost function transSI (w:world) (t:thread) : world
+    requires { transSI_enbld w t }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ Counter.stepind (refn w) (refn result) }
+  = { pcc=set (w.pcc) t Inc ; counterc=w.counterc ; tmp=set (w.tmp) t (w.counterc) ; lock=Locked t }
+
+
+  (* If in Inc state and thread owns lock: set global counter as local+1; lock and move into Done
+   *)
+  predicate transID_enbld (w:world) (t:thread)  = 
+    w.pcc[t] = Inc
+    /\ 
+    w.lock = Locked t 
+ 
+  let ghost function transID (w:world) (t:thread) : world
+    requires { transID_enbld w t }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ Counter.stepind (refn w) (refn result) }
+    (* ensures  { inv w -> result.counterc = w.counterc + 1 } *)
+  = { pcc=set (w.pcc) t Done ; counterc=w.tmp[t] + 1 ; tmp=w.tmp ; lock=Unlocked }
+
+
+
+
+  (* Transition SEMANTICS *)
+
+  inductive stepind world world =
+  | trans_SI : forall w :world, t :thread.
+      transSI_enbld w t -> stepind w  (transSI w  t)
+  | trans_ID : forall w :world, t :thread.
+      transID_enbld w t -> stepind w  (transID w  t)
+
+  let ghost predicate step (w1:world) (w2:world) = stepind w1 w2 
+
+
+
+
+
+  clone refinement.Refinement with
+    type worldC=world, type worldA=Counter.world, val refn,
+    predicate invC=inv, predicate invA=Counter.inv,
+    val initWorldC=initWorld, val initWorldA=Counter.initWorld,
+    val stepC=step, val stepA=Counter.step
+
+
+   (* the abstract invariant holds in all concrete reachable configurations
+    *)
+  lemma safety_by_refinement : forall w :world. reachableC w -> reachableA (refn w)
+
+
+end
+
+
+

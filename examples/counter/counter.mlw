@@ -1,0 +1,70 @@
+
+
+(* Abstract specification of a counter, using atomic updates 
+ *) 
+
+module Counter
+
+  use export int.Int
+  use export map.Map
+  use export map.Const
+
+  type state = Start | Done
+  type thread 
+
+  type world = { pc : map thread state ; counter : int }
+
+
+  (* inductive invariant - not really useful
+   *)
+  predicate inv (w:world) = w.counter >= 0
+
+
+  (* Initial configurations
+   *)
+  predicate initWorld_p (w:world) = w.pc = const Start /\ w.counter=0 
+  let ghost predicate initWorld (w:world) = initWorld_p w
+
+
+  (* Action function
+     note trans must be ghost because we are using 
+     the logical map library
+   *)
+  predicate trans_enbld (w:world) (t:thread) = 
+    w.pc[t] = Start
+
+  let ghost function trans (w:world) (t:thread) : world
+    requires { trans_enbld w t }
+    ensures  { inv w -> inv result }
+  = { pc = set (w.pc) t Done ; counter = w.counter+1 }
+
+
+
+
+  (* Transition SEMANTICS 
+   *)
+  inductive stepind world world =
+  | trans : forall w :world, t :thread.
+      trans_enbld w t -> stepind w  (trans w t )
+
+
+  let ghost predicate step (w1:world) (w2:world) = stepind w1 w2 
+
+
+  (* proof of inductiveness -- OPTIONAL!
+     This would be established anyway when the concrete module 
+     clones the Refinement module from core.mlw.
+     It does not seem to be relevant for proving the contracts 
+     of the concrete functions, so it does need to be here
+   *)
+  (* clone export core.Inductiveness with *)
+  (*   type world, *)
+  (*   predicate inv, *)
+  (*   val step, *)
+  (*   val initWorld *)
+
+  (* lemma safety : forall w :world. reachable w -> inv w *)
+
+
+end
+

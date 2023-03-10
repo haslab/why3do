@@ -8,10 +8,12 @@ establishing inductive invariants of state machine specifications
 
 ## List of Examples
 
-* [leaderElection](examples/leaderElection/): Leader election: Chang-Roberts ring
-  algorithm, refined from an abstract specification
+* [counter](examples/counter): concurrent counter using a lock,
+  refined from abstract specification 
+* [leaderElection](examples/leaderElection/): Chang-Roberts leader
+  election ring algorithm, refined from an abstract specification
 * [mutualExclusionToken](examples/mutualExclusionToken): Closure property of Dijkstra's
-  self-stabilizing ring and bidirectional array systems. Refined from
+  self-stabilizing ring and bidirectional array systems, refined from
   the same abstract specification
 
 ## Example commands

@@ -4,7 +4,7 @@ Formalization, by a two-step refinement, of two versions of Chang and Roberts' a
 
 ## Files 
 
-  * [leaderElect.mlw] (leaderElect.mlw): abstract spec of Leader Election problem
+  * [leaderElect.mlw](leaderElect.mlw): abstract spec of Leader Election problem
   * [leaderElectMax.mlw](leaderElectMax.mlw): specification of Leader Election based on
     node IDs and maximum finding.  
   * [ChangRoberts.mlw](ChangRoberts.mlw): Chang-Roberts algorithm for leader election -
