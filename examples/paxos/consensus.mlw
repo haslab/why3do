@@ -1,0 +1,64 @@
+
+
+(* Lamport's absctract spec of Consensus 
+  [ https://github.com/tlaplus/Examples/blob/master/specifications/PaxosHowToWinATuringAward/Consensus.tla ]
+
+*)
+
+
+
+
+module Consensus
+
+  use export int.Int
+  use export bool.Bool
+  use export map.Map
+  use export map.Const
+
+  type value
+
+  type world = { chosen : map value bool }
+
+  (* Safety property 
+   *)
+  predicate inv (w:world) =
+    forall v1 v2 :value. w.chosen v1 /\ w.chosen v2 -> v1 = v2
+
+
+  (* ALGORITHM *)
+
+  predicate none_chosen (w:world) =
+    forall v :value. w.chosen[v] = false 
+
+  let ghost predicate initWorld (w:world)
+    (* ensures { result -> inv w } *)
+  = none_chosen w 
+
+
+  predicate next_enbld (w:world) (_:value) = 
+    none_chosen w
+ 
+  let ghost function next (w:world) (v:value) : world
+    requires { next_enbld w v }
+    ensures  { inv w -> inv result }
+  = { chosen = w.chosen[v<-true] }
+
+
+
+  (* Transition SEMANTICS *)
+
+  inductive stepind world world =
+  | next : forall w :world, v :value.
+      next_enbld w v ->
+        stepind w  (next w v)
+
+  let ghost predicate step (w1:world) (w2:world) = stepind w1 w2 
+
+
+  clone export inductiveness.Inductiveness with  type world, predicate inv, val initWorld, val step
+
+  lemma safety : forall w :world. reachable w -> inv w
+
+
+end
+

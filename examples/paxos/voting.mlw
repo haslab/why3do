@@ -1,0 +1,290 @@
+
+
+
+
+module Voting
+  
+  use consensus.Consensus
+
+  type ballot = int
+  type acceptor
+  type quorum 
+
+  predicate memb (acceptor) (quorum)
+  axiom quorum_intersect: forall q1, q2 : quorum. exists n :acceptor. memb n q1 /\ memb n q2
+
+  (* Provable as a consequence of axiom quorum_intersect, not required
+   *)
+  (* lemma quorum_NE : forall q : quorum. exists a :acceptor. memb a q *)
+  (* let lemma quorum_inters (q1 q2 : quorum) (pred : acceptor->bool) *)
+  (*   requires { forall a :acceptor. memb a q1 -> pred a } *)
+  (*   ensures  { exists a :acceptor. memb a q2 /\ pred a } *)
+  (* = () *)
+
+  (* Also provable but not required. Note the converse is not true 
+   *) 
+  (* let lemma quorum_lm (pred : acceptor->bool) *)
+  (*    requires { exists q :quorum. forall a :acceptor. memb a q -> pred a } *)
+  (*    ensures  { forall q :quorum. exists a :acceptor. memb a q /\ pred a } *)
+  (*    (\* requires { forall q :quorum. exists a :acceptor. memb a q /\ pred a } *\) *)
+  (*    (\* ensures  { exists q :quorum. forall a :acceptor. memb a q -> pred a } *\) *)
+  (* = () *)
+
+
+  type world = { votes  : map (acceptor,ballot,value) bool ;
+                 maxBal : map acceptor ballot }
+
+
+  (* REFINEMENT MAPPING
+   *)
+
+  predicate chosenAt (w:world) (b:ballot) (v:value) = 
+    exists q :quorum. forall a :acceptor. memb a q -> w.votes (a,b,v)
+
+  predicate chosenC (w:world) (v:value) =
+     exists b :ballot. b >= 0 /\ chosenAt w b v
+
+  let ghost function refn (w:world) : Consensus.world
+    ensures { votes w = const false -> result.chosen = const false }
+  =
+  { chosen = fun v -> chosenC w v }
+
+
+
+  (* INDUCTIVE INVARIANT
+   *)
+
+  predicate cannotVoteAt (w:world) (a:acceptor) (c:ballot) =
+    w.maxBal a > c /\ forall v' :value. not w.votes (a,c,v') 
+
+  predicate noneOtherChoosableAt (w:world) (c:ballot) (v:value) =
+    exists q :quorum. forall a :acceptor. memb a q -> w.votes (a,c,v) \/ cannotVoteAt w a c
+
+  (* Safety defined as the existence, for every earlier ballot c, of a quorum 
+     whose every member has, in c, either voted for v or not voted at all and will not vote
+   *) 
+  predicate safeAt (w:world) (b:ballot) (v:value) =
+    forall c :ballot. 0 <= c < b -> noneOtherChoosableAt w c v
+
+
+  (* Safety implies, following lemma quorum_lm, the following stronger notion:
+   * for every earlier ballot there exists a member in every quorum that 
+   * has, in c, either voted for v or not voted at all and will not vote.
+   * This is more intuitive: it implies that values different from v have not 
+   * been chosen in previous ballots (I think it's equivalent to requirement
+   * P2a in the "Paxos made easy" paper. 
+   * However, replacing this version for safeAt will not work; some proofs will 
+   * fail both in this module (invariant preservation) and in the refinement proof.
+   * The ultimate goal is proving lemmas safety_lm_1/2 below, and the above notion
+   * of safety works for that. 
+   *)
+  (* predicate safeAt_alt (w:world) (b:ballot) (v:value) =  *)
+  (*    forall c :ballot, q :quorum. 0 <= c < b -> exists a :acceptor. memb a q /\ *)
+  (*           (votes w (a,c,v) \/ cannotVoteAt w a c) *)
+
+  (* lemma safeAt_alt : forall w:world, b:ballot, v:value. *)
+  (* 	      safeAt w b v -> safeAt_alt w b v *)
+
+
+
+  (* Two provable lemmas, not required
+   *)  
+
+  (* lemma allSafeAtZero : forall w :world, v :value. safeAt w 0 v *)
+
+  (* lemma choosable : forall w :world, b :ballot, v :value.  *)
+  (*                     b >= 0 -> chosenAt w b v -> noneOtherChoosableAt w b v *)
+
+
+
+  predicate inv (w:world) =
+
+    (* OneValuePerBallot 
+       ballots correspond to proposed values, so every vote in a given ballot must be in the same value 
+     *)
+    (forall a1 a2 :acceptor, b :ballot, v1 v2 :value. w.votes (a1,b,v1)  /\ w.votes (a2,b,v2) -> v1 = v2)
+
+    /\
+    (* VotesSafe 
+       in order for a vote (b,v) to take place, for every previous ballot there must exist a quorum qv whose members 
+       have either voted in v, OR have not and will not vote in that ballot -- the latter is checked by observing  
+       that maxBal a is higher than the ballot, which precludes the enabling condition.
+       This implies that for every previous ballot, since there exists in every quorum q at least one element that 
+       also belongs to qv, then at least one acceptor in q has either voted for v or will not vote in that ballot 
+       -- in other words, no value different from v can have all the votes in q and thus be chosen in that ballot. 
+     *)
+    (forall a :acceptor, b :ballot, v :value. w.votes (a,b,v) -> safeAt w b v)
+
+    /\
+    (* NEW, required since int is used for ballots *)
+    (forall a :acceptor. -1 <= maxBal w a)
+    /\ 
+    (forall a :acceptor, b :ballot, v :value. w.votes (a,b,v) -> b >= 0)
+
+
+
+  (* Auxiliary lemma for refinement [safety property] *)
+  
+  (* requires interaction: assert (safeAt w b v) *)
+  (* lemma safety_lm : forall w :world. inv w -> *)
+  (*        forall b b' :ballot, v v' :value. -1 < b' < b -> *)
+  (*                     chosenAt w b' v' -> chosenAt w b v -> v' = v *)
+
+  (* Alternative not requiring assert *)
+  lemma safety_lm  : forall w :world. inv w ->
+         forall b b' :ballot, v v' :value. -1 < b' < b ->
+                      chosenAt w b' v' -> chosenAt w b v -> safeAt w b v /\ (safeAt w b v -> v' = v)
+
+
+
+
+
+
+
+  (* ALGORITHM
+   *)
+
+  (* This predicate is stronger than safeAt, and is used as a guard in voteFor.
+     * Instead of providing a (possibly distinct) quorum for every
+       ballot lower than b, the predicate checks that the same given
+       quorum q can be used to satisfy the requirements for every such
+       ballot
+
+     * It is enforced that no member of q *will vote* in any ballot
+       lower than b (since b' < b -> b' < maxBal a), even when an
+       acceptor already voted in b' (safeAt doesn't bother checking
+       maxBal in this case)
+       
+     * It is checked that either no member of q has voted in any
+       ballot lower than b, or there exists at least one vote in v in
+       a ballot c lower than b, and no other votes from q in ballots
+       between c and b. Note the invariant ensures that other possible
+       votes in c have also been in v
+
+     * This clearly shows that for any ballot c<=d<b the quorum q
+       satisfies the safety definition, since its members have either
+       voted in v (in c), or not voted (after c). But what about
+       ballots 0<=d<c ? There's no need to check anything, simply
+       because if the inductive invariant holds in w then we have
+       safeAt w c v, since there was a vote in v in ballot c!!
+
+     *)
+  predicate showsSafeAt (w:world) (q:quorum) (b:ballot) (v:value) =
+       b >= 0 /\
+       (forall a :acceptor. memb a q -> w.maxBal a >= b)   (* no member of q may vote in ballots lower than b 
+       	       	 	    	     	       	      	      [but may already have voted] *)
+       /\
+               (* EITHER no member of q has voted in ballots lower than b 
+	        *) 
+       ((forall d :ballot, a :acceptor, v' :value.  0 <= d < b -> memb a q -> not w.votes (a,d,v'))
+       
+          \/   (* OR v has received votes from q in a ballot c lower than b, 
+	       	  and no members of q have voted in ballots between c and b
+                *) 
+         exists c :ballot, a :acceptor. 0 <= c < b  /\ memb a q /\ w.votes (a,c,v) /\
+       	        forall d :ballot, a :acceptor, v' :value.  c < d < b -> memb a q -> not w.votes (a,d,v'))
+
+
+  (* EQUIVALENT TO THIS
+   *)
+  (* predicate showsSafeAt_orig (w:world) (q:quorum) (b:ballot) (v:value) = *)
+  (*      b >= 0 /\ *)
+  (*      (forall a :acceptor. memb a q -> maxBal w a >= b) *)
+  (*      /\ *)
+  (*      exists c :ballot. -1 <= c < b  /\ *)
+  (*                        (c > -1 -> exists a :acceptor. memb a q /\ votes w (a,c,v))  /\ *)
+  (* 			 (forall d :ballot.  c < d < b -> *)
+  (* 			         forall a :acceptor.  memb a q -> forall v :value. not votes w (a,d,v)) *)
+
+
+
+
+
+
+  (* Safety Property -- does not need to be in the invariant; is implied by it.
+     Lemma not required to prove refinement 
+   *)
+  (* lemma showsSafety : forall w :world. *)
+  (*       inv w -> forall q :quorum, b :ballot, v :value. b >= 0 -> showsSafeAt w q b v -> safeAt w b v   *)
+
+
+  (* DOES NOT HOLD
+   *)
+  (* lemma showsSafety_conv : forall w :world. *)
+  (*       inv w -> forall q :quorum, b :ballot, v :value. b >= 0 -> safeAt w b v -> showsSafeAt w q b v *)
+
+
+
+  (* System INIT *)
+
+  predicate initWorld_p (w:world) =
+    w.votes = const false /\ w.maxBal = const (-1) 
+
+  let ghost predicate initWorld (w:world)
+    ensures { result -> inv w }
+  = initWorld_p w 
+
+
+  predicate increaseMaxBal_enbld (w:world) (a:acceptor) (b:ballot) = 
+    b > -1 /\ b > w.maxBal a
+
+  (* the chosenAt postcond is required to prove the refinement postcondition
+   *)
+  let ghost function increaseMaxBal (w:world) (a:acceptor) (b:ballot) : world
+    requires { increaseMaxBal_enbld w a b }
+    (* ensures  { forall b' :ballot, v' :value. noneOtherChoosableAt w b' v' -> noneOtherChoosableAt result b' v' } *)
+    ensures  { forall b' :ballot, v' :value. chosenAt w b' v' <-> chosenAt result b' v'  }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
+  = { votes = w.votes ; maxBal = set w.maxBal a b }  
+
+
+  predicate voteFor_enbld (w:world) (a:acceptor) (b:ballot) (v:value) = 
+    b > -1 /\ w.maxBal a <= b /\
+    (forall v' :value. not w.votes (a,b,v')) /\
+    (forall c :acceptor. c <> a -> forall v' :value. w.votes (c,b,v') -> v' = v) /\
+     exists q :quorum. showsSafeAt w q b v
+
+  (* the noneOtherChoosableAt and chosenAt postconds are required to prove the refinement postcondition
+   *)
+  let ghost function voteFor (w:world) (a:acceptor) (b:ballot) (v:value) : world
+    requires { voteFor_enbld w a b v }
+    ensures  { forall b' :ballot, v' :value. noneOtherChoosableAt w b' v' -> noneOtherChoosableAt result b' v' }
+    ensures  { forall b' :ballot, v' :value. chosenAt w b' v' -> chosenAt result b' v'  }
+    ensures  { forall b' :ballot, v' :value. chosenAt result b' v' -> b'<>b -> chosenAt w b' v' }
+    ensures  { forall v' :value. chosenAt result b v' -> v=v' }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
+  = { votes = set w.votes (a,b,v) true ; maxBal = set w.maxBal a b  }  
+
+
+
+  (* Transition SEMANTICS *)
+
+  inductive stepind world world =
+
+  | increaseMaxBal : forall w :world, a :acceptor, b :ballot.
+      increaseMaxBal_enbld w a b ->
+        stepind w  (increaseMaxBal w a b)
+
+  | voteFor : forall w :world, a :acceptor, b :ballot, v :value.
+      voteFor_enbld w a b v ->
+        stepind w  (voteFor w a b v)
+
+  let ghost predicate step (w1:world) (w2:world) = stepind w1 w2 
+
+
+  (* establish inductive argument and refinement
+   *)
+  clone refinement.Refinement with
+    type worldC=world, type worldA=Consensus.world, val refn,
+    predicate invC=inv, predicate invA=Consensus.inv,
+    val initWorldC=initWorld, val initWorldA=Consensus.initWorld,
+    val stepC=step, val stepA=Consensus.step
+
+
+  lemma safety_by_refinement : forall w :world. reachableC w -> Consensus.inv (refn w)
+
+
+end
+

@@ -1,0 +1,314 @@
+
+
+(* In this version we use the function showsSafeAt from the Voting
+   module, invoking it via the refn mpaping. This illustrates the use
+   of the refinement mapping in the specification of the concrete
+   module. 
+   The refinement requires no lemmas or asserts. The refinement is
+   proved automatically with just the standard contracts in the
+   action functions.
+ *)
+
+
+ (* TODO : clarify the declaration and use of "none" here, not in Voting 
+  *)
+
+module Paxos
+ 
+  (* The Voting module cannot export the Consensus module it uses, 
+     since there are name clashes between both modules. 
+     This means that:
+     1. Elements from Consensus must be accessed with prefix
+     2. bool, int, and map modules must be imported here 
+   *)
+ 
+  use voting.Voting
+  type value = Consensus.value
+
+  use int.Int
+  use bool.Bool
+  use map.Map
+  use map.Const
+
+
+  val constant none : value
+
+
+  (* "vars" in the TLA+ spec *)
+  type world = { msg1a   : map ballot bool ;
+       	       	 msg1b   : map (acceptor,ballot,ballot,value) bool ;
+		 msg2a   : map (ballot,value) bool ;
+		 msg2b   : map (acceptor,ballot,value) bool ;
+		 maxBalC : map acceptor ballot ;
+		 maxVBal : map acceptor ballot ;
+		 maxVal  : map acceptor value
+	       }
+  (* Misteriously, the presence of a type invariant ruins the proofs in the refeniment module *)
+
+  (* invariant { (forall b :ballot. msg1a b -> b >= 0) /\ *)
+  (* 	      (forall a :acceptor, b b' :ballot, v' :value. msg1b (a,b,b',v') -> b >= 0 /\ b' >= -1) /\ *)
+  (* 	      (forall b :ballot, v :value. msg2a (b,v) -> b >= 0 /\ v <> none) /\ *)
+  (* 	      (forall a :acceptor, b :ballot, v :value. msg2b (a,b,v) -> b >= 0  /\ v <> none) /\ *)
+  (* 	      (forall a :acceptor. maxBalC a >= -1) /\  *)
+  (* 	      (forall a :acceptor. maxVBal a >= -1) *)
+  (* 	    } *)
+  (* by  { msg1a   = const false ; *)
+  (*       msg1b   = const false ; *)
+  (* 	msg2a   = const false ; *)
+  (* 	msg2b   = const false ; *)
+  (* 	maxBalC = const (-1)  ; *)
+  (* 	maxVBal = const (-1)  ; *)
+  (* 	maxVal  = const none  } *)
+
+
+
+  let ghost function refn (w:world) : Voting.world 
+  = { votes = w.msg2b ; maxBal = w.maxBalC }
+
+
+
+
+  (* W.r.t. Lamport's version, added elements required for proving that
+     showsSafeAtPaxos entails showsSafeAt
+   *)
+
+  predicate inv (w:world) =
+
+  (forall a :acceptor. w.maxBalC a >= w.maxVBal a)
+   /\
+  (forall a :acceptor. (w.maxVBal a < 0 /\ w.maxVal a = none) \/ (w.maxVBal a >= 0 /\ w.msg2b (a,w.maxVBal a, w.maxVal a)))
+   /\
+  (forall acc :acceptor, bal mbal :ballot, mval :value. w.msg1b (acc,bal,mbal,mval) ->
+     w.maxBalC acc >= bal  /\ (mbal >= 0 -> w.msg2b (acc,mbal,mval))
+     /\ (mbal < 0 ->  forall mbal' :ballot, mval' :value. 0 <= mbal' < bal   -> not w.msg2b (acc,mbal',mval'))    (* JSP NEW *)
+     /\ (mbal >= 0 -> forall mbal' :ballot, mval' :value. mbal < mbal' < bal -> not w.msg2b (acc,mbal',mval'))    (* JSP NEW *)
+     /\  mbal < bal                                                                                               (* JSP NEW *) 
+   ) /\
+  (forall bal :ballot, vaal :value. msg2a w (bal,vaal) ->
+     (exists q :quorum. showsSafeAt (refn w) q bal vaal)
+       /\
+      forall v :value. w.msg2a (bal,v) -> v = vaal)
+   /\ 
+  (forall acc :acceptor, bal :ballot, vaal :value. w.msg2b (acc,bal,vaal) ->
+     w.maxVBal acc >= bal
+      /\  
+     w.msg2a (bal,vaal)
+   )
+
+   /\  (* Type invariant *)
+
+  (forall b :ballot. w.msg1a b -> b >= 0)
+   /\
+  (forall a :acceptor, b b' :ballot, v' :value. w.msg1b (a,b,b',v') -> b >= 0 /\ b' >= -1)
+   /\
+  (forall b :ballot, v :value. w.msg2a (b,v) -> b >= 0 /\ v <> none)
+   /\
+  (forall a :acceptor, b :ballot, v :value. w.msg2b (a,b,v) -> b >= 0  /\ v <> none) 
+   /\
+  (forall a :acceptor. w.maxBalC a >= -1)
+   /\ 
+  (forall a :acceptor. w.maxVBal a >= -1)
+
+
+
+  predicate initWorld_p (w:world) =
+  	    w.msg1a   = const false /\
+       	    w.msg1b   = const false /\
+	    w.msg2a   = const false /\
+	    w.msg2b   = const false /\
+	    w.maxBalC = const (-1)  /\
+	    w.maxVBal = const (-1)  /\
+	    w.maxVal  = const none  
+
+  let ghost predicate initWorld (w:world)
+    ensures { result -> inv w }
+  = initWorld_p w
+
+
+
+  (* Phase1a 
+     Proposer tries to start new ballot b : announces that with msg1a containing b 
+   *)
+ 
+  predicate start_ballot_enbld (_:world) (b:ballot) =
+    b >= 0  (* implicit in the TLA+ version, since ballot=nat *) 
+
+  let ghost function start_ballot (w:world) (b:ballot) : world
+    requires { start_ballot_enbld w b }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ Voting.stepind (refn w) (refn result) }
+  = let msg1a' = set w.msg1a b true in
+    { msg1a   = msg1a'    ;
+      msg1b   = w.msg1b   ;
+      msg2a   = w.msg2a   ;
+      msg2b   = w.msg2b   ;
+      maxBalC = w.maxBalC ;
+      maxVBal = w.maxVBal ;
+      maxVal  = w.maxVal  }
+
+
+
+  (* Phase1b *
+     Acceptors check that they have not voted in or joined ballot b, by comparing it with their maxBalC value. 
+     If ok, they send msg1b containing not only b but also the last ballot and value in which they voted,
+     stored in maxVBal and maxVal. They also update their maxBalC. 
+     With respect to Lamport's original, b is included as parameter to allow it to be used in the precondition
+     -- same signature as in Goel's paper
+   *)
+
+  predicate join_ballot_enbld (w:world) (a:acceptor) (b:ballot) =
+    b >= 0 /\ w.msg1a b /\ b > w.maxBalC a 
+
+  let ghost function join_ballot (w:world) (a:acceptor) (b:ballot)  : world
+    requires { join_ballot_enbld w a b }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ Voting.stepind (refn w) (refn result) }
+  = let msg1b' = set (msg1b w) (a,b,maxVBal w a,maxVal w a) true in
+    let maxBalC' = set w.maxBalC a b in
+    { msg1a   = w.msg1a   ;
+      msg1b   = msg1b'    ;
+      msg2a   = w.msg2a   ;
+      msg2b   = w.msg2b   ;
+      maxBalC = maxBalC'  ;
+      maxVBal = w.maxVBal ;
+      maxVal  = w.maxVal  }
+
+
+
+
+  (* Phase2a *)
+
+  (* Predicate used in the enabling condition of propose 
+     Every member of q has sent a 1b msg with ballot b
+     AND 
+     IF at least one member of q sent a 1b msg with ballot b and maxBalC >= 0, 
+     THEN at least one such message has maxVal = v, 
+          AND
+          no other such message was sent with a higher maxBalC
+  
+     Note maxBalC values in 1b msgs can have value -1; all other ballots in messages are >= 0
+   *)
+  predicate showsSafeAtPaxos (w:world) (q:quorum) (b:ballot) (v:value) =
+      b >= 0 /\
+      (* all members of q have joined ballot  [and thus declared their previous vote]
+       *)
+      (forall a :acceptor. memb a q -> exists mb :ballot, mv :value. mb >= -1 /\ w.msg1b (a,b,mb,mv))
+      /\
+      (* AND EITHER no member of q that is joining b REPORTS having voted [ -1 means not having voted before  ]
+       *)
+      ((forall a :acceptor, mb :ballot, mv :value. memb a q -> w.msg1b (a,b,mb,mv) -> mb < 0)
+         \/
+        (* OR v has received votes from q in a ballot mb,
+  	       	  and no members of q REPORT having voted in ballots higher than mb
+        *)
+  	exists mb :ballot. mb >= 0 /\
+           (exists a :acceptor. memb a q /\ w.msg1b (a,b,mb,v)) 
+      	    /\
+      	   (forall a2 :acceptor, mb2 :ballot, mv2 :value. memb a2 q /\ w.msg1b (a2,b,mb2,mv2) /\ mb2 >= 0 -> mb2 <= mb ))
+
+
+  (* NOT REQUIRED  
+   *)
+  (* lemma showsSafeAt_lm : forall w :world, q :quorum, b :ballot, v :value. *)
+  (*    inv w -> (showsSafeAtPaxos w q b v <-> showsSafeAt (refn w) q b v) *)
+
+
+
+  predicate propose_enbld (w:world) (b:ballot) (v:value) = 
+    b >= 0 /\ v <> none /\ (forall v :value . not (w.msg2a (b,v))) /\
+    (exists q :quorum. showsSafeAtPaxos w q b v)
+
+  (* A proposer is free to propose a vote v in ballot b if 
+     - no such vote has been proposed, and
+     - this is a safe vote, which is checked based on the received msg1b messages.
+     if ok, msg2a is sent containing (b,v)
+   *)
+
+  let ghost function propose (w:world) (b:ballot) (v:value) : world
+    requires { propose_enbld w b v }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ Voting.stepind (refn w) (refn result) }
+  = assert   { inv w -> exists q :quorum. showsSafeAt (refn w) q b v } ; 
+    let msg2a' = set (msg2a w) (b,v) true in  
+    { msg1a   = w.msg1a   ;
+      msg1b   = w.msg1b   ;
+      msg2a   = msg2a'    ;
+      msg2b   = w.msg2b   ;
+      maxBalC = w.maxBalC ;
+      maxVBal = w.maxVBal ;
+      maxVal  = w.maxVal  }
+
+
+
+
+  (* Phase2b *)
+  (* With respect to Lamport's original, b and a are included as parameters to allow them to be used in the precondition *)
+  (* -- same signature as in Goel's paper *)
+
+  predicate vote_enbld (w:world) (a:acceptor) (b:ballot) (v:value) =
+    b > -1 /\ v <> none /\ w.msg2a (b,v) /\ b >= w.maxBalC a
+
+  (* if a vote (b,v) has been proposed (msg2a) and a has not moved to a higher ballot, 
+     it is free to vote in (b,v) by sending a msg2b. 
+     All 3 variables maxBalC, maxVBal, and maxVal are updated
+   *) 		 
+  let ghost function vote (w:world) (a:acceptor) (b:ballot) (v:value) : world
+    requires { vote_enbld w a b v }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ Voting.stepind (refn w) (refn result) }
+  = let msg2b'  = set w.msg2b (a,b,v) true in
+    let maxBalC' = set w.maxBalC a b in
+    let maxVBal' = set w.maxVBal a b in
+    let maxVal' = set w.maxVal a v in
+    { msg1a   = w.msg1a  ;
+      msg1b   = w.msg1b  ;
+      msg2a   = w.msg2a  ;
+      msg2b   = msg2b'   ;
+      maxBalC = maxBalC' ;
+      maxVBal = maxVBal' ;
+      maxVal  = maxVal'  }
+
+
+
+
+  (* Transition SEMANTICS *)
+
+  inductive stepind world world =
+
+  | start_ballot : forall w :world, b :ballot.
+      start_ballot_enbld w b ->
+        stepind w  (start_ballot w b)
+
+  | join_ballot : forall w :world, a :acceptor, b :ballot.
+      join_ballot_enbld w a b ->
+        stepind w  (join_ballot w a b)
+
+  | propose : forall w :world, b :ballot, v :value.
+      propose_enbld w b v ->
+        stepind w  (propose w b v)
+
+  | vote : forall w :world, a :acceptor, b :ballot, v :value.
+      vote_enbld w a b v ->
+        stepind w  (vote w a b v)
+
+  let ghost predicate step (w1:world) (w2:world) = stepind w1 w2 
+
+
+  (* establish inductive argument and refinement
+   *)
+  clone refinement.Refinement with type worldC=world, type worldA=Voting.world, val refn,
+		      	     predicate invC=inv, predicate invA=Voting.inv,
+			     val initWorldC=initWorld, val initWorldA=Voting.initWorld,
+   		             val stepC=step, val stepA=Voting.step
+
+  lemma safety_by_refinement : forall w :world. reachableC w -> inv w /\ Voting.inv (refn w)
+
+
+end
+
+
+
+
+
+
+

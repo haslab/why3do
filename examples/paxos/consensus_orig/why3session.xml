@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
+"http://why3.lri.fr/why3session.dtd">
+<why3session shape_version="6">
+<prover id="2" name="Z3" version="4.11.2" timelimit="1" steplimit="0" memlimit="1000"/>
+<prover id="3" name="Alt-Ergo" version="2.4.2" timelimit="1" steplimit="0" memlimit="1000"/>
+<file format="whyml" proved="true">
+<path name=".."/><path name="consensus_orig.mlw"/>
+<theory name="Consensus_orig" proved="true">
+ <goal name="initWorld&#39;vc" expl="VC for initWorld" proved="true">
+ <proof prover="3"><result status="valid" time="0.00" steps="16"/></proof>
+ </goal>
+ <goal name="next&#39;vc" expl="VC for next" proved="true">
+ <proof prover="3"><result status="valid" time="0.01" steps="141"/></proof>
+ </goal>
+</theory>
+<theory name="Refn" proved="true">
+ <goal name="Refinement.initWorldA&#39;refn&#39;vc" expl="VC for initWorldA&#39;refn" proved="true">
+ <proof prover="3"><result status="valid" time="0.00" steps="0"/></proof>
+ </goal>
+ <goal name="Refinement.initWorldC&#39;refn&#39;vc" expl="VC for initWorldC&#39;refn" proved="true">
+ <proof prover="3"><result status="valid" time="0.01" steps="72"/></proof>
+ </goal>
+ <goal name="Refinement.stepA&#39;refn&#39;vc" expl="VC for stepA&#39;refn" proved="true">
+ <proof prover="3"><result status="valid" time="0.00" steps="23"/></proof>
+ </goal>
+ <goal name="Refinement.stepC&#39;refn&#39;vc" expl="VC for stepC&#39;refn" proved="true">
+ <transf name="split_vc" proved="true" >
+  <goal name="stepC&#39;refn&#39;vc.0" expl="postcondition" proved="true">
+  <proof prover="3"><result status="valid" time="0.00" steps="28"/></proof>
+  </goal>
+  <goal name="stepC&#39;refn&#39;vc.1" expl="postcondition" proved="true">
+  <transf name="inline_goal" proved="true" >
+   <goal name="stepC&#39;refn&#39;vc.1.0" expl="postcondition" proved="true">
+   <transf name="split_all_full" proved="true" >
+    <goal name="stepC&#39;refn&#39;vc.1.0.0" expl="postcondition" proved="true">
+    <proof prover="3"><result status="valid" time="0.07" steps="1466"/></proof>
+    </goal>
+   </transf>
+   </goal>
+  </transf>
+  </goal>
+ </transf>
+ </goal>
+</theory>
+<theory name="Refn_converse" proved="true">
+ <goal name="Refinement.initWorldA&#39;refn&#39;vc" expl="VC for initWorldA&#39;refn" proved="true">
+ <proof prover="3"><result status="valid" time="0.00" steps="18"/></proof>
+ </goal>
+ <goal name="Refinement.initWorldC&#39;refn&#39;vc" expl="VC for initWorldC&#39;refn" proved="true">
+ <proof prover="3"><result status="valid" time="0.00" steps="38"/></proof>
+ </goal>
+ <goal name="Refinement.stepA&#39;refn&#39;vc" expl="VC for stepA&#39;refn" proved="true">
+ <proof prover="3"><result status="valid" time="0.00" steps="28"/></proof>
+ </goal>
+ <goal name="Refinement.stepC&#39;refn&#39;vc" expl="VC for stepC&#39;refn" proved="true">
+ <transf name="split_vc" proved="true" >
+  <goal name="stepC&#39;refn&#39;vc.0" expl="postcondition" proved="true">
+  <proof prover="3"><result status="valid" time="0.00" steps="23"/></proof>
+  </goal>
+  <goal name="stepC&#39;refn&#39;vc.1" expl="postcondition" proved="true">
+  <transf name="inline_goal" proved="true" >
+   <goal name="stepC&#39;refn&#39;vc.1.0" expl="postcondition" proved="true">
+   <transf name="split_all_full" proved="true" >
+    <goal name="stepC&#39;refn&#39;vc.1.0.0" expl="postcondition" proved="true">
+    <proof prover="2"><result status="valid" time="0.03" steps="76467"/></proof>
+    </goal>
+   </transf>
+   </goal>
+  </transf>
+  </goal>
+ </transf>
+ </goal>
+</theory>
+</file>
+</why3session>

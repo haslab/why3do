@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
+"http://why3.lri.fr/why3session.dtd">
+<why3session shape_version="6">
+<prover id="2" name="Z3" version="4.11.2" timelimit="1" steplimit="0" memlimit="1000"/>
+<prover id="3" name="CVC5" version="1.0.3" timelimit="1" steplimit="0" memlimit="1000"/>
+<prover id="4" name="Z3" version="4.11.2" alternative="noBV" timelimit="300" steplimit="0" memlimit="1000"/>
+<prover id="6" name="Alt-Ergo" version="2.4.2" timelimit="1" steplimit="0" memlimit="1000"/>
+<file format="whyml" proved="true">
+<path name=".."/><path name="paxos.mlw"/>
+<theory name="Paxos" proved="true">
+ <goal name="initWorld&#39;vc" expl="VC for initWorld" proved="true">
+ <proof prover="6"><result status="valid" time="0.01" steps="149"/></proof>
+ </goal>
+ <goal name="start_ballot&#39;vc" expl="VC for start_ballot" proved="true">
+ <proof prover="6"><result status="valid" time="0.04" steps="582"/></proof>
+ </goal>
+ <goal name="join_ballot&#39;vc" expl="VC for join_ballot" proved="true">
+ <transf name="split_vc" proved="true" >
+  <goal name="join_ballot&#39;vc.0" expl="postcondition" proved="true">
+  <transf name="inline_goal" proved="true" >
+   <goal name="join_ballot&#39;vc.0.0" expl="postcondition" proved="true">
+   <transf name="split_all_full" proved="true" >
+    <goal name="join_ballot&#39;vc.0.0.0" expl="VC for join_ballot" proved="true">
+    <proof prover="6"><result status="valid" time="0.01" steps="77"/></proof>
+    </goal>
+    <goal name="join_ballot&#39;vc.0.0.1" expl="VC for join_ballot" proved="true">
+    <proof prover="6"><result status="valid" time="0.00" steps="16"/></proof>
+    </goal>
+    <goal name="join_ballot&#39;vc.0.0.2" expl="VC for join_ballot" proved="true">
+    <proof prover="6"><result status="valid" time="0.01" steps="72"/></proof>
+    </goal>
+    <goal name="join_ballot&#39;vc.0.0.3" expl="VC for join_ballot" proved="true">
+    <proof prover="6"><result status="valid" time="0.01" steps="83"/></proof>
+    </goal>
+    <goal name="join_ballot&#39;vc.0.0.4" expl="VC for join_ballot" proved="true">
+    <proof prover="6"><result status="valid" time="0.01" steps="77"/></proof>
+    </goal>
+    <goal name="join_ballot&#39;vc.0.0.5" expl="VC for join_ballot" proved="true">
+    <proof prover="6"><result status="valid" time="0.01" steps="100"/></proof>
+    </goal>
+    <goal name="join_ballot&#39;vc.0.0.6" expl="VC for join_ballot" proved="true">
+    <proof prover="6"><result status="valid" time="0.01" steps="101"/></proof>
+    </goal>
+    <goal name="join_ballot&#39;vc.0.0.7" expl="VC for join_ballot" proved="true">
+    <proof prover="6"><result status="valid" time="0.01" steps="108"/></proof>
+    </goal>
+    <goal name="join_ballot&#39;vc.0.0.8" expl="VC for join_ballot" proved="true">
+    <proof prover="6"><result status="valid" time="0.01" steps="107"/></proof>
+    </goal>
+    <goal name="join_ballot&#39;vc.0.0.9" expl="VC for join_ballot" proved="true">
+    <proof prover="6"><result status="valid" time="0.01" steps="74"/></proof>
+    </goal>
+    <goal name="join_ballot&#39;vc.0.0.10" expl="VC for join_ballot" proved="true">
+    <transf name="split_vc" proved="true" >
+     <goal name="join_ballot&#39;vc.0.0.10.0" expl="VC for join_ballot" proved="true">
+     <transf name="inline_goal" proved="true" >
+      <goal name="join_ballot&#39;vc.0.0.10.0.0" expl="VC for join_ballot" proved="true">
+      <proof prover="6" timelimit="30" memlimit="4000"><result status="valid" time="0.09" steps="1135"/></proof>
+      </goal>
+     </transf>
+     </goal>
+    </transf>
+    </goal>
+    <goal name="join_ballot&#39;vc.0.0.11" expl="VC for join_ballot" proved="true">
+    <proof prover="6"><result status="valid" time="0.01" steps="64"/></proof>
+    </goal>
+    <goal name="join_ballot&#39;vc.0.0.12" expl="VC for join_ballot" proved="true">
+    <proof prover="6"><result status="valid" time="0.01" steps="57"/></proof>
+    </goal>
+    <goal name="join_ballot&#39;vc.0.0.13" expl="VC for join_ballot" proved="true">
+    <proof prover="6"><result status="valid" time="0.01" steps="50"/></proof>
+    </goal>
+    <goal name="join_ballot&#39;vc.0.0.14" expl="VC for join_ballot" proved="true">
+    <proof prover="6"><result status="valid" time="0.01" steps="42"/></proof>
+    </goal>
+    <goal name="join_ballot&#39;vc.0.0.15" expl="VC for join_ballot" proved="true">
+    <proof prover="6"><result status="valid" time="0.01" steps="72"/></proof>
+    </goal>
+    <goal name="join_ballot&#39;vc.0.0.16" expl="VC for join_ballot" proved="true">
+    <proof prover="6"><result status="valid" time="0.01" steps="72"/></proof>
+    </goal>
+    <goal name="join_ballot&#39;vc.0.0.17" expl="VC for join_ballot" proved="true">
+    <proof prover="6"><result status="valid" time="0.01" steps="44"/></proof>
+    </goal>
+    <goal name="join_ballot&#39;vc.0.0.18" expl="VC for join_ballot" proved="true">
+    <proof prover="6"><result status="valid" time="0.01" steps="47"/></proof>
+    </goal>
+    <goal name="join_ballot&#39;vc.0.0.19" expl="VC for join_ballot" proved="true">
+    <proof prover="6"><result status="valid" time="0.01" steps="47"/></proof>
+    </goal>
+    <goal name="join_ballot&#39;vc.0.0.20" expl="VC for join_ballot" proved="true">
+    <proof prover="6"><result status="valid" time="0.01" steps="51"/></proof>
+    </goal>
+    <goal name="join_ballot&#39;vc.0.0.21" expl="VC for join_ballot" proved="true">
+    <proof prover="6"><result status="valid" time="0.01" steps="60"/></proof>
+    </goal>
+    <goal name="join_ballot&#39;vc.0.0.22" expl="VC for join_ballot" proved="true">
+    <proof prover="6"><result status="valid" time="0.01" steps="47"/></proof>
+    </goal>
+   </transf>
+   </goal>
+  </transf>
+  </goal>
+  <goal name="join_ballot&#39;vc.1" expl="postcondition" proved="true">
+  <proof prover="6"><result status="valid" time="0.01" steps="158"/></proof>
+  </goal>
+ </transf>
+ </goal>
+ <goal name="propose&#39;vc" expl="VC for propose" proved="true">
+ <transf name="unfold" proved="true" arg1="inv">
+  <goal name="propose&#39;vc.0" expl="VC for propose" proved="true">
+  <transf name="split_all_full" proved="true" >
+   <goal name="propose&#39;vc.0.0" expl="assertion" proved="true">
+   <transf name="split_vc" proved="true" >
+    <goal name="propose&#39;vc.0.0.0" expl="assertion" proved="true">
+    <transf name="split_vc" proved="true" >
+     <goal name="propose&#39;vc.0.0.0.0" expl="assertion" proved="true">
+     <transf name="inline_goal" proved="true" >
+      <goal name="propose&#39;vc.0.0.0.0.0" expl="assertion" proved="true">
+      <transf name="split_all_full" proved="true" >
+       <goal name="propose&#39;vc.0.0.0.0.0.0" expl="assertion" proved="true">
+       <proof prover="2"><result status="valid" time="0.07" steps="154837"/></proof>
+       </goal>
+      </transf>
+      </goal>
+     </transf>
+     </goal>
+    </transf>
+    </goal>
+   </transf>
+   </goal>
+   <goal name="propose&#39;vc.0.1" expl="postcondition" proved="true">
+   <proof prover="2"><result status="valid" time="0.05" steps="214440"/></proof>
+   </goal>
+   <goal name="propose&#39;vc.0.2" expl="postcondition" proved="true">
+   <proof prover="6"><result status="valid" time="0.02" steps="41"/></proof>
+   </goal>
+  </transf>
+  </goal>
+ </transf>
+ </goal>
+ <goal name="vote&#39;vc" expl="VC for vote" proved="true">
+ <transf name="unfold" proved="true" arg1="inv">
+  <goal name="vote&#39;vc.0" expl="VC for vote" proved="true">
+  <transf name="split_all_full" proved="true" >
+   <goal name="vote&#39;vc.0.0" expl="postcondition" proved="true">
+   <transf name="split_vc" proved="true" >
+    <goal name="vote&#39;vc.0.0.0" expl="postcondition" proved="true">
+    <proof prover="6"><result status="valid" time="0.01" steps="44"/></proof>
+    </goal>
+    <goal name="vote&#39;vc.0.0.1" expl="postcondition" proved="true">
+    <proof prover="3"><result status="valid" time="0.12" steps="20285"/></proof>
+    </goal>
+    <goal name="vote&#39;vc.0.0.2" expl="postcondition" proved="true">
+    <proof prover="6"><result status="valid" time="0.01" steps="55"/></proof>
+    </goal>
+    <goal name="vote&#39;vc.0.0.3" expl="postcondition" proved="true">
+    <proof prover="6"><result status="valid" time="0.02" steps="57"/></proof>
+    </goal>
+    <goal name="vote&#39;vc.0.0.4" expl="postcondition" proved="true">
+    <proof prover="6"><result status="valid" time="0.02" steps="87"/></proof>
+    </goal>
+    <goal name="vote&#39;vc.0.0.5" expl="postcondition" proved="true">
+    <proof prover="6"><result status="valid" time="0.02" steps="90"/></proof>
+    </goal>
+    <goal name="vote&#39;vc.0.0.6" expl="postcondition" proved="true">
+    <proof prover="6"><result status="valid" time="0.01" steps="34"/></proof>
+    </goal>
+    <goal name="vote&#39;vc.0.0.7" expl="postcondition" proved="true">
+    <transf name="split_vc" proved="true" >
+     <goal name="vote&#39;vc.0.0.7.0" expl="postcondition" proved="true">
+     <transf name="inline_goal" proved="true" >
+      <goal name="vote&#39;vc.0.0.7.0.0" expl="postcondition" proved="true">
+      <transf name="split_all_full" proved="true" >
+       <goal name="vote&#39;vc.0.0.7.0.0.0" expl="postcondition" proved="true">
+       <transf name="split_vc" proved="true" >
+        <goal name="vote&#39;vc.0.0.7.0.0.0.0" expl="postcondition" proved="true">
+        <proof prover="2" timelimit="5" memlimit="2000"><result status="valid" time="3.13" steps="17021647"/></proof>
+        </goal>
+       </transf>
+       </goal>
+      </transf>
+      </goal>
+     </transf>
+     </goal>
+    </transf>
+    </goal>
+    <goal name="vote&#39;vc.0.0.8" expl="postcondition" proved="true">
+    <proof prover="6"><result status="valid" time="0.01" steps="50"/></proof>
+    </goal>
+    <goal name="vote&#39;vc.0.0.9" expl="postcondition" proved="true">
+    <proof prover="6"><result status="valid" time="0.02" steps="66"/></proof>
+    </goal>
+    <goal name="vote&#39;vc.0.0.10" expl="postcondition" proved="true">
+    <proof prover="6"><result status="valid" time="0.02" steps="46"/></proof>
+    </goal>
+    <goal name="vote&#39;vc.0.0.11" expl="postcondition" proved="true">
+    <proof prover="6"><result status="valid" time="0.02" steps="26"/></proof>
+    </goal>
+    <goal name="vote&#39;vc.0.0.12" expl="postcondition" proved="true">
+    <proof prover="6"><result status="valid" time="0.02" steps="34"/></proof>
+    </goal>
+    <goal name="vote&#39;vc.0.0.13" expl="postcondition" proved="true">
+    <proof prover="6"><result status="valid" time="0.02" steps="34"/></proof>
+    </goal>
+    <goal name="vote&#39;vc.0.0.14" expl="postcondition" proved="true">
+    <proof prover="6"><result status="valid" time="0.02" steps="27"/></proof>
+    </goal>
+    <goal name="vote&#39;vc.0.0.15" expl="postcondition" proved="true">
+    <proof prover="6"><result status="valid" time="0.02" steps="30"/></proof>
+    </goal>
+    <goal name="vote&#39;vc.0.0.16" expl="postcondition" proved="true">
+    <proof prover="6"><result status="valid" time="0.02" steps="42"/></proof>
+    </goal>
+    <goal name="vote&#39;vc.0.0.17" expl="postcondition" proved="true">
+    <proof prover="6"><result status="valid" time="0.02" steps="42"/></proof>
+    </goal>
+    <goal name="vote&#39;vc.0.0.18" expl="postcondition" proved="true">
+    <proof prover="6"><result status="valid" time="0.02" steps="37"/></proof>
+    </goal>
+    <goal name="vote&#39;vc.0.0.19" expl="postcondition" proved="true">
+    <proof prover="6"><result status="valid" time="0.02" steps="37"/></proof>
+    </goal>
+   </transf>
+   </goal>
+   <goal name="vote&#39;vc.0.1" expl="postcondition" proved="true">
+   <transf name="split_vc" proved="true" >
+    <goal name="vote&#39;vc.0.1.0" expl="postcondition" proved="true">
+    <transf name="split_vc" proved="true" >
+     <goal name="vote&#39;vc.0.1.0.0" expl="postcondition" proved="true">
+     <transf name="inline_goal" proved="true" >
+      <goal name="vote&#39;vc.0.1.0.0.0" expl="postcondition" proved="true">
+      <transf name="split_all_full" proved="true" >
+       <goal name="vote&#39;vc.0.1.0.0.0.0" expl="postcondition" proved="true">
+       <proof prover="4"><result status="valid" time="27.63"/></proof>
+       </goal>
+      </transf>
+      </goal>
+     </transf>
+     </goal>
+    </transf>
+    </goal>
+   </transf>
+   </goal>
+  </transf>
+  </goal>
+ </transf>
+ </goal>
+ <goal name="Refinement.initWorldA&#39;refn&#39;vc" expl="VC for initWorldA&#39;refn" proved="true">
+ <proof prover="6"><result status="valid" time="0.01" steps="0"/></proof>
+ </goal>
+ <goal name="Refinement.initWorldC&#39;refn&#39;vc" expl="VC for initWorldC&#39;refn" proved="true">
+ <proof prover="6"><result status="valid" time="0.01" steps="44"/></proof>
+ </goal>
+ <goal name="Refinement.stepA&#39;refn&#39;vc" expl="VC for stepA&#39;refn" proved="true">
+ <proof prover="6"><result status="valid" time="0.02" steps="75"/></proof>
+ </goal>
+ <goal name="Refinement.stepC&#39;refn&#39;vc" expl="VC for stepC&#39;refn" proved="true">
+ <proof prover="6"><result status="valid" time="0.05" steps="322"/></proof>
+ </goal>
+ <goal name="safety_by_refinement" proved="true">
+ <proof prover="6"><result status="valid" time="0.01" steps="6"/></proof>
+ </goal>
+</theory>
+</file>
+</why3session>

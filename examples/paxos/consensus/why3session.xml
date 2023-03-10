@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
+"http://why3.lri.fr/why3session.dtd">
+<why3session shape_version="6">
+<prover id="1" name="Alt-Ergo" version="2.4.2" timelimit="5" steplimit="0" memlimit="1000"/>
+<file format="whyml" proved="true">
+<path name=".."/><path name="consensus.mlw"/>
+<theory name="Consensus" proved="true">
+ <goal name="next&#39;vc" expl="VC for next" proved="true">
+ <proof prover="1"><result status="valid" time="0.00" steps="24"/></proof>
+ </goal>
+ <goal name="initWorld&#39;refn&#39;vc" expl="VC for initWorld&#39;refn" proved="true">
+ <proof prover="1"><result status="valid" time="0.00" steps="16"/></proof>
+ </goal>
+ <goal name="step&#39;refn&#39;vc" expl="VC for step&#39;refn" proved="true">
+ <proof prover="1"><result status="valid" time="0.00" steps="26"/></proof>
+ </goal>
+ <goal name="safety" proved="true">
+ <proof prover="1"><result status="valid" time="0.00" steps="4"/></proof>
+ </goal>
+</theory>
+</file>
+</why3session>

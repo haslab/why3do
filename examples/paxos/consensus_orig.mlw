@@ -1,0 +1,133 @@
+
+
+(* Lamport's absctract spec of Consensus 
+  [ https://github.com/tlaplus/Examples/blob/master/specifications/PaxosHowToWinATuringAward/Consensus.tla ]
+
+*)
+
+
+(* This is the orignal spec for Consensus, using sets.   
+   We are able to refine the version using maps to bool from this, 
+   as long as we don't include the finitude type invariant.
+
+   Tried to prove this with a modified invariant for the maps-based spec,
+   but still didn't work - TODO
+
+   It also doesn't work to have the abstract worlds using the finite set type, 
+   because there is no immediate way to write a refinement mapping from 
+   infinite maps (maybe possible through finite maps?) -- or to build
+   a finite set by comprehension
+ *)
+
+
+
+module Consensus_orig
+
+  use export int.Int
+  use export set.Set
+  use export set.Cardinal
+
+  type value
+
+  type world = { elected : set value }
+    (* invariant { is_finite elected } *)
+    (* by { elected = empty } *)
+
+
+  predicate inv (w:world) = 
+    cardinal w.elected <= 1
+
+
+
+  (* ALGORITHM *)
+
+  let ghost predicate initWorld (w:world)
+    ensures { result -> inv w }
+  = is_empty w.elected
+
+
+  predicate next_enbld (w:world) (_:value) = 
+    is_empty w.elected
+ 
+  let ghost function next (w:world) (v:value) : world
+    requires { next_enbld w v }
+    ensures  { inv w -> inv result }
+  = { elected = add v w.elected }
+
+
+
+
+  (* Transition SEMANTICS *)
+
+  inductive stepind world world =
+  | next : forall w :world, v :value.
+      next_enbld w v ->
+        stepind w  (next w v)
+
+  let ghost predicate step (w1:world) (w2:world) = stepind w1 w2 
+
+
+  (* clone export inductiveness.Inductiveness with  type world, predicate inv, val initWorld, val step *)
+
+  (* lemma safety : forall w :world. reachable w -> inv w *)
+
+
+end
+
+
+
+
+
+
+
+module Refn
+
+  type value
+
+  clone Consensus_orig with type value
+  clone consensus.Consensus with type value
+
+
+  let ghost function refn (w:Consensus.world) : Consensus_orig.world
+  =
+  { elected = w.chosen }
+
+
+
+  clone refinement.Refinement with
+    type worldA=Consensus_orig.world, type worldC=Consensus.world, val refn,
+    predicate invA=Consensus_orig.inv, predicate invC=Consensus.inv,
+    val initWorldA=Consensus_orig.initWorld, val initWorldC=Consensus.initWorld,
+    val stepA=Consensus_orig.step, val stepC=Consensus.step
+  
+
+end
+
+
+
+
+
+
+module Refn_converse
+  (* just a curiosity *)
+
+  type value
+
+  clone Consensus_orig with type value
+  clone consensus.Consensus with type value
+
+
+  let ghost function refn (w:Consensus_orig.world) : Consensus.world
+  =
+  { chosen = w.elected }
+
+
+  clone refinement.Refinement with
+    type worldC=Consensus_orig.world, type worldA=Consensus.world, val refn,
+    predicate invC=Consensus_orig.inv, predicate invA=Consensus.inv,
+    val initWorldC=Consensus_orig.initWorld, val initWorldA=Consensus.initWorld,
+    val stepC=Consensus_orig.step, val stepA=Consensus.step
+  
+
+end
+
