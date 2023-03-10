@@ -3,16 +3,16 @@ Why3-do: a WhyML library for reasoning about state machine specifications and di
 
 ## Library Modules
 
-* [stateMachineModels/inductiveness.mlw]: simple theory for
+* [inductiveness.mlw](stateMachineModels/inductiveness.mlw): simple theory for
 establishing inductive invariants of state machine specifications
-* [stateMachineModels/refinement.mlw]: theory of refinement mappings
+* [refinement.mlw](stateMachineModels/refinement.mlw): theory of refinement mappings
   between state machine specifications
 
 ## List of Examples
 
 * [leaderElection](examples/leaderElection/): Leader election: Chang-Roberts ring
   algorithm, refined from an abstract specification
-* [examples/mutualExclusionToken]: Closure property of Dijkstra's
+* [mutualExclusionToken](examples/mutualExclusionToken): Closure property of Dijkstra's
   self-stabilizing ring and bidirectional array systems. Refined from
   the same abstract specification
 
