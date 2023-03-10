@@ -1,0 +1,168 @@
+
+(* Chang-Roberts algorithm.
+   Idealized network model for message passing: 
+     messages are embedded in packets with addressing information;
+     network modeled by a single list of packets;
+     messages not lost or duplicated, but order of delivery is random.
+   Nodes may receive any message addressed to them, removing it 
+     from the network.
+*)
+
+
+module ChangRobertsNetwork
+
+  use int.Int
+  use int.EuclideanDivision
+  use list.List
+  use list.Mem
+  use map.Map
+  use map.Const
+
+  use leaderElect.LeaderElect
+  use leaderElectMax.LeaderElectMax
+
+  (* Ring topology
+   *)
+  let function next (x:node) : node
+    requires { 0<=x<n_nodes }
+    ensures  { 0<=result<n_nodes }
+    ensures  { (0<=x<n_nodes-1 /\ result=x+1) \/ (x=n_nodes-1 /\ result=0) }
+  = mod (x+1) n_nodes
+
+  let function pred (x:node) : node 
+    requires { 0<=x<n_nodes }
+    ensures  { 0<=result<n_nodes }
+    ensures  { x = next result }
+  = mod (x-1) n_nodes
+
+  (* Messages and packets
+   *) 
+  type msg = id
+  type packet = { dest : node ; src : node ; payload : msg }
+
+
+  (* used to express that messages sent from lo to hi
+     necessarily pass through i 
+   *)
+  predicate between  (lo:node) (i:node) (hi:node) =
+    (lo < i < hi) \/ (hi < lo < i) \/ (i < hi < lo)
+
+  (* checks addressing follows ring topology *)
+  predicate ok_Msg (dest:node) (src:node) (_:msg) =
+    0 <= dest < n_nodes /\ 0 <= src < n_nodes
+      /\ dest = next src /\ src = pred dest
+
+
+  (* System configurations
+   *)
+  type world = { isMaxLeader  : map node bool ;
+       	       	 inFlightMsgs : list packet }
+
+
+  (* Refinement map 
+   *)
+  let ghost function refn (w:world) : LeaderElectMax.world
+  = { isMax = w.isMaxLeader }
+
+
+  (* System INIT 
+   *)
+  let rec function initMsgs_fn (n:node) : list packet
+    requires { 0 <= n <= n_nodes }
+    variant  { n_nodes-n }
+    ensures  { forall p :packet. mem p result ->
+               ok_Msg p.dest p.src p.payload /\ p.payload = id p.src }
+  = if (0 <= n < n_nodes)
+      then Cons { dest=next n ; src = n ; payload = id n }
+                (initMsgs_fn (n+1))
+      else Nil
+
+  predicate initWorld_p (w:world) =
+    w.isMaxLeader = const false /\  w.inFlightMsgs = initMsgs_fn 0 
+
+  let ghost predicate initWorld (w:world)
+    ensures { result -> forall p :packet. mem p w.inFlightMsgs ->
+                        ok_Msg p.dest p.src p.payload
+			/\ p.payload = id p.src }
+  = initWorld_p w
+
+
+
+  (* Inductive invariant 
+   *) 
+  predicate inv_pkt (d:node) (s:node) (m:msg) =
+      ok_Msg d s m
+        /\
+      (exists i :node. 0 <= i < n_nodes /\ m = id i)
+        /\
+      (forall i :node. 0 <= i < n_nodes /\ between i maxId_global d -> m <> id i)
+        /\
+      (m = id d -> d = maxId_global)
+  
+  predicate inv (w:world) = 
+    forall p :packet. mem p (inFlightMsgs w) -> 
+      inv_pkt p.dest p.src p.payload 
+
+
+  (* System action
+   *)
+  let rec function remove_one (x:packet) (l:list packet) : list packet
+    ensures { forall y :packet. mem y result -> mem y l }
+  = match l with
+    | Nil -> Nil
+    | Cons h t -> let { dest=dp ; src = sp ; payload = mp } = x in
+      	       	  let { dest=dq ; src = sq ; payload = mq } = h in
+		  if  (dp=dq && sp=sq && mp=mq) then t
+                  else Cons h (remove_one x t)
+    end
+
+  predicate act_enbld (w:world) (h:node) (p:packet) = 
+    0 <= h < n_nodes
+      /\
+    mem p (inFlightMsgs w) /\ p.dest = h 
+
+  let ghost function act (w:world) (h:node) (p:packet) : world
+    requires { act_enbld w h p }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w
+                     \/ LeaderElectMax.stepind (refn w) (refn result) }
+		     
+  = let m = payload p in
+    let leader = if m = id h then w.isMaxLeader[dest p <- true]
+                             else w.isMaxLeader in
+    let msgs   = if m > id h then Cons { dest=next h ; src=h ; payload=m } (remove_one p w.inFlightMsgs)
+                             else remove_one p w.inFlightMsgs in
+    { isMaxLeader = leader ; inFlightMsgs = msgs }
+
+
+  (* Transition relation
+   *)
+  inductive stepind world world =
+  | step_msg : forall w :world, n :node, p :packet.
+      act_enbld w n p -> stepind w (act w n p)
+
+  let ghost predicate step (w1:world) (w2:world) = stepind w1 w2 
+
+
+  (* Proof of refinement 
+   *)
+  clone refinement.Refinement with
+    type worldC=world, type worldA=LeaderElectMax.world, val refn,
+    predicate invC=inv, predicate invA=LeaderElectMax.inv,
+    val initWorldC=initWorld, val initWorldA=LeaderElectMax.initWorld,
+    val stepC=step, val stepA=LeaderElectMax.step
+
+
+
+  (* Safety Property
+   *)
+
+  function fullrefn (w:world) : LeaderElect.world =
+    LeaderElectMax.refn(refn w)
+
+  goal uniqueLeader : forall w :world, i j :node. 
+      0<=i<n_nodes /\ 0<=j<n_nodes /\ reachableC w 
+        /\ (fullrefn w).isLeader[i] /\ (fullrefn w).isLeader[j] -> i = j
+
+
+end

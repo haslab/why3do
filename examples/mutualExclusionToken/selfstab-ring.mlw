@@ -1,0 +1,122 @@
+
+
+
+module SelfStab_Ring
+
+  use oneToken.OneToken       
+
+  use int.EuclideanDivision
+
+
+  type state = int
+
+  val constant k_states : int
+
+  axiom k_states_lower_bound : n_nodes < k_states
+
+  let function incre (x:state) : state
+  = mod (x+1) k_states
+
+
+  type world = { ring : map node state }
+
+
+   predicate has_token (w:world) (i:node) =
+    (i = 0 &&  w.ring[i] =  w.ring[n_nodes-1])
+     ||
+    (i > 0 && i < n_nodes && w.ring[i] <> w.ring[i-1])
+
+  let ghost function refn (w:world) : OneToken.world
+    (* = { token = fun (n:node) -> has_token w n } *)
+  = { token = has_token w }
+
+
+
+  let rec lemma first_last_fl (w:world) (n:int)
+    requires { n<=n_nodes }
+    ensures  { n>=0 -> (forall j :int. 0<j<=n -> w.ring[j] = w.ring[j-1]) ->
+                       w.ring[0] = w.ring[n] }
+    variant  { n }
+  = if n>0 then first_last_fl w (n-1) 
+    else ()
+
+
+  (* crucial lemma to achieve an unbounded proof *)
+  (* of the atLeastOneTokenLm lemma              *)
+  (* lemma first_last : forall n: int, lS :map node state. *)
+  (*   n >= 0 -> *)
+  (*     (forall j :int. 0<j<=n -> lS j = lS (j-1)) -> *)
+  (*       lS 0 = lS n *)
+
+  (* lemma atLeastOneTokenLm : forall w :world. atLeastOneToken (refn w) n_nodes *)
+
+
+  predicate inv (w:world) = 
+    (* forall n :int. validNd n -> 0 <= w.ring[n] < k_states *)
+    (* /\ *)
+
+    (w.ring[0] = w.ring[n_nodes-1] ->
+      forall k :int.
+        (0<k<n_nodes -> w.ring[k] = w.ring[0] /\ not has_token w k))
+      /\
+    (forall i :int. 0<i<n_nodes /\ w.ring[i] <> w.ring[i-1] ->
+       forall k :int.
+         (i<k<n_nodes -> w.ring[k] = w.ring[i] /\ not has_token w k)
+           /\
+     	 (0<=k<=i-1 -> w.ring[k] = w.ring[i-1] /\ not has_token w k))
+
+
+
+
+  predicate initWorld_p (w:world) =
+    forall n :node. validNd n -> w.ring[n] = 0
+  
+  let ghost predicate initWorld (w:world) = initWorld_p w
+
+
+
+
+  (* Contract characterizes how the token is passed to the 
+     left or right
+   *)
+
+  predicate trans_enbld (w:world) (h:node) = 
+    validNd h /\ has_token w h 
+  
+  let ghost function trans (w:world) (h:node) : world
+    requires { trans_enbld w h }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> h=n_nodes-1 -> refn result = OneToken.trans (refn w) h 0 }
+    ensures  { inv w -> h<n_nodes-1 -> refn result = OneToken.trans (refn w) h (h+1) }
+    ensures  { inv w -> refn result = refn w \/ OneToken.stepind (refn w) (refn result) }
+  = let st = if h = 0 then incre (w.ring[n_nodes-1])
+                      else w.ring[h-1]
+    in
+    { ring = w.ring[h<-st] }
+
+
+
+  inductive stepind world world =
+  | trans : forall w :world, h :node.
+      trans_enbld w h -> stepind w (trans w h )
+
+  let ghost predicate step (w1:world) (w2:world) = stepind w1 w2 
+
+
+
+  clone refinement.Refinement with
+    type worldC=world, type worldA=OneToken.world, val refn,
+    predicate invC=inv, predicate invA=OneToken.inv,
+    val initWorldC=initWorld, val initWorldA=OneToken.initWorld,
+    val stepC=step, val stepA=OneToken.step
+
+
+
+  (* Safety Property *)
+  goal oneToken : forall w :world. reachableC w -> oneToken (refn w)
+
+end
+
+
+
+

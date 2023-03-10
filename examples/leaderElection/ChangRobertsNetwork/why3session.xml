@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
+"http://why3.lri.fr/why3session.dtd">
+<why3session shape_version="6">
+<prover id="0" name="CVC5" version="1.0.3" timelimit="1" steplimit="0" memlimit="1000"/>
+<prover id="1" name="Alt-Ergo" version="2.4.2" timelimit="5" steplimit="0" memlimit="1000"/>
+<file format="whyml" proved="true">
+<path name=".."/><path name="ChangRobertsNetwork.mlw"/>
+<theory name="ChangRobertsNetwork" proved="true">
+ <goal name="next&#39;vc" expl="VC for next" proved="true">
+ <proof prover="1"><result status="valid" time="0.04" steps="1013"/></proof>
+ </goal>
+ <goal name="pred&#39;vc" expl="VC for pred" proved="true">
+ <proof prover="1"><result status="valid" time="0.04" steps="1004"/></proof>
+ </goal>
+ <goal name="initMsgs_fn&#39;vc" expl="VC for initMsgs_fn" proved="true">
+ <proof prover="1"><result status="valid" time="2.12" steps="34598"/></proof>
+ </goal>
+ <goal name="initWorld&#39;vc" expl="VC for initWorld" proved="true">
+ <proof prover="1"><result status="valid" time="0.02" steps="212"/></proof>
+ </goal>
+ <goal name="remove_one&#39;vc" expl="VC for remove_one" proved="true">
+ <proof prover="1"><result status="valid" time="0.02" steps="242"/></proof>
+ </goal>
+ <goal name="act&#39;vc" expl="VC for act" proved="true">
+ <transf name="unfold" proved="true" arg1="inv">
+  <goal name="act&#39;vc.0" expl="VC for act" proved="true">
+  <transf name="split_all_full" proved="true" >
+   <goal name="act&#39;vc.0.0" expl="precondition" proved="true">
+   <proof prover="1" timelimit="1"><result status="valid" time="0.00" steps="9"/></proof>
+   </goal>
+   <goal name="act&#39;vc.0.1" expl="postcondition" proved="true">
+   <proof prover="1" timelimit="1"><result status="valid" time="0.01" steps="18"/></proof>
+   </goal>
+   <goal name="act&#39;vc.0.2" expl="postcondition" proved="true">
+   <proof prover="1" timelimit="1"><result status="valid" time="0.01" steps="21"/></proof>
+   </goal>
+   <goal name="act&#39;vc.0.3" expl="postcondition" proved="true">
+   <proof prover="1" timelimit="1"><result status="valid" time="0.01" steps="41"/></proof>
+   </goal>
+   <goal name="act&#39;vc.0.4" expl="postcondition" proved="true">
+   <proof prover="1" timelimit="1"><result status="valid" time="0.03" steps="352"/></proof>
+   </goal>
+   <goal name="act&#39;vc.0.5" expl="precondition" proved="true">
+   <proof prover="1" timelimit="1"><result status="valid" time="0.01" steps="28"/></proof>
+   </goal>
+   <goal name="act&#39;vc.0.6" expl="postcondition" proved="true">
+   <transf name="split_vc" proved="true" >
+    <goal name="act&#39;vc.0.6.0" expl="postcondition" proved="true">
+    <transf name="split_vc" proved="true" >
+     <goal name="act&#39;vc.0.6.0.0" expl="postcondition" proved="true">
+     <transf name="inline_goal" proved="true" >
+      <goal name="act&#39;vc.0.6.0.0.0" expl="postcondition" proved="true">
+      <transf name="split_all_full" proved="true" >
+       <goal name="act&#39;vc.0.6.0.0.0.0" expl="VC for act" proved="true">
+       <proof prover="1" timelimit="1"><result status="valid" time="0.23" steps="5237"/></proof>
+       </goal>
+       <goal name="act&#39;vc.0.6.0.0.0.1" expl="VC for act" proved="true">
+       <proof prover="0"><result status="valid" time="1.19" steps="98800"/></proof>
+       </goal>
+       <goal name="act&#39;vc.0.6.0.0.0.2" expl="VC for act" proved="true">
+       <proof prover="0"><result status="valid" time="0.65" steps="56957"/></proof>
+       </goal>
+       <goal name="act&#39;vc.0.6.0.0.0.3" expl="VC for act" proved="true">
+       <proof prover="0"><result status="valid" time="1.26" steps="105725"/></proof>
+       </goal>
+      </transf>
+      </goal>
+     </transf>
+     </goal>
+    </transf>
+    </goal>
+   </transf>
+   </goal>
+   <goal name="act&#39;vc.0.7" expl="postcondition" proved="true">
+   <proof prover="1" timelimit="1"><result status="valid" time="0.01" steps="58"/></proof>
+   </goal>
+   <goal name="act&#39;vc.0.8" expl="postcondition" proved="true">
+   <proof prover="1" timelimit="1"><result status="valid" time="0.01" steps="40"/></proof>
+   </goal>
+   <goal name="act&#39;vc.0.9" expl="postcondition" proved="true">
+   <proof prover="1" timelimit="1"><result status="valid" time="0.01" steps="39"/></proof>
+   </goal>
+  </transf>
+  </goal>
+ </transf>
+ </goal>
+ <goal name="Refinement.initWorldA&#39;refn&#39;vc" expl="VC for initWorldA&#39;refn" proved="true">
+ <proof prover="1"><result status="valid" time="0.01" steps="74"/></proof>
+ </goal>
+ <goal name="Refinement.initWorldC&#39;refn&#39;vc" expl="VC for initWorldC&#39;refn" proved="true">
+ <proof prover="1"><result status="valid" time="1.66" steps="28859"/></proof>
+ </goal>
+ <goal name="Refinement.stepA&#39;refn&#39;vc" expl="VC for stepA&#39;refn" proved="true">
+ <proof prover="1"><result status="valid" time="0.01" steps="85"/></proof>
+ </goal>
+ <goal name="Refinement.stepC&#39;refn&#39;vc" expl="VC for stepC&#39;refn" proved="true">
+ <proof prover="1"><result status="valid" time="0.03" steps="443"/></proof>
+ </goal>
+ <goal name="uniqueLeader" proved="true">
+ <proof prover="1"><result status="valid" time="0.02" steps="216"/></proof>
+ </goal>
+</theory>
+</file>
+</why3session>

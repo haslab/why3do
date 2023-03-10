@@ -1,0 +1,98 @@
+
+module OneToken
+
+  use export bool.Bool
+  use export int.Int
+  use export map.Map
+
+  type node = int
+
+  (* number of processes *)
+  val constant n_nodes : int
+  axiom n_nodes_bounds : 2 < n_nodes 
+
+  predicate validNd (n:node) = 0 <= n < n_nodes
+
+  
+  type world = { token : map node bool }
+
+
+
+  (* helper definitions for invariant predicate *)
+
+  let rec ghost predicate noTokens (w:world) (n:int)
+    requires { 0 <= n <= n_nodes }
+    ensures { result <-> forall k :int. 0<=k<n -> not w.token k }
+    variant { n }
+  = n = 0 || (not w.token (n-1) && noTokens w (n-1))
+
+
+  let rec ghost predicate atLeastOneToken (w:world) (n:int)
+    requires { 0 <= n <= n_nodes }
+    ensures { result <-> exists k :int. 0<=k<n /\ w.token k }
+    variant { n }
+  = n > 0 && (w.token (n-1) || atLeastOneToken w (n-1))
+
+  let rec ghost predicate atMostOneToken (w:world) (n:int)
+    requires { 0 <= n <= n_nodes }
+    ensures { result <-> (forall i j :int. 0<=i<n -> 0<=j<n -> w.token i -> w.token j -> i=j) }
+    variant { n }
+  = n = 0 || (w.token (n-1) && noTokens w (n-1))
+    || (not(w.token (n-1)) && atMostOneToken w (n-1))
+
+
+
+  predicate inv (w:world) = 
+    atMostOneToken w n_nodes
+    /\
+    atLeastOneToken w n_nodes
+
+
+
+
+  predicate initWorld_p (w:world) =
+    (* w.token = fun n -> n = 0 *)
+    w.token[0] /\ 
+    forall n :int. validNd n /\ n > 0 -> not w.token[n] 
+
+  let ghost predicate initWorld (w:world) = initWorld_p w
+
+
+
+
+
+  predicate trans_enbld (w:world) (c:node) (n:node) = 
+    validNd c /\ validNd n /\ c<>n /\ w.token[c] (* /\ not w.token[n] *)
+
+  let ghost function trans (w:world) (c:node) (n:node) : world
+    requires { trans_enbld w c n }
+    ensures  { inv w -> inv result }
+  = { token = w.token[c<-false][n<-true] }
+
+
+
+  inductive stepind world world =
+  | trans : forall w :world, c n :node.
+            trans_enbld w c n -> stepind w (trans w c n)
+
+  let ghost predicate step (w1:world) (w2:world) = stepind w1 w2 
+
+
+
+  clone export inductiveness.Inductiveness with
+    type world,
+    predicate inv,
+    val step,
+    val initWorld
+
+
+
+  predicate oneToken (w:world) = atMostOneToken w n_nodes /\ atLeastOneToken w n_nodes
+
+  goal oneToken : forall w :world. reachable w -> oneToken w
+
+end
+
+
+
+

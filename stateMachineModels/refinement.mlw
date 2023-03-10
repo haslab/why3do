@@ -1,0 +1,90 @@
+
+
+module Refinement
+
+  (* Abstract and concrete configurations/states 
+   *)
+  type worldA
+  type worldC
+
+
+  (* Refinement map
+   *)
+  val ghost function refn (worldC) : worldA
+
+
+  (* Abstract and concrete invariant predicates
+   *)
+  predicate invA (w:worldA)
+  predicate invC (w:worldC)
+
+
+  (* Abstract and concrete initial state predicates
+   *) 
+  val ghost predicate initWorldA (w:worldA)
+    ensures { result -> invA w }
+
+  val ghost predicate initWorldC (w:worldC)
+    ensures { result -> invC w }
+    ensures { result -> initWorldA (refn w) }
+
+
+  (* Abstract and concrete transition relations
+   *) 
+  val ghost predicate stepA (w1:worldA) (w2:worldA)
+    ensures { result -> invA w1 -> invA w2 }
+
+  val ghost predicate stepC (w1:worldC) (w2:worldC)
+    ensures { result -> invC w1 -> invC w2 }
+    ensures { result -> invC w1 -> refn w1 = refn w2
+                                \/ stepA (refn w1) (refn w2) }
+
+
+  (* Reachability -- abstract 
+   *)
+  inductive stepA_TR worldA worldA =
+  | baseA : forall w :worldA. stepA_TR w w
+  | stepA : forall w w' w'' : worldA.
+      stepA_TR w w' -> stepA w' w'' -> stepA_TR w w''
+
+  lemma inv_manySteps_A :
+    forall w w' :worldA. stepA_TR w w' -> invA w -> invA w'
+
+  predicate reachableA (w:worldA) = 
+    exists w0 :worldA. initWorldA w0 /\ stepA_TR w0 w
+
+  lemma inv_reachable_A :
+    forall w :worldA. reachableA w -> invA w
+
+
+  (* Reachability -- concrete 
+   *)
+  inductive stepC_TR worldC worldC =
+  | baseC : forall w :worldC. stepC_TR w w
+  | stepC : forall w w' w'' : worldC.
+      stepC_TR w w' -> stepC w' w'' -> stepC_TR w w''
+
+  lemma inv_manySteps_C :
+    forall w w' :worldC. stepC_TR w w' -> invC w -> invC w'
+
+  predicate reachableC (w:worldC) = 
+    exists w0 :worldC. initWorldC w0 /\ stepC_TR w0 w
+
+  lemma inv_reachable_C :
+    forall w :worldC. reachableC w -> invC w
+
+
+  (* Refinement lemmas
+   *) 
+  lemma manySteps_refinement : forall w w' :worldC.
+    invC w -> stepC_TR w w' -> stepA_TR (refn w) (refn w')
+
+  lemma reachable_refn : forall w :worldC.
+    reachableC w -> reachableA (refn w)
+
+  lemma invariance_refn : forall w :worldC. reachableC w -> invA (refn w)
+
+
+end
+
+

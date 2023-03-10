@@ -1,0 +1,138 @@
+
+(* Chang-Roberts algorithm.
+   Idealized message passing: 
+     nodes have a message queue;
+     each node writes messages directly to the next node's queue;
+     messages are not lost, duplicated, or reordered.
+   A node is enabled when its queue is not empty; 
+     it will then dequeue a message and process it.
+*)
+
+
+module ChangRoberts
+
+  use int.Int
+  use int.EuclideanDivision
+  use list.List
+  use list.Mem
+  use list.Append
+  use map.Map
+
+  use leaderElect.LeaderElect
+  use leaderElectMax.LeaderElectMax
+
+  (* Ring topology
+   *)
+  let function next (x:node) : node
+    requires { 0<=x<n_nodes }
+    ensures  { 0<=result<n_nodes }
+    ensures  { (0<=x<n_nodes-1 /\ result=x+1) \/ (x=n_nodes-1 /\ result=0) }
+  = mod (x+1) n_nodes
+
+  let function pred (x:node) : node 
+    requires { 0<=x<n_nodes }
+    ensures  { 0<=result<n_nodes }
+    ensures  { x = next result }
+  = mod (x-1) n_nodes
+
+  (* used to express that messages sent from lo to hi
+     necessarily pass through i 
+   *)
+  predicate between (lo:node) (i:node) (hi:node) =
+    (lo < i < hi) \/ (hi < lo < i) \/ (i < hi < lo)
+
+ 
+  (* Messages
+   *) 
+  type msg = id
+
+  (* System configurations
+   *)
+  type world = { isMaxLeader : map node bool ;
+                 inMsgs      : map node (list msg) }
+
+
+  (* Refinement map 
+   *)
+  let function refn (w:world) : LeaderElectMax.world
+  = { isMax = w.isMaxLeader }
+
+
+  (* System INIT 
+   *)
+  predicate initWorld_p (w:world) =
+    forall n :node. 0<=n<n_nodes -> 
+      w.isMaxLeader[n] = false
+        /\
+      w.inMsgs[next n] = Cons (id n) Nil 
+
+  let ghost predicate initWorld (w:world)
+    ensures { result -> forall n :node. 0<=n<n_nodes ->
+                        w.inMsgs[n] = Cons (id (pred n)) Nil }
+  = initWorld_p w
+
+
+  (* Inductive invariant 
+   *) 
+  predicate inv (w:world) =  
+    forall n :node, m :msg. 0<=n<n_nodes /\ mem m (w.inMsgs[n]) ->
+      (forall i :node. 0<=i<n_nodes -> between i maxId_global n -> m <> id i)
+         /\
+      (m = id n -> n = maxId_global)
+    
+
+  (* System action
+   *)
+  predicate act_enbld (w:world) (h:node) = 
+    0 <= h < n_nodes
+      /\ 
+    not is_nil w.inMsgs[h] 
+
+  let ghost function act (w:world) (h:node) : world
+    requires { act_enbld w h }
+    ensures  { inv w -> forall n :node. 0<=n<n_nodes -> n<>next h ->
+               forall m :msg. mem m result.inMsgs[n] -> mem m w.inMsgs[n] }
+    ensures  { forall m :msg. mem m result.inMsgs[next h] -> mem m w.inMsgs[h] \/ mem m w.inMsgs[next h] }
+
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w
+                     \/ LeaderElectMax.stepind (refn w) (refn result) }
+
+  = match w.inMsgs[h] with  
+    | Nil -> absurd  
+    | Cons m t -> let in_Msgs = w.inMsgs[h<-t] in 
+      if m = id h then { isMaxLeader = w.isMaxLeader[h<-true] ; inMsgs = in_Msgs }
+      else if m > id h then { isMaxLeader = w.isMaxLeader; inMsgs = in_Msgs[next h <- w.inMsgs[next h]++(Cons m Nil)] } 
+      else { isMaxLeader = w.isMaxLeader; inMsgs = in_Msgs }
+    end
+
+
+  (* Transition relation
+   *)
+  inductive stepind world world =
+  | step_msg : forall w :world, n :node.
+      act_enbld w n -> stepind w (act w n)
+
+  let ghost predicate step (w1:world) (w2:world) = stepind w1 w2 
+
+
+  (* Proof of refinement 
+   *)
+  clone refinement.Refinement with
+    type worldC=world, type worldA=LeaderElectMax.world, val refn,
+    predicate invC=inv, predicate invA=LeaderElectMax.inv,
+    val initWorldC=initWorld, val initWorldA=LeaderElectMax.initWorld,
+    val stepC=step, val stepA=LeaderElectMax.step
+
+
+  (* Safety Property
+   *)
+
+  function fullrefn (w:world) : LeaderElect.world =
+    LeaderElectMax.refn(refn w)
+
+  goal uniqueLeader : forall w :world, i j :node.
+    0<=i<n_nodes /\ 0<=j<n_nodes /\ reachableC w 
+      /\ (fullrefn w).isLeader[i] /\ (fullrefn w).isLeader[j] -> i=j
+
+end

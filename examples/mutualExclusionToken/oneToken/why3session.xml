@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
+"http://why3.lri.fr/why3session.dtd">
+<why3session shape_version="6">
+<prover id="0" name="Alt-Ergo" version="2.4.2" timelimit="5" steplimit="0" memlimit="1000"/>
+<file format="whyml" proved="true">
+<path name=".."/><path name="oneToken.mlw"/>
+<theory name="OneToken" proved="true">
+ <goal name="noTokens&#39;vc" expl="VC for noTokens" proved="true">
+ <proof prover="0"><result status="valid" time="0.00" steps="37"/></proof>
+ </goal>
+ <goal name="atLeastOneToken&#39;vc" expl="VC for atLeastOneToken" proved="true">
+ <proof prover="0"><result status="valid" time="0.00" steps="42"/></proof>
+ </goal>
+ <goal name="atMostOneToken&#39;vc" expl="VC for atMostOneToken" proved="true">
+ <proof prover="0"><result status="valid" time="0.05" steps="614"/></proof>
+ </goal>
+ <goal name="trans&#39;vc" expl="VC for trans" proved="true">
+ <proof prover="0"><result status="valid" time="1.66" steps="20195"/></proof>
+ </goal>
+ <goal name="initWorld&#39;refn&#39;vc" expl="VC for initWorld&#39;refn" proved="true">
+ <proof prover="0"><result status="valid" time="0.02" steps="187"/></proof>
+ </goal>
+ <goal name="step&#39;refn&#39;vc" expl="VC for step&#39;refn" proved="true">
+ <proof prover="0"><result status="valid" time="0.00" steps="24"/></proof>
+ </goal>
+ <goal name="oneToken" proved="true">
+ <proof prover="0"><result status="valid" time="0.00" steps="15"/></proof>
+ </goal>
+</theory>
+</file>
+</why3session>

@@ -1,0 +1,46 @@
+
+
+(* Basic module for establishing that a predicate
+   is an inductive predicate of a given state machine  
+ *)
+module Inductiveness
+
+  type world
+
+  (*  invariant predicate 
+   *)
+  predicate inv (w:world)
+
+  (* state machine - initial states 
+     and transition relation
+   *)
+  val ghost predicate initWorld (w:world) 
+    ensures { result -> inv w }
+
+  val ghost predicate step (w1:world) (w2:world)
+    ensures { result -> inv w1 -> inv w2 }
+
+
+  (* Reachable states 
+   *)
+  inductive step_TR world world =
+  | base : forall w :world. step_TR w w
+  | step : forall w w' w'' : world.
+      step_TR w w' -> step w' w'' -> step_TR w w''
+
+  (* requires predicate induction
+   *)
+  lemma inv_manySteps :
+    forall w w' :world. step_TR w w' -> inv w -> inv w'
+
+  predicate reachable (w:world) =
+    exists w0 :world. initWorld w0 /\ step_TR w0 w
+
+  (* inductive invariants are invariant
+   *)
+  lemma inv_reachable :
+    forall w :world. reachable w -> inv w
+
+end
+
+

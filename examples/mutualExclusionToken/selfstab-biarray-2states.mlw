@@ -1,0 +1,212 @@
+
+  (* There are two kinds of one-token configurations in this algorithm:
+     2-value stable configurations correspond to "closure" executions:
+
+   3 *2  2  2  2  2-value STABLE
+   3  3 *2  2  2
+   3  3  3 *2  2
+   3  3  3  3 *2
+   3  3  3 *3  0
+   3  3 *3  0  0
+   3 *3  0  0  0
+  *3  0  0  0  0
+   1 *0  0  0  0
+   1  1 *0  0  0
+   1  1  1 *0  0
+   1  1  1  1 *0
+   1  1  1 *1  2
+   1  1 *1  2  2
+   1 *1  2  2  2
+  *1  2  2  2  2
+   3 *2  2  2  2  LOOP
+
+   But there are other one-token configs, which occur in the final steps 
+   of the convergence phase of executions, in which 3 or 4 different 
+   values may be present. In such a single-token config there is a strict
+   restriction on the states. For instance if the array contains 1 *0 
+   someplace in the middle, the rest of the array must be of the form:
+
+   ... 3  1  3  1 *0  2  0  2  0 ...
+
+   These configs converge to 2-value configs.   
+   Also interesting is the fact that while more than 2 values are present some steps 
+   keep the token in the same node:
+
+   3  1  3  1 *0 
+   3  1  3 *1  2
+   3  1  3 *2  2 
+   3  1  3  3 *2 
+   3  1  3 *3  0 
+   3  1 *3  0  0
+   3  1 *0  0  0
+   3  1  1 *0  0
+   3  1  1  1 *0
+   3  1  1 *1  2
+   3  1 *1  2  2
+   3 *1  2  2  2  
+   3 *2  2  2  2  2-value STABLE
+  
+   OR:
+    
+   3  1 *0  2  0 
+   3  1 *1  2  0 
+   3 *1  2  2  0 
+   3 *2  2  2  0 
+   3  3 *2  2  0 
+   3  3  3 *2  0 
+   3  3  3 *3  0 2-value STABLE
+
+   To sum up: two invariants can be considered, one for 2-step configs 
+   and a more general one for single-token configs. 
+
+
+   THE PRESENT MODULE CONCERNS THE FIRST CASE: CLOSURE OF EXECUTIONS WITH 2-STEP CONFIGURATIONS
+    
+  *)
+
+
+
+
+module SelfStab_Biarray
+
+  use oneToken.OneToken       
+
+  type state = Zero | One | Two | Three
+
+  let function incre (x:state) : state
+  = match x with
+    | Zero -> One
+    | One -> Two
+    | Two -> Three
+    | Three -> Zero
+    end
+
+  lemma state_lm : forall x y :state.
+    x = y \/ x = incre y \/ x = incre(incre y) \/ y =incre x
+
+  lemma state_lm_2 : forall x y :state.
+    x = incre(incre y) <-> y =incre(incre x)
+
+  type world = { biarray : map node state }
+
+
+  predicate has_token (w :world) (i:node) =
+    let si = incre (w.biarray[i]) in
+    (i > 0 /\ i < n_nodes /\ w.biarray[i-1] = si) \/
+    (i >= 0 /\ i < n_nodes-1 /\ w.biarray[i+1] = si)
+
+
+  let ghost function refn (w:world) : OneToken.world
+    (* = { token = fun (n:node) -> has_token w n } *)
+  = { token = has_token w }
+
+
+  (* Similarly to the ring example, configurations have by definition
+     at least one token. But this is only true for certain configurations,   
+     where the states of the first and last nodes are restricted in a way
+     that will be part of the iductive invariant. 
+     This requires first proving by induction a property of configs 
+     containing no tokens 
+   *)
+
+  let rec lemma noTokens_fl (w:world) (n:int)
+    requires { n<=n_nodes /\ noTokens (refn w) n }
+    ensures  { n>0 -> w.biarray[n-1] = w.biarray[0] \/ w.biarray[n-1] = incre(incre(w.biarray[0])) }
+    variant  { n }
+  = if n>0 then noTokens_fl w (n-1) 
+    else ()
+
+  (* Could instead be proved to follow from the inductive invariant 
+   *)  
+  lemma atLeastOneToken_lm : forall w :world.
+    (w.biarray[0] = One \/ w.biarray[0] = Three)
+      /\
+    (w.biarray[n_nodes-1] = Zero \/ w.biarray[n_nodes-1] = Two)
+      ->
+    atLeastOneToken (refn w) n_nodes
+
+
+
+  predicate inv (w:world) =
+    (w.biarray[0] = One \/ w.biarray[0] = Three)
+     /\
+    (w.biarray[n_nodes-1] = Zero \/ w.biarray[n_nodes-1] = Two)
+     /\
+    (forall i :int. 0<i<n_nodes /\ w.biarray[i-1] = incre (w.biarray[i]) ->
+       forall k :int.
+         (i<k<n_nodes -> w.biarray[k] = w.biarray[i] /\ not has_token w k)
+           /\
+     	 (0<=k<=i-1 -> w.biarray[k] = incre (w.biarray[i]) /\ not has_token w k))
+     /\
+    (forall i :int. 0<=i<n_nodes-1  /\ w.biarray[i+1] = incre (w.biarray[i]) -> 
+       forall k :int.
+    	 (i+1<=k<n_nodes -> w.biarray[k] = incre (w.biarray[i]) /\ not has_token w k)
+           /\
+    	 (0<=k<i -> w.biarray[k] = w.biarray[i] /\ not has_token w k))
+
+
+
+
+  predicate initWorld_p (w:world) =
+    forall n :node. validNd n -> w.biarray[n] = if n=0 then One else Two
+  
+  let ghost predicate initWorld (w:world) = initWorld_p w
+
+
+
+  predicate trans_enbld (w:world) (h:node) = 
+    validNd h /\ has_token w h
+
+
+  (* Contract characterizes how the token is passed to the 
+     left or right
+   *)
+ 
+  predicate passToken (w:world) (w':world) (c:node) (n:node) =
+    (refn w').token = (refn w).token[c<-false][n<-true]
+    (* refn w' = OneToken.trans (refn w) c n *)
+
+
+  let ghost function trans (w:world) (h:node) : world
+    requires { trans_enbld w h }
+    ensures  { inv w -> inv result } 
+    ensures  { inv w -> h=0 \/ (0<h<n_nodes-1 /\ incre (w.biarray[h]) = w.biarray[h-1])
+                     -> passToken w result h (h+1) }
+    ensures  { inv w -> h=n_nodes-1 \/ (0<h<n_nodes-1 /\ incre (w.biarray[h]) = w.biarray[h+1])
+                     -> passToken w result h (h-1) }
+    ensures  { inv w -> refn result = refn w \/ OneToken.stepind (refn w) (refn result) }
+  = let st = if h = 0 then incre(incre (w.biarray[h]))
+             else if h = n_nodes-1 then incre(incre (w.biarray[h]))
+                  else incre (w.biarray[h])
+    in
+    { biarray = w.biarray[h<-st] }
+
+
+
+
+  inductive stepind world world =
+  | trans : forall w :world, h :node.
+      trans_enbld w h -> stepind w (trans w h )
+
+  let ghost predicate step (w1:world) (w2:world) = stepind w1 w2 
+
+
+
+  clone refinement.Refinement with
+    type worldC=world, type worldA=OneToken.world, val refn,
+    predicate invC=inv, predicate invA=OneToken.inv,
+    val initWorldC=initWorld, val initWorldA=OneToken.initWorld,
+    val stepC=step, val stepA=OneToken.step
+
+
+
+  (* Safety Property
+   *)
+  goal oneToken : forall w :world. reachableC w -> oneToken (refn w)
+
+
+
+end
+
+
+

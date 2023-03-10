@@ -1,0 +1,101 @@
+
+(* Abstract spec of leader election 
+   solved by maximum finding
+ *)
+   
+module LeaderElectMax
+
+  use int.Int
+  use map.Map
+
+  use leaderElect.LeaderElect
+
+  (* Nodes have fixed, unique ids 
+   *)
+  type id = int
+  val function id node : id
+  axiom uniqueIds : forall i j :node. id i = id j <-> i=j
+
+
+  (* System configurations
+   *)
+  type world = { isMax : map node bool }
+
+
+  (* Refinement map
+   *)
+  let function refn (w:world) : LeaderElect.world
+  = { isLeader = w.isMax }
+
+
+  (* returns the node between 0 and n-1 with highest id 
+     -- dual definition
+   *)
+  let rec function maxId_fn (n:int) : node
+    requires { 1 <= n <= n_nodes }
+    ensures  { 0 <= result < n}
+    ensures  { forall k :node. 0 <= k < n -> (k <> result <-> id k < id result) }
+    variant  { n }
+  = if n=1 then 0
+    else let m = maxId_fn (n-1) in
+         if id (n-1) > id m then n-1 else m
+
+  (* Every network has a unique maximum-id node 
+   *)
+  constant maxId_global : node = maxId_fn n_nodes
+
+
+  (* System INIT 
+   *)
+  predicate initWorld_p (w:world) =
+    forall n :node. 0<=n<n_nodes -> w.isMax[n] = false
+
+  let ghost predicate initWorld (w:world) = initWorld_p w
+
+
+  (* Inductive invariant 
+   *) 
+  predicate inv (w:world) = forall i:node.
+    0<=i<n_nodes -> w.isMax[i] -> i = maxId_global 
+
+
+  (* System action
+   *)
+  predicate act_enbld (world) (h:node) = 
+    0 <= h < n_nodes
+      /\ 
+    h = maxId_global   
+
+  let ghost function act (w:world) (h:node) : world
+    requires { act_enbld w h }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w
+                     \/ LeaderElect.stepind (refn w) (refn result) }
+  = { isMax = w.isMax[h<-true] }
+
+
+  (* Transition relation
+   *)
+  inductive stepind world world =
+  | step_msg : forall w :world, n :node.
+      act_enbld w n -> stepind w (act w n)
+
+  let ghost predicate step (w1:world) (w2:world) = stepind w1 w2 
+
+
+  (* Proof of refinement 
+   *)
+  clone export refinement.Refinement with
+    type worldC=world, type worldA=LeaderElect.world, val refn,
+    predicate invC=inv, predicate invA=LeaderElect.inv,
+    val initWorldC=initWorld, val initWorldA=LeaderElect.initWorld,
+    val stepC=step, val stepA=LeaderElect.step
+
+
+  (* Safety Property
+   *)
+  goal uniqueLeader : forall w :world, i j :node.
+    0<=i<n_nodes /\ 0<=j<n_nodes /\ reachableC w 
+      /\ (refn w).isLeader[i] /\ (refn w).isLeader[j] -> i=j
+
+end
