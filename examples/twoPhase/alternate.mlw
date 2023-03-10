@@ -1,0 +1,47 @@
+module Alternate
+
+  use export int.Int
+  use export int.EuclideanDivision
+
+
+  (* Protocol parameters 
+   *)
+  val predicate xInit (x:int) 
+  val predicate xAct  (v:int) (x:int) (x':int) 
+
+
+  (* Abstract Spec
+   *)
+
+  type world = { v :int ; x :int }
+
+  predicate inv (_:world) = true
+
+
+  let ghost predicate initWorld (w:world)
+  = w.v = 0 && xInit w.x 
+
+
+  predicate next_enbld (w:world) (x':int) =
+    xAct w.v w.x x'
+ 
+  let function next (w:world) (x':int) : world
+    requires { next_enbld w x' }
+  = { v = mod (w.v+1) 2 ; x = x' }
+
+
+
+  inductive stepind world world =
+  | next : forall w :world, x' :int.
+      next_enbld w x' -> stepind w (next w x')
+
+
+  let ghost predicate step (w:world) (w':world) = stepind w w'
+
+  
+  (* NOT REQUIRED - maybe just in this example because there's no invariant? *)
+  (* clone core.Inductiveness with type world, predicate inv, val step, val initWorld *)
+
+end
+
+

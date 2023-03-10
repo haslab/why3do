@@ -5,7 +5,7 @@ abstract specification that assumes atomic updates.
 
 This example is a WhyML adaptation of a TLA+ example available online
 in a [blog post](https://www.hillelwayne.com/post/refinement/) by
-Hyllel Wayne. 
+Hillel Wayne. 
 
 ## Files 
 

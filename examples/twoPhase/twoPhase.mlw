@@ -1,0 +1,110 @@
+
+
+
+(* From  https://github.com/tlaplus/Examples/blob/master/specifications/TwoPhase/Alternate.tla 
+ *)
+(***************************************************************************)
+(* This specifies a system that alternately performs two actions, which    *)
+(* for now I will call A_0 and A_1.  It uses a variable v whose value      *)
+(* alternates between 0 and 1, performing an A_0 action when v changes     *)
+(* from 0 to 1, and an A_1 action when v changes from 1 to 0.              *)
+(*                                                                         *)
+(* We let the variable x to represent the part of the state that is        *)
+(* changed by the A_0 and A_1 actions.  We introduce two constant          *)
+(* operators XInit and XAct, where XInit(x) is assumed to assert that x    *)
+(* has a correct initial value, and XAct(i, xInit, xNext) is assumed to    *)
+(* assert that changing the value of x from xInit to xNext represents an   *)
+(* A_i action, for i=0, 1.                                                 *)
+(***************************************************************************)
+
+
+(* An example where 
+   - there is no abstract invariant (defined as true for cloning the refinement module)
+   - contracts are not required in the action functions 
+   - we make use of a new version of core.mlw where initial states are described 
+     by a predicate rather than constants
+ *)
+
+
+
+
+
+module TwoPhase
+
+  use alternate.Alternate
+
+  type world = { p :int ; c :int ; xx :int }
+
+
+  let function refn (w:world) : Alternate.world
+  = { v = mod (w.p + w.c) 2 ; x = w.xx }
+
+
+  predicate inv (w:world) =
+    (w.p = 0 \/ w.p = 1)
+     /\
+    (w.c = 0 \/ w.c = 1)
+
+
+  let ghost predicate initWorld (w:world)
+    (* ensures { result -> inv w } *)
+    (* ensures { result -> Alternate.initWorld (refn w) } *)
+  = w.p = 0 && w.c = 0 && xInit w.xx
+
+
+  predicate producer_enbld (w:world) (x':int) = 
+    w.p = w.c  
+     /\
+    xAct 0 (w.xx) x'
+  
+  let function producer_step (w:world) (x':int) : world
+    requires { producer_enbld w x' }
+    (* ensures  { inv w -> refn result = refn w \/ Alternate.stepind (refn w) (refn result) } *)
+    (* ensures  { inv w -> inv result } *)
+  = { p = mod (w.p+1) 2 ; c = w.c ; xx = x' }
+
+
+  predicate consumer_enbld (w:world) (x':int)  = 
+    w.p <> w.c
+     /\
+    xAct 1 (w.xx) x'
+
+ 
+  let function consumer_step (w:world) (x':int) : world
+    requires { consumer_enbld w x' }
+    (* ensures  { inv w -> refn result = refn w \/ Alternate.stepind (refn w) (refn result) } *)
+    (* ensures  { inv w -> inv result } *)
+  = { p = w.p ; c = mod (w.c+1) 2 ; xx = x' }
+
+
+  (* Transition SEMANTICS *)
+
+  inductive stepind world world =
+  | producer : forall w :world, x' :int.
+      producer_enbld w x' -> stepind w  (producer_step w  x')
+  | consumer : forall w :world, x' :int.
+      consumer_enbld w x' -> stepind w  (consumer_step w  x')
+
+
+  let ghost predicate step (w:world) (w':world) = stepind w w'
+  
+
+  clone refinement.Refinement with type worldC=world, type worldA=Alternate.world, val refn,
+		      	    	   predicate invC=inv, predicate invA=Alternate.inv,
+			    	   val initWorldC=initWorld, val initWorldA=Alternate.initWorld,
+   		            	   val stepC=step, val stepA=Alternate.step
+
+
+  lemma step_TR_refinement : forall w w' :world. inv w -> stepC_TR w w' -> stepA_TR (refn w) (refn w')
+
+  lemma safety_by_refinement_1 : forall w :world. reachableC w -> reachableA (refn w)
+
+
+
+  (* Makes no sense in this example, no abstract invariant 
+   *)
+  (* lemma safety_by_refinement_2 : forall w :world. reachableC w -> invA (refn w) *)
+
+
+end
+
