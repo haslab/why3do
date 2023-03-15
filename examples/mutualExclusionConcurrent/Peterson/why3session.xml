@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
+"http://why3.lri.fr/why3session.dtd">
+<why3session shape_version="6">
+<prover id="0" name="CVC5" version="1.0.3" timelimit="5" steplimit="0" memlimit="1000"/>
+<prover id="1" name="Alt-Ergo" version="2.4.2" timelimit="5" steplimit="0" memlimit="1000"/>
+<file format="whyml" proved="true">
+<path name=".."/><path name="Peterson.mlw"/>
+<theory name="Peterson" proved="true">
+ <goal name="eq&#39;vc" expl="VC for eq" proved="true">
+ <proof prover="1"><result status="valid" time="0.00" steps="6"/></proof>
+ </goal>
+ <goal name="refn&#39;vc" expl="VC for refn" proved="true">
+ <proof prover="1"><result status="valid" time="0.00" steps="0"/></proof>
+ </goal>
+ <goal name="a1&#39;vc" expl="VC for a1" proved="true">
+ <proof prover="0"><result status="valid" time="0.08" steps="12557"/></proof>
+ </goal>
+ <goal name="a2&#39;vc" expl="VC for a2" proved="true">
+ <proof prover="0"><result status="valid" time="0.18" steps="15044"/></proof>
+ </goal>
+ <goal name="a3&#39;vc" expl="VC for a3" proved="true">
+ <transf name="split_vc" proved="true" >
+  <goal name="a3&#39;vc.0" expl="postcondition" proved="true">
+  <proof prover="1" timelimit="1"><result status="valid" time="0.13" steps="1291"/></proof>
+  </goal>
+  <goal name="a3&#39;vc.1" expl="postcondition" proved="true">
+  <transf name="split_vc" proved="true" >
+   <goal name="a3&#39;vc.1.0" expl="postcondition" proved="true">
+   <proof prover="0" timelimit="1"><result status="valid" time="0.04" steps="5277"/></proof>
+   </goal>
+   <goal name="a3&#39;vc.1.1" expl="postcondition" proved="true">
+   <transf name="split_vc" proved="true" >
+    <goal name="a3&#39;vc.1.1.0" expl="postcondition" proved="true">
+    <proof prover="0" timelimit="1"><result status="valid" time="0.45" steps="66772"/></proof>
+    </goal>
+    <goal name="a3&#39;vc.1.1.1" expl="postcondition" proved="true">
+    <proof prover="0" memlimit="2000"><result status="valid" time="2.03" steps="252042"/></proof>
+    </goal>
+   </transf>
+   </goal>
+  </transf>
+  </goal>
+ </transf>
+ </goal>
+ <goal name="cs&#39;vc" expl="VC for cs" proved="true">
+ <transf name="split_vc" proved="true" >
+  <goal name="cs&#39;vc.0" expl="postcondition" proved="true">
+  <proof prover="1" timelimit="1"><result status="valid" time="0.01" steps="103"/></proof>
+  </goal>
+  <goal name="cs&#39;vc.1" expl="postcondition" proved="true">
+  <proof prover="0" timelimit="1"><result status="valid" time="0.52" steps="77702"/></proof>
+  </goal>
+ </transf>
+ </goal>
+ <goal name="a4&#39;vc" expl="VC for a4" proved="true">
+ <proof prover="0"><result status="valid" time="0.25" steps="42256"/></proof>
+ </goal>
+ <goal name="initWorldA&#39;refn&#39;vc" expl="VC for initWorldA&#39;refn" proved="true">
+ <proof prover="1"><result status="valid" time="0.01" steps="16"/></proof>
+ </goal>
+ <goal name="initWorldC&#39;refn&#39;vc" expl="VC for initWorldC&#39;refn" proved="true">
+ <proof prover="1"><result status="valid" time="0.01" steps="92"/></proof>
+ </goal>
+ <goal name="stepA&#39;refn&#39;vc" expl="VC for stepA&#39;refn" proved="true">
+ <proof prover="1"><result status="valid" time="0.03" steps="538"/></proof>
+ </goal>
+ <goal name="stepC&#39;refn&#39;vc" expl="VC for stepC&#39;refn" proved="true">
+ <proof prover="1"><result status="valid" time="0.02" steps="218"/></proof>
+ </goal>
+ <goal name="safety" proved="true">
+ <transf name="split_vc" proved="true" >
+  <goal name="safety.0" proved="true">
+  <transf name="inline_goal" proved="true" >
+   <goal name="safety.0.0" proved="true">
+   <transf name="split_all_full" proved="true" >
+    <goal name="safety.0.0.0" proved="true">
+    <proof prover="1"><result status="valid" time="0.01" steps="78"/></proof>
+    </goal>
+   </transf>
+   </goal>
+  </transf>
+  </goal>
+ </transf>
+ </goal>
+</theory>
+</file>
+</why3session>

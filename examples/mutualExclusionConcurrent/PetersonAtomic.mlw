@@ -1,0 +1,169 @@
+
+(* a version of Peterson's algorithm (2 processes)
+   that separates the loop condition conjunct (containing 
+   two reads) in two atomic parts.
+   This corresponds to the version in the "TLA+ Proofs" FM'2012 paper
+   by Merz, Lamport et al
+ *)
+
+module PetersonAtom
+  use export bool.Bool
+  use export map.Map
+  use export map.Const
+
+  use mutexAbstract.MutexAbstract
+  use peterson.Peterson
+
+  type state = A1 | A2 | A3A | A3B | CS | A4 | Done
+
+  (* System configurations
+   *)
+  type world = { pc_at : map proc state ;
+       	       	 flag_at : map proc bool ;
+		 turn_at : proc }
+
+
+  (* Refinement mapping 
+   *)
+  function mapSt (st:state) : Peterson.state =
+  match st with
+  | A1 -> Peterson.A1
+  | A2 -> Peterson.A2
+  | A3A -> Peterson.A3
+  | A3B -> Peterson.A3
+  | CS -> Peterson.CS
+  | A4 -> Peterson.A4
+  | Done -> Peterson.Done
+  end
+
+  let ghost function refn (w:world) : Peterson.world
+  =
+  { pc = (fun p -> mapSt (w.pc_at[p])) ;
+    flag = w.flag_at ;
+    turn = w.turn_at }
+
+
+  (* Inductive invariant 
+     not required for this refinement proof
+   *)
+  predicate inv (_:world) = true
+
+             
+  (* System INIT 
+   *)
+  predicate initWorld_p (w:world) =
+    w.pc_at = const A1 /\ w.flag_at = const false /\ w.turn_at = Zero
+    
+  let ghost predicate initWorld (w:world) = initWorld_p w
+
+
+  (* Action functions
+   *)
+   
+  predicate a1_enbld (w:world) (p:proc) = 
+    w.pc_at[p] = A1
+  let ghost function a1 (w:world) (p:proc) : world
+    requires { a1_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { refn result = a1 (refn w) p }
+  = { pc_at = w.pc_at[p<-A2] ; flag_at = w.flag_at[p<-true] ; turn_at = w.turn_at }
+
+  predicate a2_enbld (w:world) (p:proc) = 
+    w.pc_at[p] = A2
+  let ghost function a2 (w:world) (p:proc) : world
+    requires { a2_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { refn result = a2 (refn w) p }
+  = { pc_at = w.pc_at[p<-A3A] ; flag_at = w.flag_at ; turn_at = other p }
+
+  predicate a3a_enbld (w:world) (p:proc) = 
+    w.pc_at[p] = A3A 
+  let ghost function a3a (w:world) (p:proc) : world
+    requires { a3a_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { refn result = refn w \/ refn result =  a3 (refn w) p }
+  = let next = if (w.flag_at [other p]) then A3B else CS in
+    { pc_at = w.pc_at[p<-next] ; flag_at = w.flag_at ; turn_at = w.turn_at }
+
+  predicate a3b_enbld (w:world) (p:proc) = 
+    w.pc_at[p] = A3B 
+  let ghost function a3b (w:world) (p:proc) : world
+    requires { a3b_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { refn result = refn w \/ refn result = a3 (refn w) p }
+  = let next = if (eq w.turn_at (other p)) then A3A else CS in
+    { pc_at = w.pc_at[p<-next] ; flag_at = w.flag_at ; turn_at = w.turn_at }
+
+  predicate cs_enbld (w:world) (p:proc) = 
+    w.pc_at[p] = CS 
+  let ghost function cs (w:world) (p:proc) : world
+    requires { cs_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { refn result = cs (refn w) p }
+  = { pc_at = w.pc_at[p<-A4] ; flag_at = w.flag_at ; turn_at = w.turn_at }
+
+  predicate a4_enbld (w:world) (p:proc) = 
+    w.pc_at[p] = A4 
+  let ghost function a4 (w:world) (p:proc) : world
+    requires { a4_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { refn result = a4 (refn w) p }
+  = { pc_at = w.pc_at[p<-Done] ; flag_at = w.flag_at[p<-false] ; turn_at = w.turn_at }
+
+
+
+  (* Transition relation
+   *)
+  inductive stepind world world =
+  | a1 : forall w :world, p :proc.
+      a1_enbld w p -> stepind w (a1 w p)
+  | a2 : forall w :world, p :proc.
+      a2_enbld w p -> stepind w (a2 w p)
+  | a3a : forall w :world, p :proc.
+      a3a_enbld w p -> stepind w (a3a w p)
+  | a3b : forall w :world, p :proc.
+      a3b_enbld w p -> stepind w (a3b w p)
+  | cs : forall w :world, p :proc.
+      cs_enbld w p -> stepind w (cs w p)
+  | a4 : forall w :world, p :proc.
+      a4_enbld w p -> stepind w (a4 w p)
+
+  let ghost predicate step (w1:world) (w2:world) = stepind w1 w2 
+
+
+  (* Proof of refinement 
+   *)
+  clone refinement.Refinement with
+    type worldC=world, type worldA=Peterson.world, val refn,
+    predicate invC=inv, predicate invA=Peterson.inv,
+    val initWorldC=initWorld, val initWorldA=Peterson.initWorld,
+    val stepC=step, val stepA=Peterson.step
+
+
+  (* Safety Property
+     This first lemma is required because the safety property 
+     in the Peterson module is not part of the inductive invariant, 
+     since it follows from the refinement of MutexAbstract.
+     A 2-step refinement theory could make the top-level 
+   *)
+  lemma safety_Peterson : forall w :world. reachableA (refn w) ->
+    not ((refn w).pc[Zero] = Peterson.CS /\ (refn w).pc[One] = Peterson.CS)
+
+  lemma safety : forall w :world. reachableC w ->
+    not (w.pc_at[Zero] = CS /\ w.pc_at[One] = CS)
+
+
+
+
+end
+
+
+
+
+
+
+
+
+
+
+

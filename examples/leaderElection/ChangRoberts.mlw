@@ -52,7 +52,7 @@ module ChangRoberts
                  inMsgs      : map node (list msg) }
 
 
-  (* Refinement map 
+  (* Refinement mapping 
    *)
   let function refn (w:world) : LeaderElectMax.world
   = { isMax = w.isMaxLeader }

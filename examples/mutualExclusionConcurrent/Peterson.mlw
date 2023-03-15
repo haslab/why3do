@@ -1,0 +1,155 @@
+
+(* Peterson's algorithm, 2 processes
+ *)
+
+module Peterson
+  use export bool.Bool
+  use export map.Map
+  use export map.Const
+
+  use mutexAbstract.MutexAbstract
+
+  type state = A1 | A2 | A3 | CS | A4 | Done
+
+  let predicate eq (p1: proc) (p2: proc)
+    ensures { result <-> p1=p2 }
+  = match p1 with
+    | Zero -> match p2 with
+              | Zero -> true
+	      | One -> false
+              end
+    | One -> match p2 with
+             | Zero -> false
+	     | One -> true
+             end
+    end 
+		   	     
+
+  (* System configurations
+   *)
+  type world = { pc : map proc state ;
+                 flag : map proc bool ;
+		 turn : proc }
+
+
+  (* Refinement mapping 
+   *)
+  function mapSt (st:state) : MutexAbstract.state =
+  match st with
+  | A1 -> Init
+  | A2 -> Init
+  | A3 -> Init
+  | CS -> MutexAbstract.CS
+  | A4 -> MutexAbstract.Done
+  | Done -> MutexAbstract.Done
+  end
+
+  let ghost function refn (w:world) : MutexAbstract.world 
+  = { pc_a = fun p -> mapSt w.pc[p] }
+
+
+  (* Inductive invariant 
+   *)
+  predicate inv (w:world) = forall p :proc.
+     (w.pc[p]<>A1 /\ w.pc[p]<>Done -> w.flag[p])
+       /\
+     (w.pc[p]=CS /\ w.pc[other p]=A3 -> w.turn = p)
+               
+
+  (* System INIT 
+   *)
+  predicate initWorld_p (w:world) =
+    w.pc = const A1 /\ w.flag = const false /\ w.turn = Zero
+
+  let ghost predicate initWorld (w:world) = initWorld_p w
+
+
+  (* Action functions
+   *)
+   
+  predicate a1_enbld (w:world) (p:proc) = 
+    w.pc[p] = A1
+  let ghost function a1 (w:world) (p:proc) : world
+    requires { a1_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
+  = { pc = w.pc[p<-A2] ; flag = w.flag[p<-true] ; turn = w.turn }
+
+  predicate a2_enbld (w:world) (p:proc) = 
+    w.pc[p] = A2
+  let ghost function a2 (w:world) (p:proc) : world
+    requires { a2_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
+  = { pc = w.pc[p<-A3] ; flag = w.flag ; turn = other p }
+
+  predicate a3_enbld (w:world) (p:proc) = 
+    w.pc[p] = A3
+  let ghost function a3 (w:world) (p:proc) : world
+    requires { a3_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
+  = let next = if (w.flag[other p] && eq w.turn (other p)) then A3 else CS in
+    { pc = w.pc[p<-next] ; flag = w.flag ; turn = w.turn }
+
+  predicate cs_enbld (w:world) (p:proc) = 
+    w.pc[p] = CS 
+  let ghost function cs (w:world) (p:proc) : world
+    requires { cs_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
+  = { pc = w.pc[p<-A4] ; flag = w.flag ; turn = w.turn }
+
+  predicate a4_enbld (w:world) (p:proc) = 
+    w.pc[p] = A4 
+  let ghost function a4 (w:world) (p:proc) : world
+    requires { a4_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
+  = { pc = w.pc[p<-Done] ; flag = w.flag[p<-false] ; turn = w.turn }
+
+
+  (* Transition relation
+   *)
+  inductive stepind world world =
+  | a1 : forall w :world, p :proc.
+      a1_enbld w p -> stepind w (a1 w p)
+  | a2 : forall w :world, p :proc.
+      a2_enbld w p -> stepind w (a2 w p)
+  | a3 : forall w :world, p :proc.
+      a3_enbld w p -> stepind w (a3 w p)
+  | cs : forall w :world, p :proc.
+      cs_enbld w p -> stepind w (cs w p)
+  | a4 : forall w :world, p :proc.
+      a4_enbld w p -> stepind w (a4 w p)
+
+  let ghost predicate step (w1:world) (w2:world) = stepind w1 w2 
+
+
+  (* Proof of refinement 
+   *)
+  clone export refinement.Refinement with
+    type worldC=world, type worldA=MutexAbstract.world, val refn,
+    predicate invC=inv, predicate invA=MutexAbstract.inv,
+    val initWorldC=initWorld, val initWorldA=MutexAbstract.initWorld,
+    val stepC=step, val stepA=MutexAbstract.step
+
+
+  (* Safety Property
+   *)
+  lemma safety : forall w :world. reachableC w ->
+    not (w.pc[Zero] = CS /\ w.pc[One] = CS)
+
+
+end
+
+
+
+
+
+
+
+
+
+
+
