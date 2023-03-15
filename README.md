@@ -12,6 +12,9 @@ establishing inductive invariants of state machine specifications
   from abstract specification
 * [counter](examples/counter): concurrent counter using a lock,
   by refinement from abstract specification 
+* [mutualExclusionConcurrent](examples/mutualExclusionConcurrent):
+  mutual exclusion algorithms for concurrent processes, refined from
+  an abstract specification 
 * [leaderElection](examples/leaderElection/): Chang-Roberts leader
   election ring algorithm, refined from an abstract specification
 * [mutualExclusionToken](examples/mutualExclusionToken): Closure property of Dijkstra's
