@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
+"http://why3.lri.fr/why3session.dtd">
+<why3session shape_version="6">
+<prover id="0" name="Z3" version="4.11.2" timelimit="5" steplimit="0" memlimit="1000"/>
+<prover id="1" name="Alt-Ergo" version="2.4.2" timelimit="5" steplimit="0" memlimit="1000"/>
+<file format="whyml" proved="true">
+<path name=".."/><path name="selfstab-ring.mlw"/>
+<theory name="SelfStab_Ring" proved="true">
+ <goal name="incre&#39;vc" expl="VC for incre" proved="true">
+ <proof prover="1"><result status="valid" time="0.00" steps="4"/></proof>
+ </goal>
+ <goal name="first_last_fl&#39;vc" expl="VC for first_last_fl" proved="true">
+ <proof prover="1"><result status="valid" time="0.01" steps="63"/></proof>
+ </goal>
+ <goal name="trans&#39;vc" expl="VC for trans" proved="true">
+ <transf name="unfold" proved="true" arg1="inv">
+  <goal name="trans&#39;vc.0" expl="VC for trans" proved="true">
+  <transf name="split_all_full" proved="true" >
+   <goal name="trans&#39;vc.0.0" expl="postcondition" proved="true">
+   <proof prover="1"><result status="valid" time="1.20" steps="31957"/></proof>
+   </goal>
+   <goal name="trans&#39;vc.0.1" expl="postcondition" proved="true">
+   <proof prover="1"><result status="valid" time="0.01" steps="7"/></proof>
+   </goal>
+   <goal name="trans&#39;vc.0.2" expl="postcondition" proved="true">
+   <transf name="split_vc" proved="true" >
+    <goal name="trans&#39;vc.0.2.0" expl="postcondition" proved="true">
+    <proof prover="0" timelimit="300"><result status="valid" time="27.94" steps="125263123"/></proof>
+    </goal>
+   </transf>
+   </goal>
+   <goal name="trans&#39;vc.0.3" expl="postcondition" proved="true">
+   <proof prover="1"><result status="valid" time="0.35" steps="5731"/></proof>
+   </goal>
+   <goal name="trans&#39;vc.0.4" expl="postcondition" proved="true">
+   <proof prover="0"><result status="valid" time="0.05" steps="93192"/></proof>
+   </goal>
+   <goal name="trans&#39;vc.0.5" expl="postcondition" proved="true">
+   <proof prover="0"><result status="valid" time="0.10" steps="233571"/></proof>
+   </goal>
+   <goal name="trans&#39;vc.0.6" expl="postcondition" proved="true">
+   <proof prover="0"><result status="valid" time="1.69" steps="10123015"/></proof>
+   </goal>
+   <goal name="trans&#39;vc.0.7" expl="postcondition" proved="true">
+   <proof prover="1"><result status="valid" time="1.62" steps="20200"/></proof>
+   </goal>
+  </transf>
+  </goal>
+ </transf>
+ </goal>
+ <goal name="Refinement.initWorldA&#39;refn&#39;vc" expl="VC for initWorldA&#39;refn" proved="true">
+ <proof prover="1"><result status="valid" time="0.02" steps="146"/></proof>
+ </goal>
+ <goal name="Refinement.initWorldC&#39;refn&#39;vc" expl="VC for initWorldC&#39;refn" proved="true">
+ <proof prover="1"><result status="valid" time="0.10" steps="1196"/></proof>
+ </goal>
+ <goal name="Refinement.stepA&#39;refn&#39;vc" expl="VC for stepA&#39;refn" proved="true">
+ <proof prover="1"><result status="valid" time="0.01" steps="27"/></proof>
+ </goal>
+ <goal name="Refinement.stepC&#39;refn&#39;vc" expl="VC for stepC&#39;refn" proved="true">
+ <proof prover="1"><result status="valid" time="0.01" steps="72"/></proof>
+ </goal>
+ <goal name="oneToken" proved="true">
+ <proof prover="1"><result status="valid" time="0.01" steps="23"/></proof>
+ </goal>
+</theory>
+</file>
+</why3session>
