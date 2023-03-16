@@ -1,10 +1,10 @@
 
 # Distributed Lock
 
-The version in this folder uses a network model. It is meant to
-illustrate the use of abstract trace specifications, as well as the
-possibility of having different implementations for such a
-specification, depending on a chosen network semantics.
+Example using a network model. It is meant to illustrate the use of
+abstract trace specifications, as well as the possibility of having
+different implementations for such a specification, depending on a
+chosen network semantics.
 
 This example appears in the ESOP'2022 paper "Why3-do: The Way of
 Harmonious Distributed System Proofs".
