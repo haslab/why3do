@@ -1,0 +1,170 @@
+(** {1 Distributed Lock (idealized semantics)} *)
+module Lock
+  use int.Int
+  use int.EuclideanDivision
+  use option.Option
+  use list.List
+  use list.Mem
+  use list.Append
+  use list.Map
+  use list.NumOcc
+  use list.Length
+  use list.HdTlNoOpt
+  use map.Map
+
+
+  (* Basic Setup: nodes, packets, inputs, outputs, states *)
+  type node = int
+
+  (* number of processes *)
+  val constant n_nodes : int
+
+  axiom n_nodes_ax : 2 <= n_nodes
+
+  let function next (x:node) : node = mod (x+1) n_nodes
+
+  type state = { held : bool; epoch : int }
+
+  (* these projections are required by the spec module *)
+  function getEpochS (s:state) : int = epoch s
+  predicate getHeldS (s:state) = held s
+
+  (* all pairs node/state are well-formed *)
+  predicate ok_NodeState (node) (state) = true
+
+  (* messages are numbers corresponding to epochs *)
+  type msg = int
+
+  (* Well-formed messages in a ring *)
+  predicate ok_Msg (dest:node) (src:node) (_:msg) =
+    0<=dest<n_nodes /\ 0<=src<n_nodes /\ dest = next src
+
+  (* case analysis predicates *)
+  let predicate case_node (_node) = true
+  let predicate case_state (_state) = true
+  let predicate case_msg (_msg) = true
+
+
+  (* clone trace Spec file *)
+  clone specLDT.Spec with
+    type node,
+    type state,
+    function getEpochS,
+    predicate getHeldS
+
+
+  (* clone world module from model *)
+  clone modelMPEnabledTrace.World with
+    type node,
+    type state,
+    type msg,
+    type externalEvent
+
+
+
+  (* System initialization: node states and messages      *)
+  let function initState (n:node) : state
+  = let h = if n=0 then true else false in
+      let e = if n=0 then 1 else 0 in
+        { held = h; epoch = e }
+
+  let constant initMsgs : list packet = Nil
+
+  let constant initTrace : list externalEvent = Cons (0, Locked(1)) Nil
+
+
+  (* handling functions *)
+  let function handleMsg (_:node) (_:node) (m:msg) (s:state) : (state, list packet, list output)
+  = if (not (held s) ) then ({ held = True; epoch = m }, Nil, Cons (Locked m) Nil)
+    else (s, Nil, Nil)
+
+  (* Enabling predicate -- the node holds the lock *)
+  let ghost predicate enabled (s:state) (i:node) = 0<=i<n_nodes && held s
+
+  let function handleEnbld (h:node) (s:state) : (state, list packet, list output)
+  = let e = epoch s in
+      ({ held = False; epoch = e }, Cons (next h, h, e+1) Nil, Nil)
+
+
+
+  (* helper definitions for invariant predicate *)
+  let rec ghost predicate zeroHeld (lS:map node state) (n:int)
+    requires { n>=0 }
+    ensures { result <-> (forall h :node. 0<=h<n -> not (held (lS h)))  }
+    variant { n }
+  = n=0 || (not (held (lS (n-1))) && zeroHeld lS (n-1))
+
+  let rec ghost predicate oneHeld (lS:map node state) (n:int)
+    requires { n>=0 }
+    ensures { result <->
+       n>0 /\ (exists h :node. 0<=h<n /\ held (lS h)) /\
+         (forall h1 h2 :node. 0<=h1<n -> 0<=h2<n -> held (lS h1) -> held (lS h2) -> h1=h2) }
+    variant { n }
+  = (n=1 && held (lS (n-1)))
+    || (n>1 && ((held (lS (n-1)) && zeroHeld lS (n-1))
+               || (not (held (lS (n-1))) && oneHeld lS (n-1))))
+
+  let rec ghost predicate oneMsg (lp:list packet)
+  = length lp = 1
+
+  let rec ghost predicate noMsgs (lp:list packet)
+  = length lp = 0
+
+  (* this is a trace property that implies consistency but is easier
+     to check for invariance: outputs logged in the trace are tagged
+     with incremental epochs, starting from 1 *)
+  let rec ghost predicate ok_trace (t:list externalEvent)
+    ensures { result -> consistent t }
+  = match t with
+    | Nil -> true
+    | Cons (_,o) Nil -> getEpochO o = 1
+    | Cons (_,o1) os -> match os with
+		        | Nil -> true
+		        | Cons (_,o2) _ -> getEpochO o1 = (getEpochO o2)+1 && ok_trace os
+		        end
+    end
+
+
+  (* invariant predicate *)
+  predicate inv (lS:map node state) (iFM:list packet) (tr:list externalEvent) =
+    (forall p: packet. mem p iFM -> ok_Msg (dest p) (src p) (payload p))
+    /\ ((oneMsg iFM /\ zeroHeld lS n_nodes) \/ (noMsgs iFM /\ oneHeld lS n_nodes))
+    /\ (forall n :node. 0<=n<n_nodes -> held (lS n) ->
+	  n = node (hd tr) /\ epoch (lS n) = getEpochO(outp (hd tr)))
+    /\ (forall p: packet. mem p iFM ->
+          src p = node (hd tr) /\ payload p = getEpochO(outp (hd tr)) + 1)
+    /\ length tr > 0 /\ ok_trace tr
+
+  let ghost predicate indpred (w:world)
+  = inv (localState w) (inFlightMsgs w) (trace w)
+
+
+
+  (* Cloning the Steps module will generate VCs to ensure that indpred
+     is an inductive invariant and traces are consistent in reachable worlds *)
+
+  clone modelMPEnabledTrace.Steps with
+    type node,
+    type state,
+    type msg,
+    type output,
+    type externalEvent,
+    predicate ok_NodeState,
+    predicate ok_Msg,
+    predicate commitp,
+    function commitf,
+    predicate consistent,
+    val case_node,
+    val case_state,
+    val case_msg,
+    val case_output,
+    val record_outputs,
+    val initState,
+    val initMsgs,
+    val initTrace,
+    val indpred,
+    val enabled,
+    val handleEnbld,
+    val handleMsg
+
+end

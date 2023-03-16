@@ -1,0 +1,152 @@
+(** {1 Leader Election} *)
+
+module LeaderElectRing
+
+  use int.Int
+  use int.EuclideanDivision
+  use list.List
+  use list.Append
+  use list.Mem
+  use list.NthNoOpt
+  use list.Length
+  use map.Map
+  use ref.Ref
+
+  (* Basic Setup: nodes, packets, inputs, outputs, states *)
+  type node = int
+
+  (* number of processes *)
+  val constant n_nodes : int
+
+  axiom n_nodes_ax : 3 <= n_nodes
+
+  let function next (x:node) : node = mod (x+1) n_nodes
+
+  type id = int
+  (* nodes are integers, used for addressing and for constructing
+     network topologies, and they have ids that are also integers
+     given by the following function *)
+
+  val function id node : id
+
+  axiom uniqueIds : forall i j :node. id i = id j <-> i=j
+
+  (* returns the node between 0 and n-1 with highest id *)
+  let rec function maxId_fn (n:int) : id
+    requires { 1 <= n <= n_nodes }
+    ensures  { 0 <= result < n}
+    ensures  { forall k :node. 0 <= k < n -> k <> result -> id k < id result }
+    variant  { n }
+  = if n=1 then 0
+    else let m = maxId_fn (n-1) in
+         if id (n-1) > id m then n-1 else m
+
+  (* Every network has a unique maximum-id node *)
+  constant maxId_global : id = maxId_fn n_nodes
+
+  (* state of a node is a Boolean, true when node claims to be leader *)
+  type state = { leader : bool }
+
+  (* all node states are well-formed *)
+  predicate ok_NodeState node state = true
+
+  (* exchanged messages are node ids *)
+  type msg = id
+
+  (* well-formed messages in the ring topology *)
+  predicate ok_Msg (dest:node) (src:node) msg =
+    0 <= dest < n_nodes /\ 0 <= src < n_nodes /\ dest = next src
+
+  (* case analysis predicates *)
+  let predicate case_node (_node) = true
+  let predicate case_state (_state) = true
+  let predicate case_msg (_msg) = true
+
+  (* clone World theory to get additional types/functions *)
+  clone modelMP.World with
+    type node,
+    type state,
+    type msg
+
+
+
+  (* Aux defs. to express invariant and handler contracts *)
+
+  (* captures the following fact: messages sent from lo to hi will
+     necessarily pass through i *)
+  predicate between  (lo:node) (i:node) (hi:node) =
+    (lo < i < hi) \/ (hi < lo < i) \/ (i < hi < lo)
+
+  lemma btw_next_lm : forall i j k :node.
+    0 <= i < n_nodes ->
+      0 <= j < n_nodes ->
+        0 <= k < n_nodes ->
+          i <> k ->
+            between (next i) j k ->
+              between i j k
+
+  (* System initialization: node states and messages      *)
+  let function initState _node : state = { leader = false }
+
+  (* Variant required -- cannot be defined as function *)
+  let rec function initMsgs_fn (n:node) : list packet
+    requires { 0 <= n <= n_nodes }
+    variant  { n_nodes-n }
+    ensures  { forall s d :node, m :msg. mem (d, s, m) result -> m = id s /\ d = next s /\ n<=s<n_nodes
+                /\ (forall i :node. between i maxId_global d -> m <> id i) /\ (m = id d -> d = maxId_global) }
+  = if (0 <= n < n_nodes) then Cons (next n, n, id n) (initMsgs_fn (n+1))
+                          else Nil
+
+  let constant initMsgs : list packet = initMsgs_fn 0
+
+  (* Message  handling function *)
+  let function handleMsg (h:node) (_src:node) (m:msg) (s:state)
+    : (state, list packet)
+  = if m = (id h) then ( { leader = true }, Nil)
+       	          else if m > id h then (s, Cons (next h, h, m) Nil)
+	                                 else (s, Nil)
+
+  (* Definition of candidate invariant predicate *)
+  predicate inv (lS:map node state) (iFM:list packet)  =
+    (forall s d :node, m :msg. mem (d, s, m) iFM ->
+      ok_Msg d s m /\
+      m >= id s /\
+      (exists i :node. 0 <= i < n_nodes /\ m = id i) /\
+      (forall i :node. between i maxId_global d -> m <> id i) /\
+        (m = id d -> d = maxId_global) ) /\
+    (forall i:node. 0 <= i < n_nodes ->
+      (lS i).leader = true -> i = maxId_global)
+
+  let ghost predicate indpred (w:world) =
+    inv (localState w) (inFlightMsgs w)
+
+
+
+  (* Cloning the Steps module will generate VCs to ensure that indpred
+     is an inductive invariant *)
+
+  clone modelMP.Steps with
+    type node,
+    type state,
+    type msg,
+    predicate ok_NodeState,
+    predicate ok_Msg,
+    val case_node,
+    val case_state,
+    val case_msg,
+    val initState,
+    val initMsgs,
+    val indpred,
+    val handleMsg
+
+
+
+  (* SYSTEM PROPERTIES TO BE PROVED FROM INVARIANT *)
+
+  goal uniqueLeader :
+    forall w :world, i j:node. reachable w ->
+      0 <= i < n_nodes -> 0 <= j < n_nodes ->
+	  	  (localState w i).leader = true ->
+          (localState w j).leader = true -> i = j
+
+end

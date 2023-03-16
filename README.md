@@ -6,7 +6,7 @@ A WhyML library for reasoning about state machine specifications and distributed
 * [stateMachineModels](stateMachineModels): simple theory for
 establishing inductive invariants of state machine specifications
 
-## List of Examples
+## List of Example Folders
 
 * [twoPhase](examples/twoPhase) Two-phase handshake protocol, refined
   from abstract specification

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
+"http://why3.lri.fr/why3session.dtd">
+<why3session shape_version="6">
+<prover id="0" name="CVC5" version="1.0.3" timelimit="7" steplimit="0" memlimit="1000"/>
+<prover id="1" name="Z3" version="4.11.2" alternative="noBV" timelimit="7" steplimit="0" memlimit="1000"/>
+<prover id="5" name="Alt-Ergo" version="2.4.2" timelimit="7" steplimit="0" memlimit="1000"/>
+<file format="whyml" proved="true">
+<path name=".."/><path name="modelMP.mlw"/>
+<theory name="Steps" proved="true">
+ <goal name="remove_one&#39;vc" expl="VC for remove_one" proved="true">
+ <proof prover="0"><result status="valid" time="0.11" steps="7049"/></proof>
+ </goal>
+ <goal name="indpred_step" proved="true">
+ <transf name="split_vc" proved="true" >
+  <goal name="indpred_step.0" proved="true">
+  <proof prover="5"><result status="valid" time="0.02" steps="92"/></proof>
+  </goal>
+ </transf>
+ </goal>
+ <goal name="indpred_manySteps" proved="true">
+ <transf name="induction_pr" proved="true" >
+  <goal name="indpred_manySteps.0" proved="true">
+  <proof prover="1"><result status="valid" time="0.04"/></proof>
+  </goal>
+  <goal name="indpred_manySteps.1" proved="true">
+  <proof prover="1"><result status="valid" time="0.05"/></proof>
+  </goal>
+ </transf>
+ </goal>
+ <goal name="indpred_reachable" proved="true">
+ <proof prover="1"><result status="valid" time="0.04"/></proof>
+ </goal>
+</theory>
+</file>
+</why3session>

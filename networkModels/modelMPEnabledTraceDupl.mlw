@@ -1,0 +1,227 @@
+(** {1 Message-passing model with trace specifications and duplicated messages - World Theory} *)
+module World
+  use int.Int
+  use map.Map
+  use list.List
+  use list.Append
+  use list.Mem
+  use list.Map as Lmap
+
+  (* types to be defined at the system level,
+     to be instantiated when cloning *)
+  type node
+  type state
+  type msg
+  type externalEvent
+
+  (* product types and their selectors *)
+  type packet = (node, node, msg)
+
+  function dest (p:packet) : node = let (d,_,_) = p in d
+  function src (p:packet) : node = let (_,s,_) = p in s
+  function payload (p:packet) : msg = let (_,_,m) = p in m
+
+  type world = (map node state, list packet, list externalEvent)
+
+  function localState (w:world) : map node state = let (lS,_,_) = w in lS
+  function inFlightMsgs (w:world) : list packet = let (_,ifM,_) = w in ifM
+  function trace (w:world) : list externalEvent = let (_,_,t) = w in t
+end
+
+(** {2 Message-passing model with trace specifications and duplicated messages - Network Theory} *)
+module Steps
+  use int.Int
+  use map.Map
+  use list.List
+  use list.Mem
+  use list.Append
+  use list.Map as Lmap
+  use list.Length
+  use list.NthNoOpt
+
+  (* types to be defined at system level, to be instantiated when cloning *)
+  type node
+  type state
+  type msg
+
+  (* well-formedness predicates for messages and node states,
+     to be instantiated when cloning *)
+  predicate ok_NodeState (node) (state)
+  predicate ok_Msg (node) (node) (msg)
+
+  (* types to be defined at spec level, to be instantiated when cloning *)
+  type output
+  type externalEvent
+
+  val predicate case_node (node)
+    ensures { result }
+  val predicate case_state (state)
+    ensures { result }
+  val predicate case_msg (msg)
+    ensures { result }
+  val predicate case_output (output)
+    ensures { result }
+
+  (* product types *)
+  type packet = (node, node, msg)
+  function dest (p:packet) : node = let (d,_,_) = p in d
+  function src (p:packet) : node = let (_,s,_) = p in s
+  function payload (p:packet) : msg = let (_,_,m) = p in m
+
+  type world = (map node state, list packet, list externalEvent)
+  function localState (w:world) : map node state = let (lS,_,_) = w in lS
+  function inFlightMsgs (w:world) : list packet = let (_,ifM,_) = w in ifM
+  function trace (w:world) : list externalEvent = let (_,_,t) = w in t
+
+  (* equality of packets *)
+  predicate eq_pckt (p:packet) (q:packet) =
+   let (dp,sp,mp) = p in
+     let (dq,sq,mq) = q in
+       dp=dq /\ sp=sq /\ mp=mq
+
+
+  (* TRACE SPECIFICATIONS *)
+
+  (* function specifying how outputs are injected as events *)
+  val function record_outputs (_:node) (outs:list output) : list externalEvent
+    ensures { length result = length outs }
+
+  (* the commit predicate and function identify the events to be logged *)
+  predicate commitp (state) (state)
+  function commitf (state) (state) : list output
+
+  (* the consistent predicate is a property on traces
+     that must be enforced by the invariant *)
+  predicate consistent (t:list externalEvent)
+
+  (* components of the initial world, defined for each system          *)
+  val function initState (node) : state
+  val constant initMsgs : list packet
+  val constant initTrace : list externalEvent
+  constant initWorld : world = (initState, initMsgs, initTrace)
+
+  (* candidate inductive predicate
+     contract ensures well-formedness of message and node states,
+     initial world satifies the predicate, and predicate
+     enforces conssitency of traces *)
+  val ghost predicate indpred (w:world)
+    ensures { w=initWorld -> result }
+    ensures { result -> consistent (trace w) }
+    ensures { result -> forall n :node. ok_NodeState n (localState w n) }
+    ensures { result -> forall p: packet.
+                mem p (inFlightMsgs w) ->
+		  ok_Msg (dest p) (src p) (payload p) }
+
+
+  (* handleEnbld-enabling predicate, to be instantiated when cloning *)
+    val ghost predicate enabled (s:state) (i:node)
+
+  (* function specifying how the results of the handler are used
+     both in the handler's contract and in the transition relation *)
+  function step_enbld (w:world) (n:node) (r:(state, list packet, list output)) : world =
+    let (st, ms, outs) = r in
+      let localState = set (localState w) n st in
+        let inFlightMsgs = ms ++ (inFlightMsgs w) in
+           let trace = (record_outputs n outs) ++ (trace w) in
+             (localState, inFlightMsgs, trace)
+
+  lemma step_enabled :
+    forall w :world, n :node, r:(state, list packet, list output).
+      let (_,_,lo) = r in
+        trace (step_enbld w n r) = (record_outputs n lo) ++ trace w
+
+  (* handler to be executed at node h when it is enabled
+     in the world lS. Preservation of the inductive predicate
+     is enforced *)
+  val function handleEnbld (h:node) (s:state) : (state, list packet, list output)
+    requires { ok_NodeState h s }
+    requires { case_node h }
+    ensures  { forall w :world. enabled (localState w h) h ->
+                 indpred w -> s = localState w h ->
+		   indpred (step_enbld w h result) }
+    ensures  { let (s',_,lo) = result in (commitp s s' -> lo = commitf s s') /\ (not (commitp s s') -> lo = Nil) }
+
+
+  (* function specifying how the results of the message handler are used
+     both in the handler's contract and in the transition relation
+     with duplicating semantics *)
+  function step_message (w:world) (p:packet) (r:(state, list packet, list output)) : world =
+    let (st, ms, outs) = r in
+      let localState = set (localState w) (dest p) st in
+        let inFlightMsgs = ms ++ (inFlightMsgs w) in
+          let trace = (record_outputs (dest p) outs) ++ (trace w) in
+             (localState, inFlightMsgs, trace)
+
+  lemma step_message :
+    forall w :world, p :packet, r:(state, list packet, list output).
+      let (_,_,lo) = r in
+        trace (step_message w p r) = (record_outputs (dest p) lo) ++ trace w
+
+  (* message handler to be executed at node h with state s.
+     well-formedness of packet and the state s of h are required; case
+     analysis predicates are introduced in the context and
+     preservation of the inductive predicate is enforeced in every
+     world where handler is executed.
+     Outputs are produced in accordance to the commit predicate *)
+  val function handleMsg (h:node) (from:node) (m:msg) (s:state) : (state, list packet, list output)
+    requires { ok_NodeState h s }
+    requires { ok_Msg h from m }
+    requires { case_node h }
+    requires { case_node from }
+    requires { case_msg m }
+    requires { case_state s }
+    ensures { forall w :world. indpred w ->
+                mem (h, from, m) (inFlightMsgs w) ->
+		  s = localState w h ->
+    	      	    indpred (step_message w (h, from, m) result) }
+    ensures  { let (s',_,lo) = result in (commitp s s' -> lo = commitf s s') /\ (not (commitp s s') -> lo = Nil) }
+
+
+
+  (* Transition semantics, in the form of an inductive invariant *)
+   inductive dupl_step world node world =
+   | step_enbld : forall w :world, n :node.
+       enabled (localState w n) n ->
+         dupl_step w n (step_enbld w n (handleEnbld n (localState w n)))
+  | step_msg : forall w :world, p :packet.
+      mem p (inFlightMsgs w) ->
+        dupl_step w (dest p) (step_message w p
+	  (handleMsg (dest p) (src p) (payload p) (localState w (dest p))))
+
+
+  (* inductive predicate is preserved by world transitions as
+     described by the semantics.  *)
+  lemma indpred_step :
+    forall w w' :world, n:node. dupl_step w n w' -> indpred w -> indpred w'
+
+  (* many steps relation [reflexive transitive closure]
+     and reachable worlds *)
+  inductive dupl_step_TR world world =
+  | base : forall w :world. dupl_step_TR w w
+  | step : forall w w' w'' :world, n :node.
+      dupl_step_TR w w' -> dupl_step w' n w'' -> dupl_step_TR w w''
+
+  predicate reachable (w:world) = dupl_step_TR initWorld w
+
+  (* inductive predicate is preserved by many steps and holds
+     in reachable worlds *)
+  lemma indpred_manySteps :
+    forall w w' :world. dupl_step_TR w w' -> indpred w -> indpred w'
+
+  lemma indpred_reachable :
+    forall w :world. reachable w -> indpred w
+
+  (* world transitions respect the commit specification *)
+  lemma commit_step :
+    forall w w' :world, n :node. reachable w -> dupl_step w n w' ->
+      (commitp (localState w n) (localState w' n)  ->
+        trace w' = (record_outputs n (commitf (localState w n)  (localState w' n))) ++ trace w)
+      /\
+      (not (commitp (localState w n) (localState w' n))  ->
+	trace w' = trace w)
+
+  (* trace consistency holds in reachable worlds *)
+  lemma consistent_reachable :
+    forall w :world. reachable w -> consistent (trace w)
+
+end

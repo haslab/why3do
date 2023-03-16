@@ -1,0 +1,72 @@
+(** {1 Specification Module for Distributed Lock} *)
+module Spec
+  use int.Int
+  use map.Map
+  use list.List
+  use list.Append
+  use list.Mem
+  use list.Length
+  use list.Map as Lmap
+  use list.NthNoOpt
+
+
+  (* types to be defined in the implementation, will be instantiated
+    when cloning *)
+
+  type node
+
+  (* states should include epochs and boolean (lock held)
+     information *)
+
+  type state
+  function getEpochS (s:state) : int
+  predicate getHeldS (s:state)
+
+  (* specification types *)
+
+  type output = | Locked int
+
+  function getEpochO (o:output) : int =
+    match o with | Locked  e -> e end
+
+  let predicate case_output (_output) = true
+
+  type externalEvent = (node, output)
+  function node (e:externalEvent) : node = let (n,_) = e in n
+  function outp (e:externalEvent) : output = let (_,o) = e in o
+
+  (* function injecting outputs into external events.
+     Pairs outputs from a given node with its id *)
+  let rec function record_outputs (n:node) (outs:list output) : list externalEvent
+    ensures { length result = length outs }
+    ensures { forall i :int. 0<=i<length outs -> nth i result = (n, nth i outs) }
+  = match outs with
+    | Nil -> Nil
+    | Cons x xs -> Cons (n, x) (record_outputs n xs)
+    end
+
+  (* the commit predicate and function specify that whenever a node acquires a
+     lock it produces an output with its current epoch *)
+
+  predicate commitp (s:state) (s':state) = not (getHeldS s) /\ getHeldS s'
+
+  function commitf (_:state) (s':state) : list output = Cons (Locked (getEpochS s')) Nil
+
+  (* a consistent trace is one in which an output tagged with epoch n
+     is necessarily stored in position n of the sequence *)
+
+  predicate consistent (t:list externalEvent) =
+    match t with
+    | Nil -> true
+    | Cons (_,o) os -> getEpochO o = length t /\ consistent os
+    end
+
+
+  (* the handler contracts in the model will ensure that locks
+     acquired at epoch n are indeed logged and tagged with epoch n and
+     that reachable worlds have consistent traces. Together, these two
+     properties mean that a lock acquired at epoch n was acquired by
+     the node stored in position n of the trace, which in turn
+     implies that no two nodes acquired the lock in the same epoch. *)
+
+end

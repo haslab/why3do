@@ -1,0 +1,162 @@
+(** {1 Message-passing model - World Theory} *)
+module World
+  use int.Int
+  use map.Map
+  use list.List
+  use list.Append
+  use list.Mem
+  use list.Map as Lmap
+
+  (* types to be defined at the system level,
+     to be instantiated when cloning *)
+  type node
+  type state
+  type msg
+
+  (* product types and their selectors *)
+  type packet = (node, node, msg)
+
+  function dest    (p:packet) : node = let (d,_,_) = p in d
+  function src     (p:packet) : node = let (_,s,_) = p in s
+  function payload (p:packet) : msg  = let (_,_,m) = p in m
+
+  type world = (map node state, list packet)
+
+  function localState (w:world) : map node state = let (lS,_) = w in lS
+  function inFlightMsgs (w:world) : list packet  = let (_,ifM) = w in ifM
+
+end
+
+(** {2 Message-passing model - Network Theory} *)
+module Steps
+  use int.Int
+  use map.Map
+  use list.List
+  use list.Mem
+  use list.Append
+  use list.Map as Lmap
+
+  (* types to be defined at system level, to be instantiated when cloning *)
+  type node
+  type state
+  type msg
+
+  (* case analysis predicates are always true *)
+  val predicate case_node (node)
+    ensures { result }
+
+  val predicate case_state (state)
+    ensures { result }
+
+  val predicate case_msg (msg)
+    ensures { result }
+
+  (* product types *)
+  type packet = (node, node, msg)
+  type world = (map node state, list packet)
+
+  function dest (p:packet) : node
+  = let (d,_,_) = p in d
+  function src (p:packet) : node
+  = let (_,s,_) = p in s
+  function payload (p:packet) : msg
+  = let (_,_,m) = p in m
+
+  function localState (w:world) : map node state
+  = let (lS,_) = w in lS
+  function inFlightMsgs (w:world) : list packet
+  = let (_,ifM) = w in ifM
+
+  (* equality of packets *)
+  predicate eq_pckt (p:packet) (q:packet) =
+    let (dp,sp,mp) = p in
+    let (dq,sq,mq) = q in
+    dp=dq /\ sp=sq /\ mp=mq
+
+  (* well-formedness predicates for packets and node states,
+     to be instantiated when cloning *)
+  predicate ok_NodeState node state
+  predicate ok_Msg node node msg
+
+  (* components of the initial world, defined for each system *)
+  val function initState node : state
+  val constant initMsgs : list packet
+
+  constant initWorld : world = (initState, initMsgs)
+
+  (* candidate inductive predicate
+     contract ensures well-formedness of message and node states,
+     and initial world satifies the predicate *)
+  val ghost predicate indpred (w:world)
+    ensures { w = initWorld -> result }
+    ensures { result -> forall n :node. ok_NodeState n (localState w n) }
+    ensures { result -> forall p: packet.
+                mem p (inFlightMsgs w) ->
+                  ok_Msg (dest p) (src p) (payload p) }
+
+  (* helper function for step_message *)
+  let rec ghost function remove_one (x:packet) (l:list packet) : list packet
+    ensures { forall y :packet. mem y result -> mem y l }
+  = match l with
+    | Nil -> Nil
+    | Cons h t -> if (eq_pckt x h) then t
+                  else Cons h (remove_one x t)
+    end
+
+  (* function specifying how the outputs of the handlers are used
+     both in the handler's contract and in the transition relation *)
+  function step_message (w:world) (p:packet) (r:(state, list packet)) : world =
+    let (st, ms) = r in
+    let localState = set (localState w) (dest p) st in
+    let inFlightMsgs = ms ++ (remove_one p (inFlightMsgs w)) in
+    (localState, inFlightMsgs)
+
+  (* message handler to be executed at node h with state s.
+     well-formedness of packet and the state s of h are required; case
+     analysis predicates are introduced in the context and
+     preservation of the inductive predicate is enforeced in every
+     world where handler is executed *)
+  val function handleMsg (h:node) (src:node) (m:msg) (s:state)
+    : (state, list packet)
+    requires { ok_NodeState h s }
+    requires { ok_Msg h src m }
+    requires { case_node h }
+    requires { case_node src }
+    requires { case_msg m }
+    requires { case_state s }
+    ensures  { forall w :world. indpred w ->
+                 mem (h, src, m) (inFlightMsgs w) ->
+                   s = localState w h ->
+    	      	       indpred (step_message w (h, src, m) result) }
+
+
+
+  (* Transition semantics, in the form of an inductive invariant *)
+  inductive step world world =
+  | step_msg : forall w :world, p :packet.
+      mem p (inFlightMsgs w) ->
+        step w (step_message w p
+	  (handleMsg (dest p) (src p) (payload p) (localState w (dest p))))
+
+  (* inductive predicate is preserved by world transitions as
+     described by the semantics.  *)
+  lemma indpred_step :
+    forall w w' :world. step w w' -> indpred w -> indpred w'
+
+  (* many steps relation [reflexive transitive closure]
+     and reachable worlds *)
+  inductive step_TR world world =
+  | base : forall w :world. step_TR w w
+  | step : forall w w' w'' : world.
+      step_TR w w' -> step w' w'' -> step_TR w w''
+
+  predicate reachable (w:world) = step_TR initWorld w
+
+  (* inductive predicate is preserved by many steps and holds
+     in reachable worlds *)
+  lemma indpred_manySteps :
+    forall w w' :world. step_TR w w' -> indpred w -> indpred w'
+
+  lemma indpred_reachable :
+    forall w :world. reachable w -> indpred w
+end
