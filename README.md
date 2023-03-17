@@ -22,6 +22,8 @@ establishing inductive invariants of state machine specifications
   the same abstract specification
 * [paxos](examples/paxos): Paxos consensus algorithm. Two-step
   refinement from a specification of the consensus problem
+* [paxosNoRefinement](examples/paxosNoRefinement): Paxos consensus
+  algorithm, earlier stand-alone formalization, not using refinement
 
 ## Example commands
 

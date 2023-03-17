@@ -1,0 +1,255 @@
+
+
+module Paxos
+
+  use int.Int
+  use int.EuclideanDivision
+  use map.Map
+  use map.Const
+  use ref.Ref
+
+  type node
+  predicate validNd (_:node) = true
+
+  type value
+
+  type round = int
+
+  type quorum 
+  predicate mem (node) (quorum)
+  
+  axiom quorum_intersect: forall q1, q2 : quorum. exists n :node. mem n q1 /\ mem n q2
+
+  lemma quorum_NE : forall q : quorum. exists n :node. mem n q
+
+  let lemma quorum_inters  (q1 q2 : quorum) (pred : node->bool)
+    requires { forall n :node. mem n q1 -> pred n }
+    ensures  { exists n :node. mem n q2 /\ pred n }
+  = ()
+
+
+  type world = (map round bool,
+		map (node,round,round,value) bool,
+		map (round,value) bool,
+		map (node,round,value) bool,
+		map (node,round,value) bool)
+
+  function start_round_msg (w:world) : map round bool = let (sr,_,_,_,_) = w in sr
+  function join_ack_msg (w:world) : map (node,round,round,value) bool = let (_,ja,_,_,_) = w in ja
+  function propose_msg (w:world) : map (round,value) bool = let (_,_,pm,_,_) = w in pm
+  function vote_msg (w:world) : map (node,round,value) bool = let (_,_,_,vm,_) = w in vm
+  function decision (w:world) : map (node,round,value) bool = let (_,_,_,_,d) = w in d
+
+
+
+  (* System INIT *)
+
+  constant initWorld : world = (const false, const false, const false, const false, const false)
+
+  (* Inductive Invariant *)
+
+  predicate inv (_:map round bool)
+		(join_ack_msg:map (node,round,round,value) bool)
+		(propose_msg:map (round,value) bool)
+		(vote_msg:map (node,round,value) bool)
+		(decision:map (node,round,value) bool)
+  =
+  (forall n1 n2 :node, r1 r2 :round, v1 v2 :value. decision (n1,r1,v1) /\ decision (n2,r2,v2) -> v1 = v2)
+  /\
+  (forall r :round, v1 v2 :value. propose_msg (r,v1) /\ propose_msg (r,v2) -> v1 = v2) /\
+  (forall n :node, r :round, v :value. vote_msg (n,r,v) -> propose_msg (r,v)) /\
+  (forall r :round, v :value. (exists n :node. decision (n,r,v)) ->
+                               exists q :quorum. forall n :node. mem n q -> vote_msg (n,r,v)) /\
+  (forall n :node, r r' rz :round, v v' :value. rz <=0 -> join_ack_msg (n,r,rz,v) /\ r' < r -> not (vote_msg (n,r',v'))) /\
+  (forall n :node, r r' :round, v :value. join_ack_msg (n,r,r',v) /\ r' > 0 -> r' < r /\ vote_msg (n,r',v)) /\
+  (forall n :node, r r' r'' :round, v v' :value. join_ack_msg (n,r,r',v) /\ r' > 0 /\ r' < r'' < r -> not (vote_msg(n,r'',v'))) /\
+  (forall n :node, v :value, rz :round. rz <= 0 -> not vote_msg (n,rz,v))
+  /\
+  (forall r1 r2 :round, v1 v2 :value, q :quorum. propose_msg (r2,v2) /\ r1 < r2 /\ v1 <> v2 ->
+    exists n : node, r' r'' :round, v :value.  mem n q /\ not (vote_msg (n,r1,v1)) /\ r' > r1 /\ join_ack_msg (n,r',r'',v))
+
+
+  let ghost predicate indpred (w:world) =
+    ensures { w = initWorld -> result }
+    inv (start_round_msg w) (join_ack_msg w) (propose_msg w) (vote_msg w) (decision w) 
+
+
+  (* this can be given computationally! *)
+  val function max (phi: (round,value) ->  bool) : (r :round, v :value)
+    ensures { (r <= 0 /\ forall r' :round, v' :value. not phi(r',v') ) ||
+              (r > 0  /\  phi(r,v) /\ forall r' :round, v' :value. phi(r',v') -> r' <= r) }
+
+  predicate start_round_enbld (_:world) (r:round) =
+    r > 0
+
+  let ghost function start_round (w:world) (r:round) : world
+    requires { start_round_enbld w r }
+    requires { indpred w }
+    ensures  { indpred result }
+  = let srm = set (start_round_msg w) r true
+    in (srm,
+        join_ack_msg w,
+	propose_msg w,
+	vote_msg w,
+	decision w)
+
+
+  predicate join_round_enbld (w:world) (n:node) (r:round) =
+    r > 0 /\ start_round_msg w r /\
+      forall r' r'' :round, v :value. r' > r -> not (join_ack_msg w (n, r', r'', v))
+
+  predicate phi_jr (w:world) (n:node) (r:round) (x : (round,value)) =
+    let (r',v') = x
+    in vote_msg w (n,r',v') /\ r' < r
+    
+  lemma max_jb_1 : forall w :world, n :node, r :round. let (rv,_) = max (phi_jr w n r) in
+        rv <= 0 -> forall r' :round, v' :value. vote_msg w (n,r',v') -> r' >= r
+
+  lemma max_jb_2 : forall w :world, n :node, r :round. let (rv,v) = max (phi_jr w n r) in
+        rv > 0 -> vote_msg w (n,rv,v) /\ rv < r 
+
+  lemma max_jb_3 : forall w :world, n :node, r :round. let (rv,_) = max (phi_jr w n r) in
+        rv > 0 -> forall r' :round, v' :value. vote_msg w (n,r',v') /\ r' < r -> r' <= rv 
+
+
+  let ghost function join_round (w:world) (n:node) (r:round) : world
+    requires { join_round_enbld w n r }
+    requires { indpred w }
+    ensures  { indpred result }
+  = let (maxr, v) = max (phi_jr w n r)
+    in let jam = set (join_ack_msg w) (n,r,maxr,v) true
+    in (start_round_msg w,
+        jam,
+	propose_msg w,
+	vote_msg w,
+	decision w)
+
+
+
+
+  predicate propose_enbld (w:world) (r:round) (q:quorum) =
+    r > 0 /\ (forall v :value . not (propose_msg w (r,v))) /\
+      (forall n :node. mem n q  -> exists r' :round, v' :value. join_ack_msg w (n,r,r',v'))
+
+  predicate phi_p (w:world) (r:round) (q:quorum) (x : (round,value)) =
+    let (r',v') = x
+    in exists n :node. mem n q /\ join_ack_msg w (n,r,r',v') /\ r' > 0
+ 
+  lemma max_p : forall w:world, r:round, q:quorum. let (_, v) = max (phi_p w r q) in 
+     (forall r' :round, v' :value, n :node. mem n q -> join_ack_msg w (n,r,r',v') -> r' <= 0)
+     \/ exists rv :round. rv > 0 /\ 
+          (exists n :node. mem n q /\ join_ack_msg w (n,r,rv,v))
+	   /\
+	  (forall n :node, r' :round, v' :value. mem n q /\ join_ack_msg w (n,r,r',v') /\ r' > 0 -> r' <= rv)
+	  
+  let ghost function propose (w:world) (r:round) (q:quorum) : world
+    requires { propose_enbld w r q }
+    requires { indpred w }
+    ensures  { indpred result }
+  =
+    assert (*6 probably removable *) { forall r' :round. r'=r \/ r'<>r } ;
+
+    assert (*5*) { forall r' :round, v1 v2 :value. r'<>r -> propose_msg w (r',v1) /\ propose_msg w (r',v2) -> v1 = v2 } ;
+
+    assert (*3*) { forall n :node. mem n q  -> exists r' :round, v' :value. r'<r /\ join_ack_msg w (n,r,r',v')  } ;
+
+    let (_, v) = max (phi_p w r q)
+    (* let (rv, v) = max (phi_p w r q) *)
+    in assert (*4*) { forall r1 :round, v1  :value, q' :quorum. r1 < r /\ v1 <> v ->   
+                        exists n : node, r' r'' :round, va :value.  mem n q' /\ (not (vote_msg w (n,r1,v1))) /\ r' > r1 /\ join_ack_msg w (n,r',r'',va)  } ;
+
+    let pm = set (propose_msg w) (r,v) true 
+    in (start_round_msg w,
+        join_ack_msg w,
+        pm,
+        vote_msg w,
+        decision w)
+
+
+  predicate vote_enbld (w:world) (n:node) (r:round) (v:value) =
+    r > 0 /\ propose_msg w (r, v) /\
+      forall r' r'' :round, v :value. r' > r -> not (join_ack_msg w (n, r', r'', v))
+
+  let ghost function vote (w:world) (n:node) (r:round) (v:value) : world
+    requires { vote_enbld w n r v }
+    requires { indpred w }
+    ensures  { indpred result }
+  = let vm = set (vote_msg w) (n,r,v) true
+    in (start_round_msg w,
+        join_ack_msg w,
+        propose_msg w,
+        vm,
+        decision w)
+
+
+  predicate learn_enbld (w:world) (_:node) (r:round) (v:value) (q:quorum) =
+    r > 0 /\ forall n' :node. mem n' q -> vote_msg w (n', r, v)
+
+  let ghost function learn (w:world) (n:node) (r:round) (v:value) (q:quorum) : world
+    requires { learn_enbld w n r v q }
+    requires { indpred w }
+    ensures  { indpred result }
+  = let d = set (decision w) (n,r,v) true
+    in (start_round_msg w,
+        join_ack_msg w,
+        propose_msg w,
+        vote_msg w,
+        d)
+
+
+
+
+  (* Transition SEMANTICS *)
+
+  inductive step world world =
+
+  | start_round : forall w :world, r :round.
+      start_round_enbld w r ->
+        step w  (start_round w r)
+
+  | join_round : forall w :world, n :node, r :round.
+      join_round_enbld w n r ->
+        step w  (join_round w n r)
+
+  | propose : forall w :world, r :round, q :quorum.
+      propose_enbld w r q ->
+        step w  (propose w r q)
+
+  | vote : forall w :world, n :node, r :round, v :value.
+      vote_enbld w n r v ->
+        step w  (vote w n r v)
+
+  | learn : forall w :world, n :node, r :round, v :value, q :quorum.
+      learn_enbld w n r v q ->
+        step w  (learn w n r v q)
+
+
+
+  lemma indpred_step :
+    forall w w' :world. step w w' -> indpred w -> indpred w'
+
+
+
+
+
+  (* many steps relation and reachable worlds *)
+
+  inductive step_TR world world =
+  | base : forall w :world. step_TR w w
+  | step : forall w w' w'' : world.
+      step_TR w w' -> step w' w'' -> step_TR w w''
+
+  lemma indpred_manySteps :
+    forall w w' :world. step_TR w w' -> indpred w -> indpred w'
+
+  predicate reachable (w:world) = step_TR initWorld w
+
+  lemma indpred_reachable :
+    forall w :world. reachable w -> indpred w
+
+
+
+
+
+
+end
