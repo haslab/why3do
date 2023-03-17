@@ -3,10 +3,8 @@
 module Paxos
 
   use int.Int
-  use int.EuclideanDivision
   use map.Map
   use map.Const
-  use ref.Ref
 
   type node
   predicate validNd (_:node) = true
