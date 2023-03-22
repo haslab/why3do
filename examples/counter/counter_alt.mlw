@@ -1,0 +1,99 @@
+
+
+(* Abstract specification of a concurrent shared memory counter, assuming atomic updates
+ *) 
+
+module Counter
+
+  use export int.Int
+  use export map.Map
+  use export map.Const
+
+  type state = Start | Done
+
+  (* threads identified by numbers 
+   *)
+  type thread = int
+
+  val constant n_threads : int
+  axiom n_threads_pos : n_threads > 0
+
+  (* System configurations
+   *)
+  type world = { pc : map thread state ; counter : int }
+
+  
+   (* Inductive invariant 
+   *)
+   
+   (* Aux function - counts threads that terminated 
+    *)
+  let rec function count (w:world) (n:int) 
+    requires { 0 <= n <= n_threads }
+    ensures  { 0 <= result <= n }
+    ensures  { (forall t :thread. 0<=t<n -> w.pc[t]=Start) -> result = 0 }
+    ensures  { (forall t :thread. 0<=t<n -> w.pc[t]=Done)  -> result = n }
+    variant  { n } 
+  = if n=0 then 0
+    else let c = match w.pc[n-1] with | Start -> 0 | Done -> 1 end
+         in c + count w (n-1)
+
+   (* lemma about a pair of configurations 
+      differing only in state of one thread.
+      Required for proving inductiveness of invariant
+    *)
+  let rec lemma count_lm (w1:world) (w2:world) (t:thread) (n:int) 
+    requires { 0 <= n <= n_threads }
+    requires { 0 <= t < n_threads }
+    requires { forall t' :thread. 0<=t'<n_threads-> t'<>t -> w2.pc[t'] = w1.pc[t'] }
+    requires { w1.pc[t]=Start /\ w2.pc[t] = Done }
+    ensures  { t<n  -> count w2 n = count w1 n + 1 }
+    ensures  { t>=n -> count w2 n = count w1 n }
+    variant  { n }
+  = if n=0 then ()
+    else count_lm w1 w2 t (n-1)
+
+  predicate inv (w:world) =
+    w.counter = count w n_threads 
+
+
+  (* System INIT 
+   *)
+  predicate initWorld_p (w:world) = w.pc = const Start /\ w.counter=0 
+  let ghost predicate initWorld (w:world) = initWorld_p w
+
+
+  (* System action
+   *)
+   
+  predicate trans_enbld (w:world) (t:thread) = 
+    0<=t<n_threads /\ w.pc[t] = Start
+
+  let ghost function trans (w:world) (t:thread) : world
+    requires { trans_enbld w t }
+    ensures  { inv w -> inv result }
+  = { pc = set (w.pc) t Done ; counter = w.counter+1 }
+
+
+  (* Transition relation
+   *)
+  inductive stepind world world =
+  | trans : forall w :world, t :thread.
+      trans_enbld w t -> stepind w  (trans w t )
+
+  let ghost predicate step (w1:world) (w2:world) = stepind w1 w2 
+
+
+  (* Proof of inductiveness
+   *)
+  clone export inductiveness.Inductiveness with
+    type world,
+    predicate inv,
+    val step,
+    val initWorld
+
+  lemma correctness : forall w :world. reachable w ->
+  	(forall t :thread. w.pc[t]=Done) -> w.counter=n_threads
+
+end
+

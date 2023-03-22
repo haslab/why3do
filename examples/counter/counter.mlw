@@ -1,6 +1,6 @@
 
 
-(* Abstract specification of a counter, using atomic updates 
+(* Abstract specification of a concurrent shared memory counter, assuming atomic updates
  *) 
 
 module Counter
@@ -12,24 +12,25 @@ module Counter
   type state = Start | Done
   type thread 
 
+  (* System configurations
+   *)
   type world = { pc : map thread state ; counter : int }
 
 
-  (* inductive invariant - not really useful
-   *)
+  (* Inductive invariant 
+   *) 
   predicate inv (w:world) = w.counter >= 0
 
 
-  (* Initial configurations
+  (* System INIT 
    *)
   predicate initWorld_p (w:world) = w.pc = const Start /\ w.counter=0 
   let ghost predicate initWorld (w:world) = initWorld_p w
 
 
-  (* Action function
-     note trans must be ghost because we are using 
-     the logical map library
+  (* System action
    *)
+   
   predicate trans_enbld (w:world) (t:thread) = 
     w.pc[t] = Start
 
@@ -39,23 +40,16 @@ module Counter
   = { pc = set (w.pc) t Done ; counter = w.counter+1 }
 
 
-
-
-  (* Transition SEMANTICS 
+  (* Transition relation
    *)
   inductive stepind world world =
   | trans : forall w :world, t :thread.
       trans_enbld w t -> stepind w  (trans w t )
 
-
   let ghost predicate step (w1:world) (w2:world) = stepind w1 w2 
 
 
-  (* proof of inductiveness -- OPTIONAL!
-     This would be established anyway when the concrete module 
-     clones the Refinement module from core.mlw.
-     It does not seem to be relevant for proving the contracts 
-     of the concrete functions, so it does need to be here
+  (* Proof of inductiveness, if desired
    *)
   (* clone export core.Inductiveness with *)
   (*   type world, *)
