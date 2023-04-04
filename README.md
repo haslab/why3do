@@ -8,6 +8,12 @@ establishing inductive invariants of state machine specifications
 
 ## List of Example Folders
 
+* [distributedLockNetwork](examples/distributedLockNetwork)
+  Distributed lock using a network model. Appears in ESOP'2022 Why3-do
+  paper
+* [changRobertsNetwork](examples/changRobertsNetwork) Chang-Roberts
+  leader election ring algorithm, using a network model. Appears in
+  ESOP'2022 Why3-do paper
 * [twoPhase](examples/twoPhase) Two-phase handshake protocol, refined
   from abstract specification
 * [counter](examples/counter): Concurrent counter using a lock,
