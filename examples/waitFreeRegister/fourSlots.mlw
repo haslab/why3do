@@ -1,0 +1,355 @@
+
+(* Simpson's algorithm, 2 processes (Writer / Reader) 
+
+   Uses a set of 4 non-atomic registers (and 4 atomic control
+   registers) to implement a single shared register 
+   _in a wait-free way_
+
+   The property proved here is data race freedom
+
+*)
+
+
+
+module FourSlots
+  use export bool.Bool
+  use export int.Int
+  use export map.Map
+  use export map.Const
+
+  type proc = Reader | Writer
+
+  clone slotsAbstract.SlotsAbstract with type slot = (int,int), type proc
+
+
+  type stateWtr = Am2 | Am1 | A | Ap1 | Ap2 | DoneW
+  type stateRdr = Bm3 | Bm2 | Bm1 | B | Bp1 | DoneR
+
+
+  (* System configurations
+   *)
+  type world = { pcWtr : stateWtr ;            (* local to Writer      *)
+  		 pcRdr : stateRdr ;            (* local to Reader      *)
+       	       	 d : map (int,int) int ;       (* shared, non-atomic   *)
+  		 li : map int int ;            (* shared, atomic       *)
+		 l : int ;                     (* shared, atomic       *)
+		 r : int ;                     (* shared, atomic       *)
+		 wp : int ;                    (* local to Writer      *)
+		 wi : int ;                    (* local to Writer      *)
+		 rp : int ;                    (* local to Reader      *)
+		 ri : int ;                    (* local to Reader      *)
+		 y : int ;                     (* local to Reader      *)
+       	       }
+  invariant { 0<=li[0]<=1 /\ 0<=li[1]<=1 /\
+              0<=l<=1 /\ 0<=r<=1 /\ 0<=wp<=1 /\ 0<=wi<=1 /\ 0<=rp<=1 /\ 0<=ri<=1 }
+
+  by { pcWtr = Am2 ; pcRdr = Bm3 ; 
+       d = const 0 ; li = const 0 ; 
+       l = 1 ; r = 0 ; wp = 1 ; wi = 0 ; rp = 0 ; ri = 0 ; y = 0 }
+
+
+  (* Refinement mapping 
+   *)
+  let ghost function refn (w:world) : SlotsAbstract.world
+  = { pc_a = fun p ->
+      	     match p with
+  	     | Writer ->   match w.pcWtr with
+			   | Am2 -> Init
+	       	      	   | Am1 -> Init
+  			   | A -> Write (w.wp,w.wi)
+  			   | Ap1 -> Done
+  			   | Ap2 -> Done
+  			   | DoneW -> Done
+  			   end
+  	     | Reader ->   match w.pcRdr with
+  	       	      	   | Bm3 -> Init
+  			   | Bm2 -> Init
+  			   | Bm1 -> Init
+  			   | B -> Read (w.rp,w.ri) 
+  			   | Bp1 -> Done
+  			   | DoneR -> Done
+  			   end
+  	     end
+     }
+
+
+  predicate am2_enbld (w:world) (p:proc) = 
+    p=Writer /\ w.pcWtr = Am2
+  predicate am1_enbld (w:world) (p:proc) = 
+    p=Writer /\ w.pcWtr = Am1
+  predicate a_enbld (w:world) (p:proc) (_:int) = 
+    p=Writer /\ w.pcWtr = A 
+  predicate ap1_enbld (w:world) (p:proc) = 
+    p=Writer /\ w.pcWtr = Ap1
+  predicate ap2_enbld (w:world) (p:proc) = 
+    p=Writer /\ w.pcWtr = Ap2
+  predicate bm3_enbld (w:world) (p:proc) = 
+    p=Reader /\ w.pcRdr = Bm3
+  predicate bm2_enbld (w:world) (p:proc) = 
+    p=Reader /\ w.pcRdr = Bm2
+  predicate bm1_enbld (w:world) (p:proc) = 
+    p=Reader /\ w.pcRdr = Bm1
+  predicate b_enbld (w:world) (p:proc) = 
+    p=Reader /\ w.pcRdr = B 
+  predicate bp1_enbld (w:world) (p:proc) = 
+    p=Reader /\ w.pcRdr = Bp1 
+
+
+  (* Inductive invariant 
+   *)
+  predicate inv (w:world) =
+    (w.pcWtr = A -> w.wi <> w.li[w.wp])
+      /\
+    (w.pcRdr <> Bm2 -> w.r = w.rp)
+      /\
+    (am1_enbld w Writer -> wr_enbld (refn w) Writer (w.wp,1-w.li[w.wp]))
+      /\
+    (bm1_enbld w Reader -> rd_enbld (refn w) Reader (w.rp,w.li[w.rp]))
+
+
+  (* System INIT 
+   *)
+  predicate initWorld_p (w:world) =
+    w.pcWtr = Am2 /\ w.pcRdr = Bm3 /\ 
+    w.d = const 0 /\ w.li = const 0 /\ 
+    w.l = 1 /\ w.r = 0 /\ w.wp = 1 /\ w.wi = 0 /\ w.rp = 0 /\ w.ri = 0 /\ w.y = 0
+
+  let ghost predicate initWorld (w:world) = initWorld_p w
+
+
+  (* Action functions
+   *)
+   
+  let ghost function am2 (w:world) (p:proc) : world
+    requires { am2_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
+  = { pcWtr = Am1 ;
+      pcRdr = w.pcRdr ; 
+      d     = w.d ;
+      li    = w.li ;
+      l     = w.l ;
+      r     = w.r ;
+      wp    = 1-w.r ;
+      wi    = w.wi ;
+      rp    = w.rp ;
+      ri    = w.ri ;
+      y     = w.y
+    }  
+
+  let ghost function am1 (w:world) (p:proc) : world
+    requires { am1_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
+  = { pcWtr = A ;
+      pcRdr = w.pcRdr ; 
+      d     = w.d ;
+      li    = w.li ;
+      l     = w.l ;
+      r     = w.r ;
+      wp    = w.wp ;
+      wi    = 1-w.li[w.wp] ;
+      rp    = w.rp ;
+      ri    = w.ri ;
+      y     = w.y
+    }  
+
+  (* wx is the value to be written in the abstract register
+   *)
+  let ghost function a (w:world) (p:proc) (wx:int) : world
+    requires { a_enbld w p wx }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
+  = { pcWtr = Ap1 ;
+      pcRdr = w.pcRdr ; 
+      d     = w.d[(w.wp,w.wi)<-wx] ;
+      li    = w.li ;
+      l     = w.l ;
+      r     = w.r ;
+      wp    = w.wp ;
+      wi    = w.wi ;
+      rp    = w.rp ;
+      ri    = w.ri ;
+      y     = w.y
+    }  
+
+  let ghost function ap1 (w:world) (p:proc) : world
+    requires { ap1_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
+  = { pcWtr = Ap2 ;
+      pcRdr = w.pcRdr ; 
+      d     = w.d ;
+      li    = w.li[w.wp<-w.wi] ;
+      l     = w.l ;
+      r     = w.r ;
+      wp    = w.wp ;
+      wi    = w.wi ;
+      rp    = w.rp ;
+      ri    = w.ri ;
+      y     = w.y
+    }  
+
+  let ghost function ap2 (w:world) (p:proc) : world
+    requires { ap2_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
+  = { pcWtr = DoneW ;
+      pcRdr = w.pcRdr ; 
+      d     = w.d ;
+      li    = w.li ;
+      l     = w.wp ;
+      r     = w.r ;
+      wp    = w.wp ;
+      wi    = w.wi ;
+      rp    = w.rp ;
+      ri    = w.ri ;
+      y     = w.y
+    }  
+
+
+  let ghost function bm3 (w:world) (p:proc) : world
+    requires { bm3_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
+  = { pcWtr = w.pcWtr ;
+      pcRdr = Bm2 ; 
+      d     = w.d ;
+      li    = w.li ;
+      l     = w.wp ;
+      r     = w.r ;
+      wp    = w.wp ;
+      wi    = w.wi ;
+      rp    = w.l ;
+      ri    = w.ri ;
+      y     = w.y
+    }  
+
+  let ghost function bm2 (w:world) (p:proc) : world
+    requires { bm2_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
+  = { pcWtr = w.pcWtr ;
+      pcRdr = Bm1 ; 
+      d     = w.d ;
+      li    = w.li ;
+      l     = w.wp ;
+      r     = w.rp ;
+      wp    = w.wp ;
+      wi    = w.wi ;
+      rp    = w.rp ;
+      ri    = w.ri ;
+      y     = w.y
+    }  
+
+  let ghost function bm1 (w:world) (p:proc) : world
+    requires { bm1_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
+  = { pcWtr = w.pcWtr ;
+      pcRdr = B ; 
+      d     = w.d ;
+      li    = w.li ;
+      l     = w.wp ;
+      r     = w.r ;
+      wp    = w.wp ;
+      wi    = w.wi ;
+      rp    = w.rp ;
+      ri    = w.li[w.rp] ;
+      y     = w.y
+    }  
+
+  let ghost function b (w:world) (p:proc) : world
+    requires { b_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
+  = { pcWtr = w.pcWtr ;
+      pcRdr = Bp1 ; 
+      d     = w.d ;
+      li    = w.li ;
+      l     = w.wp ;
+      r     = w.r ;
+      wp    = w.wp ;
+      wi    = w.wi ;
+      rp    = w.rp ;
+      ri    = w.ri ;
+      y     = w.d[(w.rp,w.ri)]
+    }  
+
+  let ghost function bp1 (w:world) (p:proc) : world
+    requires { bp1_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
+  = { pcWtr = w.pcWtr ;
+      pcRdr = DoneR ; 
+      d     = w.d ;
+      li    = w.li ;
+      l     = w.wp ;
+      r     = w.r ;
+      wp    = w.wp ;
+      wi    = w.wi ;
+      rp    = w.rp ;
+      ri    = w.ri ;
+      y     = w.y
+    }  
+
+
+
+
+
+
+  (* Transition relation
+   *)
+  inductive stepind world world =
+  | am2 : forall w :world, p :proc.
+      am2_enbld w p -> stepind w (am2 w p)
+  | am1 : forall w :world, p :proc.
+      am1_enbld w p -> stepind w (am1 w p)
+  | a : forall w :world, p :proc, x :int.
+      a_enbld w p x -> stepind w (a w p x)
+  | ap1 : forall w :world, p :proc.
+      ap1_enbld w p -> stepind w (ap1 w p)
+  | ap2 : forall w :world, p :proc.
+      ap2_enbld w p -> stepind w (ap2 w p)
+  | bm3 : forall w :world, p :proc.
+      bm3_enbld w p -> stepind w (bm3 w p)
+  | bm2 : forall w :world, p :proc.
+      bm2_enbld w p -> stepind w (bm2 w p)
+  | bm1 : forall w :world, p :proc.
+      bm1_enbld w p -> stepind w (bm1 w p)
+  | b : forall w :world, p :proc.
+      b_enbld w p -> stepind w (b w p)
+  | bp1 : forall w :world, p :proc.
+      bp1_enbld w p -> stepind w (bp1 w p)
+
+  let ghost predicate step (w1:world) (w2:world) = stepind w1 w2 
+
+
+
+  (* Proof of refinement 
+   *)
+  clone export refinement.Refinement with
+    type worldC=world, type worldA=SlotsAbstract.world, val refn,
+    predicate invC=inv, predicate invA=SlotsAbstract.inv,
+    val initWorldC=initWorld, val initWorldA=SlotsAbstract.initWorld,
+    val stepC=step, val stepA=SlotsAbstract.step
+
+
+  (* Safety Property
+   *)
+  lemma safetyAbs : forall w :world. reachableC w -> let wA = refn w in
+    forall p q :proc, t: (int,int). p<>q -> 
+       wA.pc_a[p] = Write t -> wA.pc_a[q] <> Write t /\ wA.pc_a[q] <> Read t
+
+end
+
+
+
+
+
+
+
+
+
+
+

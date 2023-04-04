@@ -1,0 +1,134 @@
+
+
+(* Abstract spec of mutual exclusion accessing a set of safe
+   registers.  The critical section consists of read/write operations
+   on some given slots that are not atomic registers (writing and
+   reading are not atomic operations).  The spec demands that if a
+   process is writing to a slot, no other process is either writing to
+   it or reading it.
+
+   The idea is to use a set of non-atomic registers to implement a
+   single shared register in a wait-free way.  Simpson's algorithm
+   achieves this using 4 registers, and 4 more control (atomic)
+   registers.
+   
+ *)
+
+
+module SlotsAbstract
+
+  use export bool.Bool
+  use export map.Map
+  use export map.Const
+
+  type proc 
+  type slot 
+
+  type state = Init | Write slot | Read slot | Done
+
+
+  (* System configurations
+   *)
+  type world = { pc_a : map proc state }
+
+
+  (* System INIT 
+   *)
+  predicate initWorld_p (w:world) = w.pc_a = const Init 
+
+  let ghost predicate initWorld (w:world) = initWorld_p w
+
+
+  (* Inductive invariant.
+   *)
+  predicate inv (w:world) = forall p q :proc. p<>q -> 
+    match w.pc_a[p] with
+    | Write t -> match w.pc_a[q] with
+      	         | Write t' -> t'<> t
+      	         | Read  t' -> t'<> t
+	         | _ -> true
+	         end
+    | _ -> true
+    end
+
+
+
+  (* Actions
+   *)
+   
+  (* Enter Writing Section
+   *)
+  predicate wr_enbld (w:world) (p:proc) (t:slot) = 
+    w.pc_a[p] = Init /\ forall q :proc. 
+    match w.pc_a[q] with
+    | Write t' -> t'<> t
+    | Read  t' -> t'<> t
+    | _ -> true
+    end
+
+  let ghost function wr (w:world) (p:proc) (t:slot) : world
+    requires { wr_enbld w p t }
+    ensures  { inv w -> inv result }
+  = { pc_a = (w.pc_a)[p<-Write t] }
+
+
+  (* Enter Reading Section
+   *)
+  predicate rd_enbld (w:world) (p:proc) (t:slot) = 
+    w.pc_a[p] = Init /\ forall q :proc. 
+    match w.pc_a[q] with
+    | Write t' -> t'<> t
+    | _ -> true 
+    end
+
+  let ghost function rd (w:world) (p:proc) (t:slot) : world
+    requires { rd_enbld w p t }
+    ensures  { inv w -> inv result }
+  = { pc_a = (w.pc_a)[p<-Read t] }
+
+
+  (* Read / Write action - the same at abstract level
+   *)
+  predicate cs_enbld (w:world) (p:proc) = 
+    match w.pc_a[p] with
+    | Write _ -> true
+    | Read _ -> true 
+    | _ -> false
+    end
+
+  let ghost function cs (w:world) (p:proc) : world
+    requires { cs_enbld w p }
+    ensures  { inv w -> inv result }
+  = { pc_a = w.pc_a[p<-Done] }
+
+
+
+  (* Transition relation
+   *)
+  inductive stepind world world =
+  | wr : forall w :world, p :proc, t :slot.
+      wr_enbld w p t -> stepind w (wr w p t)
+  | rd : forall w :world, p :proc, t :slot.
+      rd_enbld w p t -> stepind w (rd w p t)
+  | cs : forall w :world, p :proc.
+      cs_enbld w p -> stepind w (cs w p)
+
+  let ghost predicate step (w1:world) (w2:world) = stepind w1 w2 
+
+
+  (* proof of inductiveness 
+   *)
+  clone export inductiveness.Inductiveness with
+    type world,
+    predicate inv,
+    val step,
+    val initWorld
+
+
+  lemma safety : forall w :world. reachable w -> 
+    forall p q :proc, t: slot. p<>q -> 
+      w.pc_a[p] = Write t -> w.pc_a[q] <> Write t /\ w.pc_a[q] <> Read t
+
+
+end
+

@@ -10,11 +10,13 @@ establishing inductive invariants of state machine specifications
 
 * [twoPhase](examples/twoPhase) Two-phase handshake protocol, refined
   from abstract specification
-* [counter](examples/counter): concurrent counter using a lock,
+* [counter](examples/counter): Concurrent counter using a lock,
   by refinement from abstract specification 
 * [mutualExclusionConcurrent](examples/mutualExclusionConcurrent):
-  mutual exclusion algorithms for concurrent processes, refined from
+  Mutual exclusion algorithms for concurrent processes, refined from
   an abstract specification 
+* [waitFreeRegister](examples/waitFreeRegister): Wait-free
+  implementation of a shared register using non-atomic registers
 * [leaderElection](examples/leaderElection/): Chang-Roberts leader
   election ring algorithm, refined from an abstract specification
 * [mutualExclusionToken](examples/mutualExclusionToken): Closure property of Dijkstra's
@@ -33,5 +35,5 @@ establishing inductive invariants of state machine specifications
   session of the same example (assuming all the required SMT solvers are present in the local setup)
 * `why3 replay --smoke-detector=top examples/leaderElection/ChangRoberts -L
   examples/leaderElection -L stateMachineModels`: runs inconsistency
-  detection of the proof session of the same example 
+  detection on the proof session of the same example 
 

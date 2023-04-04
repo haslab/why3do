@@ -23,7 +23,6 @@ module CounterImpl
 
   (* Refinement mapping: Inc state is mapped to Start at abstract level
    *) 
-
   let function refn (w:world) : Counter.world
   = let pc' (t:thread) = match w.pcc[t] with
                          | Done -> Counter.Done
