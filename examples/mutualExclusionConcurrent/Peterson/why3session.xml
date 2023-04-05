@@ -2,8 +2,9 @@
 <!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
 "http://why3.lri.fr/why3session.dtd">
 <why3session shape_version="6">
-<prover id="0" name="CVC5" version="1.0.3" timelimit="5" steplimit="0" memlimit="1000"/>
-<prover id="1" name="Alt-Ergo" version="2.4.2" timelimit="5" steplimit="0" memlimit="1000"/>
+<prover id="0" name="CVC5" version="1.0.3" timelimit="1" steplimit="0" memlimit="1000"/>
+<prover id="1" name="Alt-Ergo" version="2.4.2" timelimit="1" steplimit="0" memlimit="1000"/>
+<prover id="2" name="CVC4" version="1.8" timelimit="1" steplimit="0" memlimit="1000"/>
 <file format="whyml" proved="true">
 <path name=".."/><path name="Peterson.mlw"/>
 <theory name="Peterson" proved="true">
@@ -14,41 +15,65 @@
  <proof prover="1"><result status="valid" time="0.00" steps="0"/></proof>
  </goal>
  <goal name="a1&#39;vc" expl="VC for a1" proved="true">
- <proof prover="0"><result status="valid" time="0.08" steps="12557"/></proof>
+ <proof prover="0"><result status="valid" time="0.08" steps="16549"/></proof>
  </goal>
  <goal name="a2&#39;vc" expl="VC for a2" proved="true">
- <proof prover="0"><result status="valid" time="0.18" steps="15044"/></proof>
+ <proof prover="0"><result status="valid" time="0.18" steps="20859"/></proof>
  </goal>
  <goal name="a3&#39;vc" expl="VC for a3" proved="true">
- <proof prover="0"><result status="valid" time="0.15" steps="43481"/></proof>
+ <transf name="split_vc" proved="true" >
+  <goal name="a3&#39;vc.0" expl="postcondition" proved="true">
+  <proof prover="1"><result status="valid" time="0.06" steps="1309"/></proof>
+  </goal>
+  <goal name="a3&#39;vc.1" expl="postcondition" proved="true">
+  <transf name="split_vc" proved="true" >
+   <goal name="a3&#39;vc.1.0" expl="postcondition" proved="true">
+   <proof prover="2"><result status="valid" time="0.03" steps="9522"/></proof>
+   </goal>
+   <goal name="a3&#39;vc.1.1" expl="postcondition" proved="true">
+   <transf name="split_vc" proved="true" >
+    <goal name="a3&#39;vc.1.1.0" expl="postcondition" proved="true">
+    <proof prover="0"><result status="valid" time="1.82" steps="198971"/></proof>
+    </goal>
+    <goal name="a3&#39;vc.1.1.1" expl="postcondition" proved="true">
+    <proof prover="0" timelimit="5" memlimit="2000"><result status="valid" time="2.33" steps="316869"/></proof>
+    </goal>
+   </transf>
+   </goal>
+  </transf>
+  </goal>
+ </transf>
  </goal>
  <goal name="cs&#39;vc" expl="VC for cs" proved="true">
  <transf name="split_vc" proved="true" >
   <goal name="cs&#39;vc.0" expl="postcondition" proved="true">
-  <proof prover="1" timelimit="1"><result status="valid" time="0.01" steps="103"/></proof>
+  <proof prover="1"><result status="valid" time="0.01" steps="104"/></proof>
   </goal>
   <goal name="cs&#39;vc.1" expl="postcondition" proved="true">
-  <proof prover="0" timelimit="1"><result status="valid" time="0.52" steps="77702"/></proof>
+  <proof prover="0"><result status="valid" time="0.87" steps="94238"/></proof>
   </goal>
  </transf>
  </goal>
  <goal name="a4&#39;vc" expl="VC for a4" proved="true">
- <proof prover="0"><result status="valid" time="0.25" steps="42256"/></proof>
+ <proof prover="0"><result status="valid" time="0.10" steps="19657"/></proof>
  </goal>
  <goal name="initWorldA&#39;refn&#39;vc" expl="VC for initWorldA&#39;refn" proved="true">
  <proof prover="1"><result status="valid" time="0.01" steps="16"/></proof>
  </goal>
  <goal name="initWorldC&#39;refn&#39;vc" expl="VC for initWorldC&#39;refn" proved="true">
- <proof prover="1"><result status="valid" time="0.01" steps="92"/></proof>
+ <proof prover="1"><result status="valid" time="0.01" steps="78"/></proof>
  </goal>
  <goal name="stepA&#39;refn&#39;vc" expl="VC for stepA&#39;refn" proved="true">
- <proof prover="1"><result status="valid" time="0.03" steps="538"/></proof>
+ <proof prover="1"><result status="valid" time="0.03" steps="55"/></proof>
  </goal>
  <goal name="stepC&#39;refn&#39;vc" expl="VC for stepC&#39;refn" proved="true">
- <proof prover="1"><result status="valid" time="0.02" steps="218"/></proof>
+ <proof prover="1"><result status="valid" time="0.02" steps="235"/></proof>
  </goal>
  <goal name="safety" proved="true">
- <proof prover="1"><result status="valid" time="0.01" steps="78"/></proof>
+ <proof prover="1"><result status="valid" time="0.01" steps="84"/></proof>
+ </goal>
+ <goal name="safetyA" proved="true">
+ <proof prover="1"><result status="valid" time="0.01" steps="71"/></proof>
  </goal>
 </theory>
 </file>

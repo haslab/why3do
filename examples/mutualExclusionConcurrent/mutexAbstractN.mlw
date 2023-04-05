@@ -1,0 +1,89 @@
+
+(* Abstract spec of mutual exclusion problem, 
+   arbitrary number of  concurrent processes  
+ *)
+
+module MutexAbstractN
+
+  use bool.Bool
+  use map.Map
+  use map.Const
+
+  type proc 
+
+  type state = Init | CS | Done
+
+
+  (* System configurations
+   *)
+  type world = { pc_n : map proc state }
+
+
+  (* Inductive invariant 
+   *) 
+  predicate atMostOneCS (w:world) = forall p q :proc. 
+     w.pc_n[p] = CS -> w.pc_n[q] = CS -> p = q 
+  
+  predicate inv (w:world) = atMostOneCS w 
+
+
+  (* System INIT 
+   *)
+  predicate initWorld_p (w:world) = w.pc_n = const Init 
+
+  let ghost predicate initWorld (w:world) = initWorld_p w
+
+
+
+  (* System Actions
+   *)
+
+  (* Enter CS if no other process has
+   *)
+  predicate i_enbld (w:world) (p:proc) = 
+    w.pc_n[p] = Init /\ forall p' :proc. w.pc_n[p'] <> CS 
+  let ghost function i (w:world) (p:proc) : world
+    requires { i_enbld w p }
+    ensures  { inv w -> inv result }
+  = { pc_n = (w.pc_n)[p<-CS] }
+
+  (* Exit CS 
+   *)
+  predicate cs_enbld (w:world) (p:proc) = 
+    w.pc_n[p] = CS 
+  let ghost function cs (w:world) (p:proc) : world
+    requires { cs_enbld w p }
+    ensures  { inv w -> inv result }
+  = { pc_n = w.pc_n[p<-Done] }
+
+
+  (* Transition relation
+   *)
+  inductive stepind world world =
+  | i : forall w :world, p :proc.
+      i_enbld w p -> stepind w (i w p)
+  | cs : forall w :world, p :proc.
+      cs_enbld w p -> stepind w (cs w p)
+
+  let ghost predicate step (w1:world) (w2:world) = stepind w1 w2 
+
+
+
+  (* Proof of inductiveness 
+   *)
+  clone export inductiveness.Inductiveness with
+    type world,
+    predicate inv,
+    val step,
+    val initWorld
+
+
+  (* Safety Property
+   *)
+  goal oneCS : forall w :world. reachable w -> atMostOneCS w
+  
+end
+
+
+
+

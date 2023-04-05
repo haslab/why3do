@@ -16,18 +16,18 @@
   <proof prover="2" timelimit="1"><result status="valid" time="0.00" steps="2"/></proof>
   </goal>
   <goal name="a1&#39;vc.1" expl="postcondition" proved="true">
-  <proof prover="1" timelimit="10" memlimit="4000"><result status="valid" time="5.57" steps="518248"/></proof>
+  <proof prover="1" timelimit="10" memlimit="4000"><result status="valid" time="10.56" steps="837415"/></proof>
   </goal>
  </transf>
  </goal>
  <goal name="a2&#39;vc" expl="VC for a2" proved="true">
- <proof prover="1"><result status="valid" time="3.77" steps="295592"/></proof>
+ <proof prover="1"><result status="valid" time="4.58" steps="327340"/></proof>
  </goal>
  <goal name="a3a&#39;vc" expl="VC for a3a" proved="true">
- <proof prover="1"><result status="valid" time="1.86" steps="155423"/></proof>
+ <proof prover="1"><result status="valid" time="2.28" steps="173993"/></proof>
  </goal>
  <goal name="a3b&#39;vc" expl="VC for a3b" proved="true">
- <proof prover="1"><result status="valid" time="3.44" steps="300339"/></proof>
+ <proof prover="1"><result status="valid" time="2.69" steps="215609"/></proof>
  </goal>
  <goal name="cs&#39;vc" expl="VC for cs" proved="true">
  <transf name="split_vc" proved="true" >
@@ -35,30 +35,30 @@
   <proof prover="2" timelimit="1"><result status="valid" time="0.00" steps="2"/></proof>
   </goal>
   <goal name="cs&#39;vc.1" expl="postcondition" proved="true">
-  <proof prover="1" timelimit="10" memlimit="4000"><result status="valid" time="5.52" steps="476579"/></proof>
+  <proof prover="1" timelimit="10" memlimit="4000"><result status="valid" time="5.52" steps="508881"/></proof>
   </goal>
  </transf>
  </goal>
  <goal name="a4&#39;vc" expl="VC for a4" proved="true">
- <proof prover="1"><result status="valid" time="2.12" steps="188963"/></proof>
+ <proof prover="1"><result status="valid" time="2.71" steps="216991"/></proof>
  </goal>
  <goal name="Refinement.initWorldA&#39;refn&#39;vc" expl="VC for initWorldA&#39;refn" proved="true">
  <proof prover="2"><result status="valid" time="0.01" steps="21"/></proof>
  </goal>
  <goal name="Refinement.initWorldC&#39;refn&#39;vc" expl="VC for initWorldC&#39;refn" proved="true">
- <proof prover="2"><result status="valid" time="0.01" steps="85"/></proof>
+ <proof prover="2"><result status="valid" time="0.01" steps="90"/></proof>
  </goal>
  <goal name="Refinement.stepA&#39;refn&#39;vc" expl="VC for stepA&#39;refn" proved="true">
- <proof prover="2"><result status="valid" time="0.02" steps="149"/></proof>
+ <proof prover="2"><result status="valid" time="0.02" steps="160"/></proof>
  </goal>
  <goal name="Refinement.stepC&#39;refn&#39;vc" expl="VC for stepC&#39;refn" proved="true">
- <proof prover="2"><result status="valid" time="0.13" steps="1232"/></proof>
+ <proof prover="2"><result status="valid" time="0.13" steps="1270"/></proof>
  </goal>
  <goal name="safety_Peterson" proved="true">
- <proof prover="2" timelimit="300"><result status="valid" time="31.85" steps="231646"/></proof>
+ <proof prover="2" timelimit="300"><result status="valid" time="22.32" steps="229364"/></proof>
  </goal>
  <goal name="safety" proved="true">
- <proof prover="2"><result status="valid" time="0.02" steps="93"/></proof>
+ <proof prover="2"><result status="valid" time="0.02" steps="94"/></proof>
  </goal>
 </theory>
 </file>

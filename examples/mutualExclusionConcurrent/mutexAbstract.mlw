@@ -2,25 +2,34 @@
 
 (* Abstract spec of mutual exclusion problem, 
    two concurrent processes  
+   Refinement of N-process spec MutexAbstractN,
+   instantiates type proc; system configurations are the same
+   and refinement maping is identity
  *)
-
 
 module MutexAbstract
 
-  use export bool.Bool
-  use export map.Map
-  use export map.Const
+  use bool.Bool
+  use map.Map
+  use map.Const
 
   type proc = Zero | One 
   function other (p: proc) : proc =
     match p with | Zero -> One | One -> Zero end
 
-  type state = Init | CS | Done
+  clone mutexAbstractN.MutexAbstractN with type proc
 
 
   (* System configurations
    *)
   type world = { pc_a : map proc state }
+
+
+  (* Refinement mapping 
+     identity function
+   *)
+  let ghost function refn (w:world) : MutexAbstractN.world 
+  = { pc_n = w.pc_a }
 
 
   (* System INIT 
@@ -30,34 +39,38 @@ module MutexAbstract
   let ghost predicate initWorld (w:world) = initWorld_p w
 
 
-  (* Inductive invariant.
-     Not required to prove the safety property 
+  (* Inductive invariant
    *)
-  predicate inv (w:world) = forall p :proc.
+  predicate inv (w:world) = forall p :proc. 
      w.pc_a[p] = CS -> w.pc_a[other p] <> CS
 
 
-
-  (* Actions
+  (* System actions
    *)
 
-  (* Enters CS if other process hasn't.
+  (* Enter CS if other process hasn't.
      No other action is available in the Init state, 
-     process blocks if action ot enabled
+     process blocks if action not enabled
    *)
-  predicate i_enbld (w:world) (p:proc) = 
+  predicate i_enbld (w:world) (p:proc) =
     w.pc_a[p] = Init /\ w.pc_a[other p] <> CS 
 
   let ghost function i (w:world) (p:proc) : world
     requires { i_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
   = { pc_a = (w.pc_a)[p<-CS] }
 
 
+  (* Exit CS 
+   *)
   predicate cs_enbld (w:world) (p:proc) = 
     w.pc_a[p] = CS 
 
   let ghost function cs (w:world) (p:proc) : world
     requires { cs_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
   = { pc_a = w.pc_a[p<-Done] }
 
 
@@ -73,17 +86,18 @@ module MutexAbstract
   let ghost predicate step (w1:world) (w2:world) = stepind w1 w2 
 
 
-  (* proof of inductiveness 
+  (* proof of refinement 
    *)
-  clone export inductiveness.Inductiveness with
-    type world,
-    predicate inv,
-    val step,
-    val initWorld
+  clone export refinement.Refinement with
+    type worldC=world, type worldA=MutexAbstractN.world, val refn,
+    predicate invC=inv, predicate invA=MutexAbstractN.inv,
+    val initWorldC=initWorld, val initWorldA=MutexAbstractN.initWorld,
+    val stepC=step, val stepA=MutexAbstractN.step
 
 
-  lemma safety : forall w :world. reachable w ->
-    not (w.pc_a[Zero] = CS /\ w.pc_a[One] = CS)
+  (* Safety Property
+   *)
+  lemma safety : forall w :world. reachableC w -> atMostOneCS (refn w) 
 
 
 end

@@ -1,7 +1,9 @@
 
 
-module SimpleMutex
+(* Simple mutex algorithm, 2 processes
+ *)
 
+module SimpleMutex
   use bool.Bool
   use map.Map
   use map.Const
@@ -19,17 +21,16 @@ module SimpleMutex
 
   (* Refinement mapping 
    *)
-  function mapSt (st:state) : MutexAbstract.state =
+  function mapSt (st:state) : MutexAbstractN.state =
   match st with
-  | A -> Init
-  | B -> Init
-  | CS -> MutexAbstract.CS
-  | Done -> MutexAbstract.Done
+  | A -> MutexAbstractN.Init
+  | B -> MutexAbstractN.Init
+  | CS -> MutexAbstractN.CS
+  | Done -> MutexAbstractN.Done
   end
 
   let ghost function refn (w:world) : MutexAbstract.world 
   = { pc_a = fun p -> mapSt w.pc[p] }
-
 
 
   (* inductive invariant enabling the refinement proof
@@ -38,7 +39,7 @@ module SimpleMutex
     w.pc[p] = B  \/ w.pc[p] = CS -> w.trying[p]
 
 
-  (* Initial configurations
+  (* System INIT 
    *)
   predicate initWorld_p (w:world) =
     w.pc = const A /\ w.trying = const false
@@ -48,9 +49,9 @@ module SimpleMutex
 
   (* Action functions
    *)
+   
   predicate a_enbld (w:world) (p:proc) = 
     w.pc[p] = A
-
   let ghost function a (w:world) (p:proc) : world
     requires { a_enbld w p }
     ensures  { inv w -> inv result }
@@ -60,7 +61,6 @@ module SimpleMutex
 
   predicate b_enbld (w:world) (p:proc) = 
     w.pc[p] = B /\ not w.trying[other p]
-
   let ghost function b (w:world) (p:proc) : world
     requires { b_enbld w p }
     ensures  { inv w -> inv result }
@@ -70,7 +70,6 @@ module SimpleMutex
 
   predicate cs_enbld (w:world) (p:proc) = 
     w.pc[p] = CS 
-
   let ghost function cs (w:world) (p:proc) : world
     requires { cs_enbld w p }
     ensures  { inv w -> inv result }
@@ -90,7 +89,6 @@ module SimpleMutex
 
   let ghost predicate step (w1:world) (w2:world) = stepind w1 w2 
 
-
   (* Proof of refinement 
    *)
   clone export refinement.Refinement with
@@ -100,8 +98,16 @@ module SimpleMutex
     val stepC=step, val stepA=MutexAbstract.step
 
 
+  (* Safety Propertya
+   *)
   lemma safety : forall w :world. reachableC w ->
     not (w.pc[Zero] = CS /\ w.pc[One] = CS)
+
+  function fullrefn (w:world) : MutexAbstractN.world =
+    MutexAbstract.refn(refn w)
+
+  lemma safetyA : forall w :world. reachableC w ->
+    MutexAbstractN.atMostOneCS (fullrefn w) 
 
 
 end

@@ -3,9 +3,9 @@
  *)
 
 module Peterson
-  use export bool.Bool
-  use export map.Map
-  use export map.Const
+  use bool.Bool
+  use map.Map
+  use map.Const
 
   use mutexAbstract.MutexAbstract
 
@@ -34,14 +34,14 @@ module Peterson
 
   (* Refinement mapping 
    *)
-  function mapSt (st:state) : MutexAbstract.state =
+  function mapSt (st:state) : MutexAbstractN.state =
   match st with
-  | A1 -> Init
-  | A2 -> Init
-  | A3 -> Init
-  | CS -> MutexAbstract.CS
-  | A4 -> MutexAbstract.Done
-  | Done -> MutexAbstract.Done
+  | A1 -> MutexAbstractN.Init
+  | A2 -> MutexAbstractN.Init
+  | A3 -> MutexAbstractN.Init
+  | CS -> MutexAbstractN.CS
+  | A4 -> MutexAbstractN.Done
+  | Done -> MutexAbstractN.Done
   end
 
   let ghost function refn (w:world) : MutexAbstract.world 
@@ -140,6 +140,11 @@ module Peterson
   lemma safety : forall w :world. reachableC w ->
     not (w.pc[Zero] = CS /\ w.pc[One] = CS)
 
+  function fullrefn (w:world) : MutexAbstractN.world =
+    MutexAbstract.refn(refn w)
+
+  lemma safetyA : forall w :world. reachableC w ->
+    MutexAbstractN.atMostOneCS (fullrefn w) 
 
 end
 

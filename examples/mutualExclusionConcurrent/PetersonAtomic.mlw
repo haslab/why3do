@@ -1,9 +1,8 @@
 
-(* a version of Peterson's algorithm (2 processes)
-   that separates the loop condition conjunct (containing 
-   two reads) in two atomic parts.
+(* a version of Peterson's algorithm (2 processes) that separates the
+   loop condition conjunct (containing two reads) in two atomic parts.
    This corresponds to the version in the "TLA+ Proofs" FM'2012 paper
-   by Merz, Lamport et al
+   by Merz, Lamport et al 
  *)
 
 module PetersonAtom
@@ -143,8 +142,7 @@ module PetersonAtom
   (* Safety Property
      This first lemma is required because the safety property 
      in the Peterson module is not part of the inductive invariant, 
-     since it follows from the refinement of MutexAbstract.
-     A 2-step refinement theory could make the top-level 
+     since it follows from the refinement of MutexAbstract
    *)
   lemma safety_Peterson : forall w :world. reachableA (refn w) ->
     not ((refn w).pc[Zero] = Peterson.CS /\ (refn w).pc[One] = Peterson.CS)

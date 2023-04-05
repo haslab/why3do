@@ -2,24 +2,30 @@
 <!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
 "http://why3.lri.fr/why3session.dtd">
 <why3session shape_version="6">
-<prover id="0" name="Alt-Ergo" version="2.4.2" timelimit="5" steplimit="0" memlimit="1000"/>
+<prover id="0" name="Alt-Ergo" version="2.4.2" timelimit="1" steplimit="0" memlimit="1000"/>
 <file format="whyml" proved="true">
 <path name=".."/><path name="mutexAbstract.mlw"/>
 <theory name="MutexAbstract" proved="true">
  <goal name="i&#39;vc" expl="VC for i" proved="true">
- <proof prover="0"><result status="valid" time="0.00" steps="0"/></proof>
+ <proof prover="0"><result status="valid" time="0.01" steps="229"/></proof>
  </goal>
  <goal name="cs&#39;vc" expl="VC for cs" proved="true">
- <proof prover="0"><result status="valid" time="0.00" steps="0"/></proof>
+ <proof prover="0"><result status="valid" time="0.01" steps="107"/></proof>
  </goal>
- <goal name="initWorld&#39;refn&#39;vc" expl="VC for initWorld&#39;refn" proved="true">
- <proof prover="0"><result status="valid" time="0.00" steps="14"/></proof>
+ <goal name="initWorldA&#39;refn&#39;vc" expl="VC for initWorldA&#39;refn" proved="true">
+ <proof prover="0"><result status="valid" time="0.00" steps="18"/></proof>
  </goal>
- <goal name="step&#39;refn&#39;vc" expl="VC for step&#39;refn" proved="true">
- <proof prover="0"><result status="valid" time="0.06" steps="1456"/></proof>
+ <goal name="initWorldC&#39;refn&#39;vc" expl="VC for initWorldC&#39;refn" proved="true">
+ <proof prover="0"><result status="valid" time="0.00" steps="24"/></proof>
+ </goal>
+ <goal name="stepA&#39;refn&#39;vc" expl="VC for stepA&#39;refn" proved="true">
+ <proof prover="0"><result status="valid" time="0.00" steps="44"/></proof>
+ </goal>
+ <goal name="stepC&#39;refn&#39;vc" expl="VC for stepC&#39;refn" proved="true">
+ <proof prover="0"><result status="valid" time="0.01" steps="65"/></proof>
  </goal>
  <goal name="safety" proved="true">
- <proof prover="0"><result status="valid" time="0.00" steps="25"/></proof>
+ <proof prover="0"><result status="valid" time="0.00" steps="4"/></proof>
  </goal>
 </theory>
 </file>
