@@ -4,8 +4,10 @@ Formalization, by specification refinement, of concurrent mutual exclusion algor
 
 ## Files 
 
+  * [mutexAbstractN](mutexAbstractN.mlw): abstract specification of
+  N-process mutual exclusion problem
   * [mutexAbstract](mutexAbstract.mlw): abstract specification of
-  two-process mutual exclusion problem
+  two-process mutual exclusion problem. Refines mutexAbstractN
   * [simpleMutex](simpleMutex.mlw): simple algorithm using just a
     "trying" variable for each process (may deadlock). Refines mutexAbstract
   * [Peterson](Peterson.mlw): Petersons's algorithm. Refines mutexAbstract
