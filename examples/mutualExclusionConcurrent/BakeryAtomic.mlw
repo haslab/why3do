@@ -1,0 +1,315 @@
+
+(* Lamport's Bakery algorithm for n-process mutual exclusion 
+   Simplified version assuming atomic reads and writes 
+
+   The abstract spec uses a set of processes not associated with
+   integer numbers; here we use a range type to obtain that required
+   association. Unfortunately this requires using a constant upper bound. 
+   The abstract spec module is cloned instantiating the proc type
+  
+ *)
+
+
+module BakeryAtomic
+  use bool.Bool
+  use int.Int
+  use map.Map
+  use map.Const
+
+  type proc = <range 0 999>
+
+  predicate isEmpty (m:map proc bool) = forall p :proc. not m p
+
+
+  clone mutexAbstractN.MutexAbstractN with type proc
+
+  type state = A1 | A2 | A3 | A4 | A5 | A5A | A6 | CS | A7 | Done
+
+  (* System configurations
+   *)
+  type world = { pc : map proc state ;
+                 flag : map proc bool ;
+                 num : map proc int ;
+                 unread : map proc (map proc bool) ;
+                 max : map proc int ;
+                 next : map proc proc }
+
+
+  (* Refinement mapping 
+   *)
+  function mapSt (st:state) : MutexAbstractN.state =
+  match st with
+  | CS -> MutexAbstractN.CS
+  | A7 -> MutexAbstractN.Done
+  | Done -> MutexAbstractN.Done
+  | _ -> MutexAbstractN.Init
+  end
+
+  let ghost function refn (w:world) : MutexAbstractN.world
+  = { pc_n = fun p -> mapSt w.pc[p] }
+
+
+  (* lexicographical order
+     projection function is not known to be injective 
+     for this reason we don't use proc'int j <= proc'int i below
+   *)
+  predicate ll (w:world) (j:proc) (i:proc) =
+    w.num[j] < w.num[i]
+     \/ (w.num[j] = w.num[i] /\ (j = i \/ proc'int j < proc'int i))
+
+  (* lemma ll_lm : forall w :world, i j :proc. i<>j ->  *)
+  (* 	ll w j i -> not (ll w i j) *)
+
+
+  (* Inductive invariant 
+   *)
+
+  predicate after (w:world) (i:proc) (j:proc) =
+            w.num[j] > 0
+	      /\
+	    (w.pc[i] = A1 \/  
+	    (w.pc[i] = A2 /\ (w.unread[i][j] \/ w.max[i] >= w.num[j])) \/ 
+	    (w.pc[i] = A3 /\ w.max[i] >= w.num[j]) \/ 
+	    (w.pc[i] = A4 /\ ll w j i) \/
+	   ((w.pc[i] = A5 \/ w.pc[i] = A5A \/ w.pc[i] = A6) /\ ll w j i /\ w.unread[i][j]) \/
+	    w.pc[i] = Done)                                                                                 (***)
+
+  predicate invP1 (w:world) (p:proc) =
+    	w.max[p] >= 0 /\ w.num[p] >= 0 
+	  /\
+	(w.pc[p] = A2 \/  w.pc[p] = A5 \/ w.pc[p] = A5A \/ w.pc[p] = A6 -> not w.unread[p][p])    (* this works without the antecedent? *)
+          /\
+	(w.pc[p]=A5A \/ w.pc[p]=A6 -> w.next[p] <> p)
+          /\
+  	(w.num[p] = 0 <-> w.pc[p]=A1 \/ w.pc[p]=A2 \/ w.pc[p]=A3 \/ w.pc[p]=Done)                 
+          /\
+	(w.flag[p] <-> w.pc[p]=A2 \/ w.pc[p]=A3 \/ w.pc[p]=A4)
+          /\ 
+        (w.pc[p]=A3 \/ w.pc[p]=CS \/ w.pc[p]=A7 -> forall q :proc. not w.unread[p][q])
+
+  predicate invP2 (w:world) (p:proc) =  
+	    ((w.pc[p] = A6) /\
+	      ((w.pc[w.next[p]]=A2 /\ not w.unread[w.next[p]][p]) \/ w.pc[w.next[p]]=A3)
+                -> w.max[w.next[p]] >= w.num[p])
+
+  predicate invP3 (w:world) (p:proc) =
+            (w.pc[p]=A5 \/ w.pc[p]=A5A \/ w.pc[p]=A6 -> forall q :proc. q<>p /\ not w.unread[p][q] -> after w q p)
+
+  predicate invP4 (w:world) (p:proc) =
+            (w.pc[p]=CS \/ w.pc[p]=A7 -> forall q :proc. q<>p -> after w q p)
+
+
+  predicate inv (w:world) = forall p :proc. 
+  	    invP1 w p /\ invP2 w p /\ invP3 w p /\ invP4 w p
+
+
+  (* Provable lemmas, not required
+   *)
+   
+  (* lemma inv_lm : forall w :world, p, q :proc. inv w -> *)
+  (*      w.pc[p] = A5 /\ isEmpty w.unread[p] -> w.pc[q]<>CS *)
+
+  (* lemma invMutualExcl : forall w :world, p, q :proc. inv w -> *)
+  (*      w.pc[p]=CS /\ w.pc[q]=CS -> p=q *)
+
+
+  (* System INIT 
+   *)
+  predicate initWorld_p (w:world) = 
+    w.pc = const A1 /\ w.num = const 0 /\ w.flag = const false
+      /\ forall p :proc. w.max[p] >= 0 
+
+  let ghost predicate initWorld (w:world) = initWorld_p w
+
+
+  (* Action functions
+   *)
+   
+  predicate a1_enbld (w:world) (p:proc) = 
+    w.pc[p] = A1
+  let ghost function a1 (w:world) (p:proc) : world
+    requires { a1_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
+  = let unreadp : map proc bool = (const true)[p<-false] in
+    { pc = w.pc[p<-A2] ;
+      flag = w.flag[p<-true] ;
+      num = w.num ;
+      unread = w.unread[p<-unreadp] ;
+      max = w.max[p<-0] ; 
+      next = w.next }
+
+  predicate a2_enbld (w:world) (p:proc) = 
+    w.pc[p] = A2
+  let ghost function a2 (w:world) (p:proc) : world
+    requires { a2_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
+  = if isEmpty w.unread[p] then  
+    { pc = w.pc[p<-A3] ;
+      flag = w.flag ;
+      num = w.num;
+      unread = w.unread ;
+      max = w.max ; 
+      next = w.next }
+    else let i:proc = any proc ensures { w.unread[p][result] } in
+         let unreadp : map proc bool = w.unread[p][i<-false] in
+	 let maxp = if w.num[i] > w.max[p] then w.num[i] else w.max[p] in
+    { pc = w.pc[p<-A2] ;
+      flag = w.flag ;
+      num  =  w.num;
+      unread = w.unread[p<-unreadp] ;
+      max = w.max[p<-maxp] ; 
+      next = w.next }
+    
+  predicate a3_enbld (w:world) (p:proc) = 
+    w.pc[p] = A3
+  let ghost function a3 (w:world) (p:proc) : world
+    requires { a3_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
+  = { pc = w.pc[p<-A4] ;
+      flag = w.flag ;
+      num  =  w.num[p<-w.max[p]+1] ;
+      unread = w.unread ;
+      max = w.max ; 
+      next = w.next }
+
+  predicate a4_enbld (w:world) (p:proc) = 
+    w.pc[p] = A4
+  let ghost function a4 (w:world) (p:proc) : world
+    requires { a4_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
+  = let unreadp : map proc bool = (const true)[p<-false] in
+    { pc = w.pc[p<-A5] ;
+      flag = w.flag[p<-false] ;
+      num = w.num ;
+      unread = w.unread[p<-unreadp] ;
+      max = w.max ; 
+      next = w.next }
+
+  predicate a5_enbld (w:world) (p:proc) = 
+    w.pc[p] = A5
+  let ghost function a5 (w:world) (p:proc) : world
+    requires { a5_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> isEmpty w.unread[p] -> i_enbld (refn w) p }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
+  = if isEmpty w.unread[p] then  
+    { pc = w.pc[p<-CS] ;
+      flag = w.flag ;
+      num = w.num;
+      unread = w.unread ;
+      max = w.max ; 
+      next = w.next }
+    else let i:proc = any proc ensures { w.unread[p][result] } in
+    { pc = w.pc[p<-A5A] ;
+      flag = w.flag ;
+      num = w.num;
+      unread = w.unread ;
+      max = w.max ; 
+      next = w.next[p<-i] }
+    
+  (* awaiting implies a new action that is not present in the TLA+
+     formalization
+   *)
+  predicate a5a_enbld (w:world) (p:proc) = 
+    w.pc[p] = A5A /\ not w.flag[w.next[p]]
+  let ghost function a5a (w:world) (p:proc) : world
+    requires { a5a_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
+  = { pc = w.pc[p<-A6] ;
+      flag = w.flag ;
+      num  =  w.num ;
+      unread = w.unread ;
+      max = w.max ; 
+      next = w.next }
+
+  predicate a6_enbld (w:world) (p:proc) =
+    w.pc[p] = A6 /\
+    let nxt = w.next[p] in w.num[nxt] = 0 \/ ll w p nxt
+
+  let ghost function a6 (w:world) (p:proc) : world
+    requires { a6_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
+  = let unreadp = w.unread[p][w.next[p]<-false] in
+    { pc = w.pc[p<-A5] ;
+      flag = w.flag ;
+      num  =  w.num ;
+      unread = w.unread[p<-unreadp] ;
+      max = w.max ; 
+      next = w.next }
+
+  predicate cs_enbld (w:world) (p:proc) = 
+    w.pc[p] = CS
+  let ghost function cs (w:world) (p:proc) : world
+    requires { cs_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
+  = { pc = w.pc[p<-A7] ;
+      flag = w.flag ;
+      num = w.num ;
+      unread = w.unread ;
+      max = w.max ; 
+      next = w.next }
+
+  predicate a7_enbld (w:world) (p:proc) = 
+    w.pc[p] = A7
+  let ghost function a7 (w:world) (p:proc) : world
+    requires { a7_enbld w p }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ step (refn w) (refn result) }
+  = { pc = w.pc[p<-Done] ;
+      flag = w.flag ;
+      num = w.num[p<-0];
+      unread = w.unread ;
+      max = w.max ; 
+      next = w.next }
+
+
+  (* Transition relation
+   *)
+  inductive stepind world world =
+  | a1 : forall w :world, p :proc.
+      a1_enbld w p -> stepind w (a1 w p)
+  | a2 : forall w :world, p :proc.
+      a2_enbld w p -> stepind w (a2 w p)
+  | a3 : forall w :world, p :proc.
+      a3_enbld w p -> stepind w (a3 w p)
+  | a4 : forall w :world, p :proc.
+      a4_enbld w p -> stepind w (a4 w p)
+  | a5 : forall w :world, p :proc.
+      a5_enbld w p -> stepind w (a5 w p)
+  | a5a : forall w :world, p :proc.
+      a5a_enbld w p -> stepind w (a5a w p)
+  | a6 : forall w :world, p :proc.
+      a6_enbld w p -> stepind w (a6 w p)
+  | cs : forall w :world, p :proc.
+      cs_enbld w p -> stepind w (cs w p)
+  | a7 : forall w :world, p :proc.
+      a7_enbld w p -> stepind w (a7 w p)
+
+  let ghost predicate step (w1:world) (w2:world) = stepind w1 w2 
+
+
+  (* Proof of refinement 
+   *)
+  clone export refinement.Refinement with
+    type worldC=world, type worldA=MutexAbstractN.world, val refn,
+    predicate invC=inv, predicate invA=MutexAbstractN.inv,
+    val initWorldC=initWorld, val initWorldA=MutexAbstractN.initWorld,
+    val stepC=step, val stepA=MutexAbstractN.step
+
+
+  (* Safety Property
+   *)
+
+  lemma safety : forall w :world. reachableC w -> atMostOneCS (refn w) 
+
+
+end
+
+

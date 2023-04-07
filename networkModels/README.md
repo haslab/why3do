@@ -2,7 +2,7 @@
 # Network Models
 
 Library modules for reasoning about distributed systems with different
-netowkr semantics. Described in the ESOP'2022 paper "Why3-do: The Way
+network semantics. Described in the ESOP'2022 paper "Why3-do: The Way
 of Harmonious Distributed System Proofs".
 
 

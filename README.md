@@ -3,8 +3,11 @@ A WhyML library for reasoning about state machine specifications and distributed
 
 ## Library Modules
 
-* [stateMachineModels](stateMachineModels): simple theory for
-establishing inductive invariants of state machine specifications
+* [stateMachineModels](stateMachineModels): theories for
+ inductive invariants and refinement mappings of  state machine
+ specifications 
+* [networkModels](networkModels): theories for reasoning about
+  distributed systems with different network semantics
 
 ## List of Example Folders
 
