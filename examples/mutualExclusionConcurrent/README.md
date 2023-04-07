@@ -13,4 +13,6 @@ Formalization, by specification refinement, of concurrent mutual exclusion algor
   * [Peterson](Peterson.mlw): Petersons's algorithm. Refines mutexAbstract
   * [PetersonAtomic](PetersonAtomic.mlw): a variant of Petersons's
   algorithm. Refines Peterson 
+  * [BakeryAtomic](BakeryAtomic.mlw): simplified version of Lamport's
+    Bakery algorithm. Refines mutexAbstractN
 
