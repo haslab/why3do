@@ -1,0 +1,80 @@
+name: replay-why3-proofs
+run-name: ${{ github.actor }} setting up environment
+on: [push]
+env:
+  CVC4_URL: "https://github.com/CVC4/CVC4/releases/download/1.8/cvc4-1.8-x86_64-linux-opt"
+  CVC5_URL: "https://github.com/cvc5/cvc5/releases/download/cvc5-1.0.3/cvc5-Linux"
+  Z3_URL: "https://github.com/Z3Prover/z3/releases/download/z3-4.11.2/z3-4.11.2-x64-glibc-2.31.zip"
+jobs:
+  install-and-test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v3
+    - name: Use OCaml
+      uses: ocaml/setup-ocaml@v2
+      with:
+        ocaml-compiler: 4.13.x
+    - name: install tools with opam
+      run: |
+        opam update
+        opam install why3.1.6.0
+        opam install alt-ergo.2.4.2
+        opam install eprover.2.6
+        # it possible to install z3 as follows
+        # opam install z3.4.11.2
+    - name: download z3, cvc4, and cvc5
+      run: |
+        mkdir downloads
+        cd downloads
+        wget $CVC4_URL
+        chmod +x ${CVC4_URL##*/}
+        mv ${CVC4_URL##*/} /usr/local/bin/cvc4
+        # echo "deb http://cvc4.cs.nyu.edu/debian/ unstable/" | sudo tee -a /etc/apt/sources.list
+        # echo "deb-src http://cvc4.cs.nyu.edu/debian/ unstable/" | sudo tee -a /etc/apt/sources.list
+        # sudo apt-get update
+        # sudo apt-get install cvc4 --force-yes
+        wget $CVC5_URL
+        chmod +x ${CVC5_URL##*/}
+        mv ${CVC5_URL##*/} /usr/local/bin/cvc5
+        # also possible to use opam to install z3, but the compilation is very slow
+        wget $Z3_URL
+        z3folder=${Z3_URL##*/}
+        unzip $z3folder
+        mv ${z3folder%.*}/bin/z3 /usr/local/bin
+    - name: test installation
+      run: |
+        eval $(opam env)
+        echo "which why3"
+        which why3
+        echo "why3 version"
+        why3 --version
+        echo "which alt-ergo"
+        which alt-ergo
+        echo "alt-ergo --version"
+        alt-ergo --version
+        echo "which z3"
+        which z3
+        echo "z3 --version"
+        z3 --version
+        echo "which cvc4"
+        which cvc4
+        echo "cvc4 --version"
+        cvc4 --version
+        echo "which cvc5"
+        which cvc5
+        echo "cvc5 --version"
+        cvc5 --version
+    - name: replay proofs
+      run: |
+        echo "eval $(opam env)"
+        eval $(opam env)
+        echo "why3 config detect"
+        why3 config detect
+        echo "why3 config list-provers"
+        why3 config list-provers
+        echo "cd $GITHUB_WORKSPACE"
+        cd $GITHUB_WORKSPACE
+        echo "# Replay Status" > $GITHUB_STEP_SUMMARY
+        echo "./test.sh"
+        ./test.sh

@@ -1,11 +1,17 @@
 # Why3-do
+
+[![Why3 proof replay][workflow-badge]][workflow]
+
+[workflow]: https://github.com/haslab/why3do/actions/workflows/set-up-environment.yml
+[workflow-badge]: https://img.shields.io/github/actions/workflow/status/haslab/why3do/set-up-environment.yml?label=Proof%20Replay&logo=github
+
 A WhyML library for reasoning about state machine specifications and distributed systems
 
 ## Library Modules
 
 * [stateMachineModels](stateMachineModels): theories for
  inductive invariants and refinement mappings of  state machine
- specifications 
+ specifications
 * [networkModels](networkModels): theories for reasoning about
   distributed systems with different network semantics
 
@@ -20,10 +26,10 @@ A WhyML library for reasoning about state machine specifications and distributed
 * [twoPhase](examples/twoPhase): Two-phase handshake protocol, refined
   from abstract specification
 * [counter](examples/counter): Concurrent counter using a lock,
-  by refinement from abstract specification 
+  by refinement from abstract specification
 * [mutualExclusionConcurrent](examples/mutualExclusionConcurrent):
   Mutual exclusion algorithms for concurrent processes, refined from
-  an abstract specification 
+  an abstract specification
 * [waitFreeRegister](examples/waitFreeRegister): Wait-free
   implementation of a shared register using non-atomic registers
 * [leaderElection](examples/leaderElection/): Chang-Roberts leader
@@ -38,11 +44,11 @@ A WhyML library for reasoning about state machine specifications and distributed
 
 ## Example commands
 
-* `why3 ide examples/leaderElection/ChangRoberts.mlw -L examples/leaderElection -L stateMachineModels`: (executed in the top-level folder) launches the Why3 IDE with file `ChangRoberts.mlw` 
+* `why3 ide examples/leaderElection/ChangRoberts.mlw -L examples/leaderElection -L stateMachineModels`: (executed in the top-level folder) launches the Why3 IDE with file `ChangRoberts.mlw`
 * `why3 replay examples/leaderElection/ChangRoberts -L
   examples/leaderElection -L stateMachineModels`: replays the proof
   session of the same example (assuming all the required SMT solvers are present in the local setup)
 * `why3 replay --smoke-detector=top examples/leaderElection/ChangRoberts -L
   examples/leaderElection -L stateMachineModels`: runs inconsistency
-  detection on the proof session of the same example 
+  detection on the proof session of the same example
 

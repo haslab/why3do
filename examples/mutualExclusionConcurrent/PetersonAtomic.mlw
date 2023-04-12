@@ -11,7 +11,7 @@ module PetersonAtom
   use export map.Const
 
   use mutexAbstract.MutexAbstract
-  use peterson.Peterson
+  use Peterson.Peterson
 
   type state = A1 | A2 | A3A | A3B | CS | A4 | Done
 
