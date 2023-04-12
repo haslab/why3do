@@ -46,3 +46,4 @@ A WhyML library for reasoning about state machine specifications and distributed
   examples/leaderElection -L stateMachineModels`: runs inconsistency
   detection on the proof session of the same example 
 
+![Why3 proof replay](https://github.com/haslab/why3do/actions/workflows/set-up-environment.yml/badge.svg?event=push)
