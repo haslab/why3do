@@ -56,11 +56,11 @@
    3  3  3 *2  0 
    3  3  3 *3  0 2-value STABLE
 
-   To sum up: two invariants can be considered, one for 2-step configs 
+   To sum up: two invariants can be considered, one for 2-value configs 
    and a more general one for single-token configs. 
 
 
-   THE PRESENT MODULE CONCERNS THE FIRST CASE: CLOSURE OF EXECUTIONS WITH 2-STEP CONFIGURATIONS
+   THE PRESENT MODULE CONCERNS THE FIRST CASE: CLOSURE OF EXECUTIONS WITH 2-VALUE CONFIGURATIONS
     
   *)
 

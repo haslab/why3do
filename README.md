@@ -11,13 +11,13 @@ A WhyML library for reasoning about state machine specifications and distributed
 
 ## List of Example Folders
 
-* [distributedLockNetwork](examples/distributedLockNetwork)
+* [distributedLockNetwork](examples/distributedLockNetwork):
   Distributed lock using a network model. Appears in ESOP'2022 Why3-do
   paper
-* [changRobertsNetwork](examples/changRobertsNetwork) Chang-Roberts
+* [changRobertsNetwork](examples/changRobertsNetwork): Chang-Roberts
   leader election ring algorithm, using a network model. Appears in
   ESOP'2022 Why3-do paper
-* [twoPhase](examples/twoPhase) Two-phase handshake protocol, refined
+* [twoPhase](examples/twoPhase): Two-phase handshake protocol, refined
   from abstract specification
 * [counter](examples/counter): Concurrent counter using a lock,
   by refinement from abstract specification 
