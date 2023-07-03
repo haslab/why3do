@@ -75,5 +75,6 @@ jobs:
         why3 config list-provers
         echo "cd $GITHUB_WORKSPACE"
         cd $GITHUB_WORKSPACE
+        echo "# Replay Status" > $GITHUB_STEP_SUMMARY
         echo "./test.sh"
         ./test.sh

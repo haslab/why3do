@@ -42,6 +42,13 @@ all_tests=(
 failed=0
 runned=0
 
+if [ ! "$GITHUB_STEP_SUMMARY" ];then
+   GITHUB_STEP_SUMMARY=output.txt
+fi
+
+echo "| Module | Status  |" >> $GITHUB_STEP_SUMMARY
+echo "| :----- | :-----: |" >> $GITHUB_STEP_SUMMARY
+
 for ((i = 0; i < ${#all_tests[@]}; i++))
 do
     test=${all_tests[$i]}
@@ -49,9 +56,20 @@ do
     echo $cmd
     eval $cmd
     res=$?
+    if [ "$res" = "0" ]; then
+        icon=":white_check_mark:"
+    else
+        icon=":x:"
+    fi;
+    words=($test)
+    echo "| ${words[0]} | $icon |" >> $GITHUB_STEP_SUMMARY
     failed=$((failed+$res))
     runned=$((runned+1))
 done
+
+echo "" >> $GITHUB_STEP_SUMMARY
+echo "Passed: $((runned-failed))" >> $GITHUB_STEP_SUMMARY
+echo "Failed: $failed" >> $GITHUB_STEP_SUMMARY
 
 echo ""
 echo "Replayed $runned from which $failed failed."
