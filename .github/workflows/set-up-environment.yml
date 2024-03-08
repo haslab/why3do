@@ -2,7 +2,7 @@ name: replay-why3-proofs
 run-name: ${{ github.actor }} setting up environment
 on: [push]
 env:
-  CVC4_URL: "https://github.com/CVC4/CVC4/releases/download/1.8/cvc4-1.8-x86_64-linux-opt"
+  CVC4_URL: "https://github.com/CVC4/CVC4-archived/releases/download/1.8/cvc4-1.8-x86_64-linux-opt"
   CVC5_URL: "https://github.com/cvc5/cvc5/releases/download/cvc5-1.0.3/cvc5-Linux"
   Z3_URL: "https://github.com/Z3Prover/z3/releases/download/z3-4.11.2/z3-4.11.2-x64-glibc-2.31.zip"
 jobs:
@@ -21,7 +21,7 @@ jobs:
         opam install why3.1.6.0
         opam install alt-ergo.2.4.2
         opam install eprover.2.6
-        # it possible to install z3 as follows
+        # it's possible to install z3 as follows
         # opam install z3.4.11.2
     - name: download z3, cvc4, and cvc5
       run: |
