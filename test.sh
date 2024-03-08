@@ -13,14 +13,14 @@ all_tests=(
 "examples/mutualExclusionConcurrent/PetersonAtomic -L stateMachineModels -L examples/mutualExclusionConcurrent"
 "examples/mutualExclusionConcurrent/BakeryAtomic -L stateMachineModels -L examples/mutualExclusionConcurrent"
 "examples/waitFreeRegister/slotsAbstract -L stateMachineModels -L examples/waitFreeRegister"
-# "examples/waitFreeRegister/fourSlots -L stateMachineModels -L examples/waitFreeRegister"
+"examples/waitFreeRegister/fourSlots -L stateMachineModels -L examples/waitFreeRegister"
 "examples/counter/counter -L stateMachineModels -L examples/counter"
 "examples/counter/counter_lock -L stateMachineModels -L examples/counter"
 "examples/counter/counter_alt -L stateMachineModels -L examples/counter"
 "examples/counter/counter_lock_alt -L stateMachineModels -L examples/counter"
 "examples/leaderElection/leaderElect -L stateMachineModels -L examples/leaderElection"
 "examples/leaderElection/leaderElectMax -L stateMachineModels -L examples/leaderElection"
-# "examples/leaderElection/ChangRoberts -L stateMachineModels -L examples/leaderElection"
+"examples/leaderElection/ChangRoberts -L stateMachineModels -L examples/leaderElection"
 "examples/leaderElection/ChangRobertsNetwork -L stateMachineModels -L examples/leaderElection"
 "examples/mutualExclusionToken/oneToken -L stateMachineModels -L examples/mutualExclusionToken"
 # "examples/mutualExclusionToken/selfstab-ring -L stateMachineModels -L examples/mutualExclusionToken"
@@ -35,8 +35,8 @@ all_tests=(
 "examples/changRobertsNetwork/leaderlect-ring -L networkModels"
 "examples/distributedLockNetwork/specLDT"
 "examples/distributedLockNetwork/LDT -L networkModels -L examples/distributedLockNetwork"
-# "examples/distributedLockNetwork/LDTDupl -L networkModels -L examples/distributedLockNetwork"
-# "examples/paxosNoRefinement/paxos"
+"examples/distributedLockNetwork/LDTDupl -L networkModels -L examples/distributedLockNetwork"
+"examples/paxosNoRefinement/paxos"
 )
 
 failed=0
