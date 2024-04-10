@@ -126,7 +126,7 @@
       <proof prover="7" timelimit="1"><result status="valid" time="0.77" steps="6255"/></proof>
       </goal>
       <goal name="handleMsg&#39;refn&#39;vc.0.0.0.0.5" expl="postcondition" proved="true">
-      <proof prover="7" timelimit="5"><result status="valid" time="2.68" steps="42422"/></proof>
+      <proof prover="5" timelimit="10" memlimit="1000"><result status="valid" time="1.22" steps="158463"/></proof>
       </goal>
       <goal name="handleMsg&#39;refn&#39;vc.0.0.0.0.6" expl="postcondition" proved="true">
       <proof prover="5"><result status="valid" time="1.15" steps="84540"/></proof>

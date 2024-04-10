@@ -81,7 +81,7 @@
   <proof prover="2"><result status="valid" time="0.01" steps="16"/></proof>
   </goal>
   <goal name="a&#39;vc.1" expl="postcondition" proved="true">
-  <proof prover="2"><result status="valid" time="0.89" steps="18454"/></proof>
+  <proof prover="2" timelimit="10"><result status="valid" time="1.11" steps="18463"/></proof>
   </goal>
   <goal name="a&#39;vc.2" expl="postcondition" proved="true">
   <proof prover="0"><result status="valid" time="0.41" steps="72900"/></proof>

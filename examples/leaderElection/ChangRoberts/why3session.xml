@@ -56,7 +56,7 @@
     <goal name="act&#39;vc.0.9.0" expl="postcondition" proved="true">
     <transf name="split_vc" proved="true" >
      <goal name="act&#39;vc.0.9.0.0" expl="postcondition" proved="true">
-     <proof prover="3" memlimit="2000"><result status="valid" time="1.51" steps="125186"/></proof>
+     <proof prover="3" timelimit="20"><result status="valid" time="13.78" steps="904149"/></proof>
      </goal>
     </transf>
     </goal>
