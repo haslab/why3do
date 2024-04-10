@@ -82,7 +82,8 @@ module CounterImpl
     requires { transID_enbld w t }
     ensures  { inv w -> inv result }
     ensures  { inv w -> refn result = refn w \/ Counter.stepind (refn w) (refn result) }
-    (* ensures  { inv w -> result.counterc = w.counterc + 1 } *)
+
+(* ensures  { inv w -> result.counterc = w.counterc + 1 } *)
   = { pcc=set (w.pcc) t Done ; counterc=w.tmp[t] + 1 ; tmp=w.tmp ; lock=Unlocked }
 
 

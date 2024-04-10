@@ -46,7 +46,7 @@ module Counter
     requires { 0 <= n <= n_threads }
     requires { 0 <= t < n_threads }
     requires { forall t' :thread. 0<=t'<n_threads-> t'<>t -> w2.pc[t'] = w1.pc[t'] }
-    requires { w1.pc[t]=Start /\ w2.pc[t] = Done }
+    requires { w1.pc[t] = Start /\ w2.pc[t] = Done }
     ensures  { t<n  -> count w2 n = count w1 n + 1 }
     ensures  { t>=n -> count w2 n = count w1 n }
     variant  { n }

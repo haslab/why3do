@@ -47,7 +47,7 @@ echo "## counter_lock"
 why3 replay examples/counter/counter_lock -L stateMachineModels -L examples/counter
 echo "## counter_alt"
 why3 replay examples/counter/counter_alt -L stateMachineModels -L examples/counter
-echo "## counter_lock_atl"
+echo "## counter_lock_alt"
 why3 replay examples/counter/counter_lock_alt -L stateMachineModels -L examples/counter
 echo "--------------------------------"
 

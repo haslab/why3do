@@ -23,20 +23,20 @@
  <goal name="a3&#39;vc" expl="VC for a3" proved="true">
  <transf name="split_vc" proved="true" >
   <goal name="a3&#39;vc.0" expl="postcondition" proved="true">
-  <proof prover="1"><result status="valid" time="0.06" steps="1309"/></proof>
+  <proof prover="1"><result status="valid" time="0.06" steps="1201"/></proof>
   </goal>
   <goal name="a3&#39;vc.1" expl="postcondition" proved="true">
   <transf name="split_vc" proved="true" >
    <goal name="a3&#39;vc.1.0" expl="postcondition" proved="true">
-   <proof prover="2"><result status="valid" time="0.03" steps="9522"/></proof>
+   <proof prover="2"><result status="valid" time="0.03" steps="9473"/></proof>
    </goal>
    <goal name="a3&#39;vc.1.1" expl="postcondition" proved="true">
    <transf name="split_vc" proved="true" >
     <goal name="a3&#39;vc.1.1.0" expl="postcondition" proved="true">
-    <proof prover="0"><result status="valid" time="1.82" steps="198971"/></proof>
+    <proof prover="0"><result status="valid" time="0.89" steps="198381"/></proof>
     </goal>
     <goal name="a3&#39;vc.1.1.1" expl="postcondition" proved="true">
-    <proof prover="0" timelimit="5" memlimit="2000"><result status="valid" time="2.33" steps="316869"/></proof>
+    <proof prover="0" timelimit="5" memlimit="2000"><result status="valid" time="1.47" steps="316869"/></proof>
     </goal>
    </transf>
    </goal>
@@ -50,7 +50,7 @@
   <proof prover="1"><result status="valid" time="0.01" steps="104"/></proof>
   </goal>
   <goal name="cs&#39;vc.1" expl="postcondition" proved="true">
-  <proof prover="0"><result status="valid" time="0.87" steps="94238"/></proof>
+  <proof prover="0"><result status="valid" time="0.38" steps="94238"/></proof>
   </goal>
  </transf>
  </goal>
