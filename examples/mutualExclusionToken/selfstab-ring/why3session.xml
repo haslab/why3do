@@ -14,25 +14,38 @@
  <proof prover="1"><result status="valid" time="0.010000" steps="63"/></proof>
  </goal>
  <goal name="trans&#39;vc" expl="VC for trans" proved="true">
- <transf name="split_vc" proved="true" >
-  <goal name="trans&#39;vc.0" expl="postcondition" proved="true">
-  <proof prover="0"><result status="valid" time="0.021446" steps="92842"/></proof>
-  </goal>
-  <goal name="trans&#39;vc.1" expl="postcondition" proved="true">
-  <proof prover="0"><result status="valid" time="0.058045" steps="341458"/></proof>
-  </goal>
-  <goal name="trans&#39;vc.2" expl="postcondition" proved="true">
-  <transf name="split_vc" proved="true" >
-   <goal name="trans&#39;vc.2.0" expl="postcondition" proved="true">
-   <proof prover="0"><result status="valid" time="0.079543" steps="653987"/></proof>
+ <transf name="unfold" proved="true" arg1="inv">
+  <goal name="trans&#39;vc.0" expl="VC for trans" proved="true">
+  <transf name="split_all_full" proved="true" >
+   <goal name="trans&#39;vc.0.0" expl="postcondition" proved="true">
+   <proof prover="1" timelimit="1200"><result status="valid" time="0.754841" steps="32013"/></proof>
    </goal>
-   <goal name="trans&#39;vc.2.1" expl="postcondition" proved="true">
-   <proof prover="0" timelimit="5" memlimit="2000"><result status="valid" time="2.140096" steps="21941721"/></proof>
+   <goal name="trans&#39;vc.0.1" expl="postcondition" proved="true">
+   <proof prover="1" timelimit="1200"><result status="valid" time="0.006626" steps="7"/></proof>
+   </goal>
+   <goal name="trans&#39;vc.0.2" expl="postcondition" proved="true">
+   <proof prover="0"><result status="valid" time="0.108042" steps="958375"/></proof>
+   </goal>
+   <goal name="trans&#39;vc.0.3" expl="postcondition" proved="true">
+   <proof prover="1" timelimit="1"><result status="valid" time="0.141224" steps="5729"/></proof>
+   </goal>
+   <goal name="trans&#39;vc.0.4" expl="postcondition" proved="true">
+   <proof prover="0"><result status="valid" time="0.019330" steps="79453"/></proof>
+   </goal>
+   <goal name="trans&#39;vc.0.5" expl="postcondition" proved="true">
+   <proof prover="0"><result status="valid" time="0.031172" steps="153247"/></proof>
+   </goal>
+   <goal name="trans&#39;vc.0.6" expl="postcondition" proved="true">
+   <transf name="split_vc" proved="true" >
+    <goal name="trans&#39;vc.0.6.0" expl="postcondition" proved="true">
+    <proof prover="0"><result status="valid" time="0.705729" steps="9210314"/></proof>
+    </goal>
+   </transf>
+   </goal>
+   <goal name="trans&#39;vc.0.7" expl="postcondition" proved="true">
+   <proof prover="0"><result status="valid" time="0.018245" steps="62654"/></proof>
    </goal>
   </transf>
-  </goal>
-  <goal name="trans&#39;vc.3" expl="postcondition" proved="true">
-  <proof prover="1" timelimit="1"><result status="valid" time="0.053541" steps="1378"/></proof>
   </goal>
  </transf>
  </goal>
