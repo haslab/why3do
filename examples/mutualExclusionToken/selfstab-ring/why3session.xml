@@ -2,7 +2,7 @@
 <!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
 "https://www.why3.org/why3session.dtd">
 <why3session shape_version="6">
-<prover id="0" name="Z3" version="4.11.2" timelimit="2000" steplimit="0" memlimit="4000"/>
+<prover id="0" name="Z3" version="4.11.2" timelimit="2000" steplimit="0" memlimit="10000"/>
 <prover id="1" name="Alt-Ergo" version="2.4.2" timelimit="5" steplimit="0" memlimit="1000"/>
 <prover id="2" name="CVC4" version="1.8" timelimit="1" steplimit="0" memlimit="1000"/>
 <file format="whyml" proved="true">
@@ -22,12 +22,12 @@
    <proof prover="0" memlimit="2000"><result status="valid" time="0.016890" steps="93037"/></proof>
    </goal>
    <goal name="trans&#39;vc.0.1" expl="postcondition" proved="true">
-   <proof prover="0"><result status="valid" time="0.065359" steps="311714"/></proof>
+   <proof prover="0"><result status="valid" time="0.054959" steps="311714"/></proof>
    </goal>
    <goal name="trans&#39;vc.0.2" expl="postcondition" proved="true">
    <transf name="split_vc" proved="true" >
     <goal name="trans&#39;vc.0.2.0" expl="postcondition" proved="true">
-    <proof prover="0"><result status="valid" time="0.091588" steps="786750"/></proof>
+    <proof prover="0"><result status="valid" time="0.098094" steps="786750"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.2.1" expl="postcondition" proved="true">
     <proof prover="0" timelimit="5" memlimit="2000"><result status="valid" time="1.802033" steps="24736809"/></proof>
