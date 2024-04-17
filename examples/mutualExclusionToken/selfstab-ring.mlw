@@ -33,22 +33,15 @@ module SelfStab_Ring
 
 
   let rec lemma first_last_fl (w:world) (n:int)
-    requires { n<=n_nodes }
-    ensures  { n>=0 -> (forall j :int. 0<j<=n -> w.ring[j] = w.ring[j-1]) ->
-                       w.ring[0] = w.ring[n] }
+    requires { 0<n<=n_nodes }
+    requires { forall j :int. 0<j<n -> w.ring[j] = w.ring[j-1] }
+    ensures  { w.ring[0] = w.ring[n-1] }
     variant  { n }
-  = if n>0 then first_last_fl w (n-1) 
+  = if n>1 then first_last_fl w (n-1) 
     else ()
 
-
-  (* crucial lemma to achieve an unbounded proof *)
-  (* of the atLeastOneTokenLm lemma              *)
-  (* lemma first_last : forall n: int, lS :map node state. *)
-  (*   n >= 0 -> *)
-  (*     (forall j :int. 0<j<=n -> lS j = lS (j-1)) -> *)
-  (*       lS 0 = lS n *)
-
   (* lemma atLeastOneTokenLm : forall w :world. atLeastOneToken (refn w) n_nodes *)
+
 
 
   predicate inv (w:world) = 
