@@ -32,7 +32,7 @@
     <proof prover="1" timelimit="2000" memlimit="10000"><result status="valid" time="0.629224" steps="24855"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.0.4" expl="postcondition" proved="true">
-    <proof prover="1" timelimit="2000" memlimit="10000"><result status="valid" time="30.207880" steps="631027"/></proof>
+    <proof prover="0" memlimit="5000"><result status="valid" time="0.021162" steps="79453"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.0.5" expl="postcondition" proved="true">
     <proof prover="0"><result status="valid" time="0.061491" steps="356952"/></proof>
