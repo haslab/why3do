@@ -51,7 +51,7 @@
     <proof prover="1"><result status="valid" time="0.324752" steps="94761"/></proof>
     </goal>
     <goal name="a2&#39;vc.0.3.3" expl="postcondition" proved="true">
-    <proof prover="1"><result status="valid" time="0.529372" steps="128378"/></proof>
+    <proof prover="1" timelimit="2000" memlimit="5000"><result status="valid" time="0.480497" steps="128378"/></proof>
     </goal>
    </transf>
    </goal>
@@ -70,7 +70,7 @@
     <proof prover="1"><result status="valid" time="0.156518" steps="59020"/></proof>
     </goal>
     <goal name="a2&#39;vc.0.5.3" expl="postcondition" proved="true">
-    <proof prover="2" timelimit="2000" memlimit="5000"><result status="valid" time="5.765631" steps="129190"/></proof>
+    <proof prover="1" timelimit="2000" memlimit="5000"><result status="valid" time="0.121059" steps="49066"/></proof>
     </goal>
    </transf>
    </goal>
