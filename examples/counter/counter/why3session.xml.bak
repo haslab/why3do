@@ -5,7 +5,7 @@
 <prover id="0" name="Alt-Ergo" version="2.4.2" timelimit="5" steplimit="0" memlimit="1000"/>
 <file format="whyml" proved="true">
 <path name=".."/><path name="counter.mlw"/>
-<theory name="Abstract" proved="true">
+<theory name="Counter" proved="true">
  <goal name="trans&#39;vc" expl="VC for trans" proved="true">
  <proof prover="0"><result status="valid" time="0.00" steps="9"/></proof>
  </goal>

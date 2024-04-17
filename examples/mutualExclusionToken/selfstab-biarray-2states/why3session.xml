@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
-"http://why3.lri.fr/why3session.dtd">
+"https://www.why3.org/why3session.dtd">
 <why3session shape_version="6">
-<prover id="0" name="Z3" version="4.11.2" timelimit="1" steplimit="0" memlimit="1000"/>
+<prover id="0" name="Z3" version="4.11.2" timelimit="2000" steplimit="0" memlimit="10000"/>
 <prover id="1" name="CVC5" version="1.0.3" timelimit="1" steplimit="0" memlimit="1000"/>
 <prover id="2" name="Alt-Ergo" version="2.4.2" timelimit="1" steplimit="0" memlimit="1000"/>
 <file format="whyml" proved="true">
 <path name=".."/><path name="selfstab-biarray-2states.mlw"/>
 <theory name="SelfStab_Biarray" proved="true">
  <goal name="state_lm" proved="true">
- <proof prover="2" timelimit="5"><result status="valid" time="0.01" steps="63"/></proof>
+ <proof prover="2" timelimit="5"><result status="valid" time="0.010000" steps="63"/></proof>
  </goal>
  <goal name="state_lm_2" proved="true">
- <proof prover="2" timelimit="5"><result status="valid" time="0.08" steps="2363"/></proof>
+ <proof prover="2" timelimit="5"><result status="valid" time="0.080000" steps="2363"/></proof>
  </goal>
  <goal name="noTokens_fl&#39;vc" expl="VC for noTokens_fl" proved="true">
- <proof prover="1" timelimit="5"><result status="valid" time="0.09" steps="14741"/></proof>
+ <proof prover="1" timelimit="5"><result status="valid" time="0.090000" steps="14741"/></proof>
  </goal>
  <goal name="atLeastOneToken_lm" proved="true">
- <proof prover="2" timelimit="5"><result status="valid" time="0.01" steps="142"/></proof>
+ <proof prover="2" timelimit="5"><result status="valid" time="0.010000" steps="142"/></proof>
  </goal>
  <goal name="trans&#39;vc" expl="VC for trans" proved="true">
  <transf name="unfold" proved="true" arg1="inv">
@@ -27,156 +27,156 @@
    <goal name="trans&#39;vc.0.0" expl="postcondition" proved="true">
    <transf name="split_vc" proved="true" >
     <goal name="trans&#39;vc.0.0.0" expl="postcondition" proved="true">
-    <proof prover="2"><result status="valid" time="0.25" steps="4834"/></proof>
+    <proof prover="2"><result status="valid" time="0.010000" steps="3963"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.0.1" expl="postcondition" proved="true">
-    <proof prover="2"><result status="valid" time="0.01" steps="49"/></proof>
+    <proof prover="2"><result status="valid" time="0.007972" steps="48"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.0.2" expl="postcondition" proved="true">
-    <proof prover="2"><result status="valid" time="0.33" steps="5098"/></proof>
+    <proof prover="2"><result status="valid" time="0.149324" steps="5453"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.0.3" expl="postcondition" proved="true">
-    <proof prover="1"><result status="valid" time="0.36" steps="51716"/></proof>
+    <proof prover="1"><result status="valid" time="0.240000" steps="50916"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.0.4" expl="postcondition" proved="true">
-    <proof prover="2"><result status="valid" time="0.07" steps="843"/></proof>
+    <proof prover="2"><result status="valid" time="0.100000" steps="1131"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.0.5" expl="postcondition" proved="true">
-    <proof prover="2"><result status="valid" time="0.88" steps="12209"/></proof>
+    <proof prover="2"><result status="valid" time="0.657612" steps="21837"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.0.6" expl="postcondition" proved="true">
-    <proof prover="2"><result status="valid" time="0.39" steps="6309"/></proof>
+    <proof prover="2"><result status="valid" time="0.189263" steps="6469"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.0.7" expl="postcondition" proved="true">
-    <proof prover="2"><result status="valid" time="0.81" steps="11695"/></proof>
+    <proof prover="1"><result status="valid" time="0.270000" steps="57437"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.0.8" expl="postcondition" proved="true">
-    <proof prover="2"><result status="valid" time="0.08" steps="989"/></proof>
+    <proof prover="2"><result status="valid" time="0.140000" steps="1054"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.0.9" expl="postcondition" proved="true">
-    <proof prover="2"><result status="valid" time="0.08" steps="847"/></proof>
+    <proof prover="2"><result status="valid" time="0.120000" steps="1025"/></proof>
     </goal>
    </transf>
    </goal>
    <goal name="trans&#39;vc.0.1" expl="postcondition" proved="true">
    <transf name="split_vc" proved="true" >
     <goal name="trans&#39;vc.0.1.0" expl="postcondition" proved="true">
-    <proof prover="1"><result status="valid" time="0.89" steps="89784"/></proof>
+    <proof prover="1"><result status="valid" time="0.411066" steps="86400"/></proof>
     </goal>
    </transf>
    </goal>
    <goal name="trans&#39;vc.0.2" expl="postcondition" proved="true">
-   <proof prover="2"><result status="valid" time="0.01" steps="33"/></proof>
+   <transf name="split_vc" proved="true" >
+    <goal name="trans&#39;vc.0.2.0" expl="postcondition" proved="true">
+    <proof prover="1"><result status="valid" time="0.100280" steps="24060"/></proof>
+    </goal>
+   </transf>
    </goal>
    <goal name="trans&#39;vc.0.3" expl="postcondition" proved="true">
    <transf name="split_vc" proved="true" >
     <goal name="trans&#39;vc.0.3.0" expl="postcondition" proved="true">
-    <proof prover="1"><result status="valid" time="0.41" steps="51930"/></proof>
+    <proof prover="1"><result status="valid" time="0.175345" steps="47355"/></proof>
     </goal>
    </transf>
    </goal>
    <goal name="trans&#39;vc.0.4" expl="postcondition" proved="true">
    <transf name="split_vc" proved="true" >
     <goal name="trans&#39;vc.0.4.0" expl="postcondition" proved="true">
-    <proof prover="2"><result status="valid" time="0.01" steps="53"/></proof>
+    <proof prover="2"><result status="valid" time="0.010000" steps="43"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.4.1" expl="postcondition" proved="true">
-    <proof prover="2"><result status="valid" time="0.12" steps="1752"/></proof>
+    <proof prover="2"><result status="valid" time="0.010000" steps="1803"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.4.2" expl="postcondition" proved="true">
-    <proof prover="2"><result status="valid" time="0.14" steps="1710"/></proof>
+    <proof prover="0" timelimit="1" memlimit="1000"><result status="valid" time="0.128239" steps="576415"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.4.3" expl="postcondition" proved="true">
-    <proof prover="2"><result status="valid" time="0.12" steps="1480"/></proof>
+    <proof prover="1"><result status="valid" time="0.108447" steps="26587"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.4.4" expl="postcondition" proved="true">
-    <proof prover="2"><result status="valid" time="0.66" steps="9637"/></proof>
+    <proof prover="0" timelimit="1" memlimit="1000"><result status="valid" time="0.104609" steps="603999"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.4.5" expl="postcondition" proved="true">
-    <proof prover="1"><result status="valid" time="0.27" steps="27332"/></proof>
+    <proof prover="1"><result status="valid" time="0.122113" steps="26687"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.4.6" expl="postcondition" proved="true">
-    <proof prover="2"><result status="valid" time="0.10" steps="1148"/></proof>
+    <proof prover="1"><result status="valid" time="0.090325" steps="20894"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.4.7" expl="postcondition" proved="true">
-    <proof prover="2"><result status="valid" time="0.91" steps="12095"/></proof>
+    <proof prover="1"><result status="valid" time="0.099749" steps="26303"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.4.8" expl="postcondition" proved="true">
-    <proof prover="2"><result status="valid" time="0.53" steps="7339"/></proof>
+    <proof prover="0" timelimit="1" memlimit="1000"><result status="valid" time="0.104526" steps="606067"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.4.9" expl="postcondition" proved="true">
-    <proof prover="1"><result status="valid" time="0.24" steps="26634"/></proof>
+    <proof prover="1"><result status="valid" time="0.110965" steps="25995"/></proof>
     </goal>
    </transf>
    </goal>
    <goal name="trans&#39;vc.0.5" expl="postcondition" proved="true">
-   <proof prover="2"><result status="valid" time="0.01" steps="9"/></proof>
-   </goal>
-   <goal name="trans&#39;vc.0.6" expl="postcondition" proved="true">
    <transf name="split_vc" proved="true" >
-    <goal name="trans&#39;vc.0.6.0" expl="postcondition" proved="true">
-    <proof prover="1"><result status="valid" time="0.85" steps="83339"/></proof>
+    <goal name="trans&#39;vc.0.5.0" expl="postcondition" proved="true">
+    <transf name="split_vc" proved="true" >
+     <goal name="trans&#39;vc.0.5.0.0" expl="postcondition" proved="true">
+     <proof prover="1" timelimit="5" memlimit="2000"><result status="valid" time="0.095274" steps="19506"/></proof>
+     </goal>
+    </transf>
     </goal>
    </transf>
+   </goal>
+   <goal name="trans&#39;vc.0.6" expl="postcondition" proved="true">
+   <proof prover="0"><result status="valid" time="0.978666" steps="4470589"/></proof>
    </goal>
    <goal name="trans&#39;vc.0.7" expl="postcondition" proved="true">
    <transf name="split_vc" proved="true" >
     <goal name="trans&#39;vc.0.7.0" expl="postcondition" proved="true">
-    <proof prover="1"><result status="valid" time="0.44" steps="54561"/></proof>
+    <proof prover="1"><result status="valid" time="0.218752" steps="51656"/></proof>
     </goal>
    </transf>
    </goal>
    <goal name="trans&#39;vc.0.8" expl="postcondition" proved="true">
    <transf name="split_vc" proved="true" >
     <goal name="trans&#39;vc.0.8.0" expl="postcondition" proved="true">
-    <proof prover="2"><result status="valid" time="0.01" steps="40"/></proof>
+    <proof prover="2"><result status="valid" time="0.007490" steps="33"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.8.1" expl="postcondition" proved="true">
-    <proof prover="2"><result status="valid" time="0.01" steps="33"/></proof>
+    <proof prover="2"><result status="valid" time="0.010000" steps="26"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.8.2" expl="postcondition" proved="true">
-    <proof prover="0"><result status="valid" time="0.41" steps="1035573"/></proof>
+    <proof prover="2" timelimit="2000" memlimit="10000"><result status="valid" time="2.356713" steps="81277"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.8.3" expl="postcondition" proved="true">
-    <proof prover="1"><result status="valid" time="0.43" steps="45033"/></proof>
+    <proof prover="0"><result status="valid" time="0.260261" steps="1533128"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.8.4" expl="postcondition" proved="true">
-    <proof prover="1"><result status="valid" time="0.60" steps="68752"/></proof>
+    <proof prover="2" timelimit="2000" memlimit="10000"><result status="valid" time="2.040460" steps="71448"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.8.5" expl="postcondition" proved="true">
-    <proof prover="1"><result status="valid" time="0.50" steps="47148"/></proof>
+    <proof prover="0"><result status="valid" time="0.311435" steps="1983107"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.8.6" expl="postcondition" proved="true">
-    <proof prover="0"><result status="valid" time="0.49" steps="1195221"/></proof>
+    <proof prover="0"><result status="valid" time="0.212031" steps="1194097"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.8.7" expl="postcondition" proved="true">
-    <proof prover="1"><result status="valid" time="0.48" steps="46222"/></proof>
+    <proof prover="0"><result status="valid" time="0.242569" steps="1416623"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.8.8" expl="postcondition" proved="true">
-    <proof prover="0"><result status="valid" time="0.47" steps="1143206"/></proof>
+    <proof prover="2"><result status="valid" time="0.767450" steps="23681"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.8.9" expl="postcondition" proved="true">
-    <proof prover="1"><result status="valid" time="0.42" steps="46622"/></proof>
+    <proof prover="1"><result status="valid" time="0.183842" steps="43552"/></proof>
     </goal>
    </transf>
    </goal>
    <goal name="trans&#39;vc.0.9" expl="postcondition" proved="true">
-   <transf name="split_vc" proved="true" >
-    <goal name="trans&#39;vc.0.9.0" expl="postcondition" proved="true">
-    <transf name="split_vc" proved="true" >
-     <goal name="trans&#39;vc.0.9.0.0" expl="postcondition" proved="true">
-     <proof prover="1" timelimit="5" memlimit="2000"><result status="valid" time="0.84" steps="122924"/></proof>
-     </goal>
-    </transf>
-    </goal>
-   </transf>
+   <proof prover="0"><result status="valid" time="3.314237" steps="14578375"/></proof>
    </goal>
    <goal name="trans&#39;vc.0.10" expl="postcondition" proved="true">
    <transf name="split_vc" proved="true" >
     <goal name="trans&#39;vc.0.10.0" expl="postcondition" proved="true">
     <transf name="split_vc" proved="true" >
      <goal name="trans&#39;vc.0.10.0.0" expl="postcondition" proved="true">
-     <proof prover="1" timelimit="5" memlimit="2000"><result status="valid" time="1.54" steps="193261"/></proof>
+     <proof prover="0"><result status="valid" time="4.118295" steps="16620817"/></proof>
      </goal>
     </transf>
     </goal>
@@ -185,7 +185,7 @@
    <goal name="trans&#39;vc.0.11" expl="postcondition" proved="true">
    <transf name="split_vc" proved="true" >
     <goal name="trans&#39;vc.0.11.0" expl="postcondition" proved="true">
-    <proof prover="1"><result status="valid" time="0.51" steps="63235"/></proof>
+    <proof prover="1"><result status="valid" time="0.200535" steps="57734"/></proof>
     </goal>
    </transf>
    </goal>
@@ -194,19 +194,19 @@
  </transf>
  </goal>
  <goal name="Refinement.initWorldA&#39;refn&#39;vc" expl="VC for initWorldA&#39;refn" proved="true">
- <proof prover="2" timelimit="5"><result status="valid" time="0.02" steps="144"/></proof>
+ <proof prover="2" timelimit="5"><result status="valid" time="0.020000" steps="144"/></proof>
  </goal>
  <goal name="Refinement.initWorldC&#39;refn&#39;vc" expl="VC for initWorldC&#39;refn" proved="true">
- <proof prover="2" timelimit="5"><result status="valid" time="0.87" steps="13208"/></proof>
+ <proof prover="2" timelimit="5"><result status="valid" time="0.479450" steps="13004"/></proof>
  </goal>
  <goal name="Refinement.stepA&#39;refn&#39;vc" expl="VC for stepA&#39;refn" proved="true">
- <proof prover="2" timelimit="5"><result status="valid" time="0.01" steps="25"/></proof>
+ <proof prover="2" timelimit="5"><result status="valid" time="0.010000" steps="25"/></proof>
  </goal>
  <goal name="Refinement.stepC&#39;refn&#39;vc" expl="VC for stepC&#39;refn" proved="true">
- <proof prover="2" timelimit="5"><result status="valid" time="0.01" steps="104"/></proof>
+ <proof prover="2" timelimit="5"><result status="valid" time="0.010000" steps="104"/></proof>
  </goal>
  <goal name="oneToken" proved="true">
- <proof prover="2" timelimit="5"><result status="valid" time="0.01" steps="21"/></proof>
+ <proof prover="2" timelimit="5"><result status="valid" time="0.010000" steps="21"/></proof>
  </goal>
 </theory>
 </file>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
-"http://why3.lri.fr/why3session.dtd">
+"https://www.why3.org/why3session.dtd">
 <why3session shape_version="6">
 <prover id="0" name="Alt-Ergo" version="2.4.2" timelimit="5" steplimit="0" memlimit="1000"/>
 <prover id="2" name="CVC4" version="1.8" timelimit="5" steplimit="0" memlimit="1000"/>
@@ -8,22 +8,22 @@
 <path name=".."/><path name="counter_alt.mlw"/>
 <theory name="Counter" proved="true">
  <goal name="count&#39;vc" expl="VC for count" proved="true">
- <proof prover="0"><result status="valid" time="0.01" steps="168"/></proof>
+ <proof prover="0"><result status="valid" time="0.010000" steps="122"/></proof>
  </goal>
  <goal name="count_lm&#39;vc" expl="VC for count_lm" proved="true">
- <proof prover="2"><result status="valid" time="0.18" steps="46449"/></proof>
+ <proof prover="2"><result status="valid" time="0.180000" steps="48243"/></proof>
  </goal>
  <goal name="trans&#39;vc" expl="VC for trans" proved="true">
- <proof prover="0"><result status="valid" time="0.01" steps="105"/></proof>
+ <proof prover="0"><result status="valid" time="0.010000" steps="105"/></proof>
  </goal>
  <goal name="initWorld&#39;refn&#39;vc" expl="VC for initWorld&#39;refn" proved="true">
- <proof prover="0"><result status="valid" time="0.00" steps="31"/></proof>
+ <proof prover="0"><result status="valid" time="0.000000" steps="31"/></proof>
  </goal>
  <goal name="step&#39;refn&#39;vc" expl="VC for step&#39;refn" proved="true">
- <proof prover="0"><result status="valid" time="0.00" steps="23"/></proof>
+ <proof prover="0"><result status="valid" time="0.000000" steps="23"/></proof>
  </goal>
  <goal name="correctness" proved="true">
- <proof prover="0"><result status="valid" time="0.03" steps="39"/></proof>
+ <proof prover="0"><result status="valid" time="0.030000" steps="39"/></proof>
  </goal>
 </theory>
 </file>

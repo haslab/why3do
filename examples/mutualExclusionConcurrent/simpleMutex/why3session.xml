@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
-"http://why3.lri.fr/why3session.dtd">
+"https://www.why3.org/why3session.dtd">
 <why3session shape_version="6">
 <prover id="0" name="CVC5" version="1.0.3" timelimit="1" steplimit="0" memlimit="1000"/>
 <prover id="1" name="Alt-Ergo" version="2.4.2" timelimit="1" steplimit="0" memlimit="1000"/>
@@ -8,41 +8,41 @@
 <path name=".."/><path name="simpleMutex.mlw"/>
 <theory name="SimpleMutex" proved="true">
  <goal name="refn&#39;vc" expl="VC for refn" proved="true">
- <proof prover="1"><result status="valid" time="0.00" steps="0"/></proof>
+ <proof prover="1"><result status="valid" time="0.000000" steps="0"/></proof>
  </goal>
  <goal name="a&#39;vc" expl="VC for a" proved="true">
- <proof prover="0"><result status="valid" time="0.06" steps="14707"/></proof>
+ <proof prover="0"><result status="valid" time="0.060000" steps="14806"/></proof>
  </goal>
  <goal name="b&#39;vc" expl="VC for b" proved="true">
- <proof prover="0"><result status="valid" time="0.19" steps="32034"/></proof>
+ <proof prover="0"><result status="valid" time="0.190000" steps="32162"/></proof>
  </goal>
  <goal name="cs&#39;vc" expl="VC for cs" proved="true">
  <transf name="split_vc" proved="true" >
   <goal name="cs&#39;vc.0" expl="postcondition" proved="true">
-  <proof prover="1"><result status="valid" time="0.01" steps="62"/></proof>
+  <proof prover="1"><result status="valid" time="0.010000" steps="62"/></proof>
   </goal>
   <goal name="cs&#39;vc.1" expl="postcondition" proved="true">
-  <proof prover="0" timelimit="5"><result status="valid" time="3.30" steps="430337"/></proof>
+  <proof prover="0" timelimit="5"><result status="valid" time="3.300000" steps="425924"/></proof>
   </goal>
  </transf>
  </goal>
  <goal name="initWorldA&#39;refn&#39;vc" expl="VC for initWorldA&#39;refn" proved="true">
- <proof prover="1"><result status="valid" time="0.00" steps="16"/></proof>
+ <proof prover="1"><result status="valid" time="0.000000" steps="16"/></proof>
  </goal>
  <goal name="initWorldC&#39;refn&#39;vc" expl="VC for initWorldC&#39;refn" proved="true">
- <proof prover="1"><result status="valid" time="0.01" steps="68"/></proof>
+ <proof prover="1"><result status="valid" time="0.010000" steps="68"/></proof>
  </goal>
  <goal name="stepA&#39;refn&#39;vc" expl="VC for stepA&#39;refn" proved="true">
- <proof prover="1"><result status="valid" time="0.02" steps="53"/></proof>
+ <proof prover="1"><result status="valid" time="0.020000" steps="53"/></proof>
  </goal>
  <goal name="stepC&#39;refn&#39;vc" expl="VC for stepC&#39;refn" proved="true">
- <proof prover="1"><result status="valid" time="0.01" steps="134"/></proof>
+ <proof prover="1"><result status="valid" time="0.010000" steps="134"/></proof>
  </goal>
  <goal name="safety" proved="true">
- <proof prover="1"><result status="valid" time="0.01" steps="73"/></proof>
+ <proof prover="1"><result status="valid" time="0.010000" steps="73"/></proof>
  </goal>
  <goal name="safetyA" proved="true">
- <proof prover="1"><result status="valid" time="0.01" steps="68"/></proof>
+ <proof prover="1"><result status="valid" time="0.010000" steps="68"/></proof>
  </goal>
 </theory>
 </file>

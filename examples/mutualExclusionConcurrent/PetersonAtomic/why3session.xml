@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
-"http://why3.lri.fr/why3session.dtd">
+"https://www.why3.org/why3session.dtd">
 <why3session shape_version="6">
 <prover id="1" name="CVC5" version="1.0.3" timelimit="5" steplimit="0" memlimit="1000"/>
 <prover id="2" name="Alt-Ergo" version="2.4.2" timelimit="5" steplimit="0" memlimit="1000"/>
@@ -16,18 +16,18 @@
   <proof prover="2" timelimit="1"><result status="valid" time="0.000000" steps="2"/></proof>
   </goal>
   <goal name="a1&#39;vc.1" expl="postcondition" proved="true">
-  <proof prover="1" timelimit="10" memlimit="4000"><result status="valid" time="8.114234" steps="836468"/></proof>
+  <proof prover="1" timelimit="10" memlimit="4000"><result status="valid" time="8.114234" steps="505185"/></proof>
   </goal>
  </transf>
  </goal>
  <goal name="a2&#39;vc" expl="VC for a2" proved="true">
- <proof prover="1"><result status="valid" time="2.895160" steps="327429"/></proof>
+ <proof prover="1"><result status="valid" time="5.470121" steps="328765"/></proof>
  </goal>
  <goal name="a3a&#39;vc" expl="VC for a3a" proved="true">
- <proof prover="1"><result status="valid" time="1.420943" steps="173969"/></proof>
+ <proof prover="1"><result status="valid" time="2.628397" steps="174622"/></proof>
  </goal>
  <goal name="a3b&#39;vc" expl="VC for a3b" proved="true">
- <proof prover="1"><result status="valid" time="1.612066" steps="215648"/></proof>
+ <proof prover="1"><result status="valid" time="3.156743" steps="216119"/></proof>
  </goal>
  <goal name="cs&#39;vc" expl="VC for cs" proved="true">
  <transf name="split_vc" proved="true" >
@@ -35,12 +35,12 @@
   <proof prover="2" timelimit="1"><result status="valid" time="0.000000" steps="2"/></proof>
   </goal>
   <goal name="cs&#39;vc.1" expl="postcondition" proved="true">
-  <proof prover="1" timelimit="10" memlimit="4000"><result status="valid" time="4.199662" steps="518739"/></proof>
+  <proof prover="1" timelimit="10" memlimit="4000"><result status="valid" time="7.318668" steps="504068"/></proof>
   </goal>
  </transf>
  </goal>
  <goal name="a4&#39;vc" expl="VC for a4" proved="true">
- <proof prover="1"><result status="valid" time="1.739952" steps="216653"/></proof>
+ <proof prover="1"><result status="valid" time="3.289816" steps="215178"/></proof>
  </goal>
  <goal name="Refinement.initWorldA&#39;refn&#39;vc" expl="VC for initWorldA&#39;refn" proved="true">
  <proof prover="2"><result status="valid" time="0.010000" steps="21"/></proof>
@@ -55,7 +55,7 @@
  <proof prover="2"><result status="valid" time="0.130000" steps="1270"/></proof>
  </goal>
  <goal name="safety_Peterson" proved="true">
- <proof prover="2" timelimit="300"><result status="valid" time="67.557431" steps="933303"/></proof>
+ <proof prover="2" timelimit="2000" memlimit="10000"><result status="valid" time="17.029172" steps="235224"/></proof>
  </goal>
  <goal name="safety" proved="true">
  <proof prover="2"><result status="valid" time="0.020000" steps="94"/></proof>

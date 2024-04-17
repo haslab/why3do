@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
-"http://why3.lri.fr/why3session.dtd">
+"https://www.why3.org/why3session.dtd">
 <why3session shape_version="6">
 <prover id="0" name="CVC5" version="1.0.3" timelimit="5" steplimit="0" memlimit="1000"/>
 <prover id="1" name="Alt-Ergo" version="2.4.2" timelimit="5" steplimit="0" memlimit="1000"/>
@@ -8,25 +8,25 @@
 <path name=".."/><path name="leaderElectMax.mlw"/>
 <theory name="LeaderElectMax" proved="true">
  <goal name="maxId_fn&#39;vc" expl="VC for maxId_fn" proved="true">
- <proof prover="1"><result status="valid" time="0.01" steps="114"/></proof>
+ <proof prover="1"><result status="valid" time="0.010000" steps="113"/></proof>
  </goal>
  <goal name="act&#39;vc" expl="VC for act" proved="true">
- <proof prover="0"><result status="valid" time="0.06" steps="6565"/></proof>
+ <proof prover="0"><result status="valid" time="0.060000" steps="6585"/></proof>
  </goal>
  <goal name="initWorldA&#39;refn&#39;vc" expl="VC for initWorldA&#39;refn" proved="true">
- <proof prover="1"><result status="valid" time="0.01" steps="61"/></proof>
+ <proof prover="1"><result status="valid" time="0.010000" steps="61"/></proof>
  </goal>
  <goal name="initWorldC&#39;refn&#39;vc" expl="VC for initWorldC&#39;refn" proved="true">
- <proof prover="1"><result status="valid" time="0.01" steps="241"/></proof>
+ <proof prover="1"><result status="valid" time="0.010000" steps="242"/></proof>
  </goal>
  <goal name="stepA&#39;refn&#39;vc" expl="VC for stepA&#39;refn" proved="true">
- <proof prover="1"><result status="valid" time="0.01" steps="71"/></proof>
+ <proof prover="1"><result status="valid" time="0.010000" steps="71"/></proof>
  </goal>
  <goal name="stepC&#39;refn&#39;vc" expl="VC for stepC&#39;refn" proved="true">
- <proof prover="1"><result status="valid" time="0.02" steps="265"/></proof>
+ <proof prover="1"><result status="valid" time="0.020000" steps="266"/></proof>
  </goal>
  <goal name="uniqueLeader" proved="true">
- <proof prover="1"><result status="valid" time="0.01" steps="201"/></proof>
+ <proof prover="1"><result status="valid" time="0.010000" steps="202"/></proof>
  </goal>
 </theory>
 </file>

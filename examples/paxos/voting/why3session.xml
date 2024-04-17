@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
-"http://why3.lri.fr/why3session.dtd">
+"https://www.why3.org/why3session.dtd">
 <why3session shape_version="6">
 <prover id="2" name="CVC5" version="1.0.3" timelimit="5" steplimit="0" memlimit="1000"/>
 <prover id="3" name="Z3" version="4.11.2" alternative="noBV" timelimit="300" steplimit="0" memlimit="1000"/>
@@ -9,49 +9,49 @@
 <path name=".."/><path name="voting.mlw"/>
 <theory name="Voting" proved="true">
  <goal name="refn&#39;vc" expl="VC for refn" proved="true">
- <proof prover="4"><result status="valid" time="0.00" steps="25"/></proof>
+ <proof prover="4"><result status="valid" time="0.000000" steps="25"/></proof>
  </goal>
  <goal name="safety_lm" proved="true">
  <transf name="split_vc" proved="true" >
   <goal name="safety_lm.0" proved="true">
-  <proof prover="4"><result status="valid" time="0.01" steps="106"/></proof>
+  <proof prover="4"><result status="valid" time="0.010000" steps="106"/></proof>
   </goal>
   <goal name="safety_lm.1" proved="true">
-  <proof prover="4"><result status="valid" time="1.35" steps="11845"/></proof>
+  <proof prover="4"><result status="valid" time="1.350000" steps="11845"/></proof>
   </goal>
  </transf>
  </goal>
  <goal name="initWorld&#39;vc" expl="VC for initWorld" proved="true">
- <proof prover="4"><result status="valid" time="0.01" steps="54"/></proof>
+ <proof prover="4"><result status="valid" time="0.010000" steps="54"/></proof>
  </goal>
  <goal name="increaseMaxBal&#39;vc" expl="VC for increaseMaxBal" proved="true">
  <transf name="split_vc" proved="true" >
   <goal name="increaseMaxBal&#39;vc.0" expl="postcondition" proved="true">
-  <proof prover="4"><result status="valid" time="0.01" steps="164"/></proof>
+  <proof prover="4"><result status="valid" time="0.010000" steps="164"/></proof>
   </goal>
   <goal name="increaseMaxBal&#39;vc.1" expl="postcondition" proved="true">
   <transf name="inline_goal" proved="true" >
    <goal name="increaseMaxBal&#39;vc.1.0" expl="postcondition" proved="true">
    <transf name="split_all_full" proved="true" >
     <goal name="increaseMaxBal&#39;vc.1.0.0" expl="VC for increaseMaxBal" proved="true">
-    <proof prover="4" timelimit="1"><result status="valid" time="0.01" steps="33"/></proof>
+    <proof prover="4" timelimit="1"><result status="valid" time="0.010000" steps="33"/></proof>
     </goal>
     <goal name="increaseMaxBal&#39;vc.1.0.1" expl="VC for increaseMaxBal" proved="true">
     <transf name="split_vc" proved="true" >
      <goal name="increaseMaxBal&#39;vc.1.0.1.0" expl="VC for increaseMaxBal" proved="true">
      <transf name="inline_goal" proved="true" >
       <goal name="increaseMaxBal&#39;vc.1.0.1.0.0" expl="VC for increaseMaxBal" proved="true">
-      <proof prover="4" timelimit="30" memlimit="4000"><result status="valid" time="8.02" steps="101797"/></proof>
+      <proof prover="4" timelimit="30" memlimit="4000"><result status="valid" time="11.378883" steps="101786"/></proof>
       </goal>
      </transf>
      </goal>
     </transf>
     </goal>
     <goal name="increaseMaxBal&#39;vc.1.0.2" expl="VC for increaseMaxBal" proved="true">
-    <proof prover="4" timelimit="1"><result status="valid" time="0.01" steps="39"/></proof>
+    <proof prover="4" timelimit="1"><result status="valid" time="0.010000" steps="40"/></proof>
     </goal>
     <goal name="increaseMaxBal&#39;vc.1.0.3" expl="VC for increaseMaxBal" proved="true">
-    <proof prover="4" timelimit="1"><result status="valid" time="0.00" steps="27"/></proof>
+    <proof prover="4" timelimit="1"><result status="valid" time="0.000000" steps="27"/></proof>
     </goal>
    </transf>
    </goal>
@@ -62,7 +62,7 @@
    <goal name="increaseMaxBal&#39;vc.2.0" expl="postcondition" proved="true">
    <transf name="split_all_full" proved="true" >
     <goal name="increaseMaxBal&#39;vc.2.0.0" expl="postcondition" proved="true">
-    <proof prover="2"><result status="valid" time="0.20" steps="28715"/></proof>
+    <proof prover="2"><result status="valid" time="0.200000" steps="28715"/></proof>
     </goal>
    </transf>
    </goal>
@@ -73,32 +73,32 @@
  <goal name="voteFor&#39;vc" expl="VC for voteFor" proved="true">
  <transf name="split_vc" proved="true" >
   <goal name="voteFor&#39;vc.0" expl="postcondition" proved="true">
-  <proof prover="4"><result status="valid" time="0.22" steps="2481"/></proof>
+  <proof prover="4"><result status="valid" time="0.220000" steps="2487"/></proof>
   </goal>
   <goal name="voteFor&#39;vc.1" expl="postcondition" proved="true">
-  <proof prover="4"><result status="valid" time="0.02" steps="207"/></proof>
+  <proof prover="4"><result status="valid" time="0.020000" steps="207"/></proof>
   </goal>
   <goal name="voteFor&#39;vc.2" expl="postcondition" proved="true">
-  <proof prover="4"><result status="valid" time="0.02" steps="160"/></proof>
+  <proof prover="4"><result status="valid" time="0.020000" steps="160"/></proof>
   </goal>
   <goal name="voteFor&#39;vc.3" expl="postcondition" proved="true">
-  <proof prover="4"><result status="valid" time="0.19" steps="1646"/></proof>
+  <proof prover="4"><result status="valid" time="0.190000" steps="1646"/></proof>
   </goal>
   <goal name="voteFor&#39;vc.4" expl="postcondition" proved="true">
   <transf name="unfold" proved="true" arg1="inv">
    <goal name="voteFor&#39;vc.4.0" expl="VC for voteFor" proved="true">
    <transf name="split_vc" proved="true" >
     <goal name="voteFor&#39;vc.4.0.0" expl="VC for voteFor" proved="true">
-    <proof prover="2"><result status="valid" time="0.06" steps="8539"/></proof>
+    <proof prover="2"><result status="valid" time="0.060000" steps="8681"/></proof>
     </goal>
     <goal name="voteFor&#39;vc.4.0.1" expl="VC for voteFor" proved="true">
-    <proof prover="4"><result status="valid" time="2.33" steps="16515"/></proof>
+    <proof prover="4"><result status="valid" time="2.330000" steps="16451"/></proof>
     </goal>
     <goal name="voteFor&#39;vc.4.0.2" expl="VC for voteFor" proved="true">
-    <proof prover="4"><result status="valid" time="0.01" steps="59"/></proof>
+    <proof prover="4"><result status="valid" time="0.010000" steps="61"/></proof>
     </goal>
     <goal name="voteFor&#39;vc.4.0.3" expl="VC for voteFor" proved="true">
-    <proof prover="4"><result status="valid" time="0.01" steps="76"/></proof>
+    <proof prover="4"><result status="valid" time="0.010000" steps="76"/></proof>
     </goal>
    </transf>
    </goal>
@@ -109,7 +109,7 @@
    <goal name="voteFor&#39;vc.5.0" expl="postcondition" proved="true">
    <transf name="split_all_full" proved="true" >
     <goal name="voteFor&#39;vc.5.0.0" expl="postcondition" proved="true">
-    <proof prover="3"><result status="valid" time="0.08"/></proof>
+    <proof prover="3"><result status="valid" time="0.080000"/></proof>
     </goal>
    </transf>
    </goal>
@@ -118,22 +118,22 @@
  </transf>
  </goal>
  <goal name="Refinement.refn&#39;refn&#39;vc" expl="VC for refn&#39;refn" proved="true">
- <proof prover="4"><result status="valid" time="0.00" steps="0"/></proof>
+ <proof prover="4"><result status="valid" time="0.000000" steps="0"/></proof>
  </goal>
  <goal name="Refinement.initWorldA&#39;refn&#39;vc" expl="VC for initWorldA&#39;refn" proved="true">
- <proof prover="4"><result status="valid" time="0.01" steps="18"/></proof>
+ <proof prover="4"><result status="valid" time="0.010000" steps="18"/></proof>
  </goal>
  <goal name="Refinement.initWorldC&#39;refn&#39;vc" expl="VC for initWorldC&#39;refn" proved="true">
- <proof prover="4"><result status="valid" time="0.01" steps="33"/></proof>
+ <proof prover="4"><result status="valid" time="0.010000" steps="33"/></proof>
  </goal>
  <goal name="Refinement.stepA&#39;refn&#39;vc" expl="VC for stepA&#39;refn" proved="true">
- <proof prover="4"><result status="valid" time="0.01" steps="28"/></proof>
+ <proof prover="4"><result status="valid" time="0.010000" steps="28"/></proof>
  </goal>
  <goal name="Refinement.stepC&#39;refn&#39;vc" expl="VC for stepC&#39;refn" proved="true">
- <proof prover="4"><result status="valid" time="0.02" steps="178"/></proof>
+ <proof prover="4"><result status="valid" time="0.020000" steps="178"/></proof>
  </goal>
  <goal name="safety_by_refinement" proved="true">
- <proof prover="4"><result status="valid" time="0.01" steps="4"/></proof>
+ <proof prover="4"><result status="valid" time="0.010000" steps="4"/></proof>
  </goal>
 </theory>
 </file>

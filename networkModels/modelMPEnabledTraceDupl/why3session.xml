@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
-"http://why3.lri.fr/why3session.dtd">
+"https://www.why3.org/why3session.dtd">
 <why3session shape_version="6">
 <prover id="0" name="Z3" version="4.11.2" alternative="noBV" timelimit="7" steplimit="0" memlimit="1000"/>
 <prover id="1" name="Alt-Ergo" version="2.4.2" timelimit="7" steplimit="0" memlimit="1000"/>
@@ -8,32 +8,32 @@
 <path name=".."/><path name="modelMPEnabledTraceDupl.mlw"/>
 <theory name="Steps" proved="true">
  <goal name="step_enabled" proved="true">
- <proof prover="1" timelimit="5"><result status="valid" time="0.00" steps="17"/></proof>
+ <proof prover="1" timelimit="5"><result status="valid" time="0.000000" steps="17"/></proof>
  </goal>
  <goal name="step_message" proved="true">
- <proof prover="0"><result status="valid" time="0.04"/></proof>
+ <proof prover="0"><result status="valid" time="0.040000"/></proof>
  </goal>
  <goal name="indpred_step" proved="true">
- <proof prover="1"><result status="valid" time="0.04" steps="268"/></proof>
+ <proof prover="1"><result status="valid" time="0.040000" steps="268"/></proof>
  </goal>
  <goal name="indpred_manySteps" proved="true">
  <transf name="induction_pr" proved="true" >
   <goal name="indpred_manySteps.0" proved="true">
-  <proof prover="0"><result status="valid" time="0.05"/></proof>
+  <proof prover="0"><result status="valid" time="0.060000"/></proof>
   </goal>
   <goal name="indpred_manySteps.1" proved="true">
-  <proof prover="0"><result status="valid" time="0.06"/></proof>
+  <proof prover="0"><result status="valid" time="0.050000"/></proof>
   </goal>
  </transf>
  </goal>
  <goal name="indpred_reachable" proved="true">
- <proof prover="0"><result status="valid" time="0.05"/></proof>
+ <proof prover="0"><result status="valid" time="0.050000"/></proof>
  </goal>
  <goal name="commit_step" proved="true">
- <proof prover="1"><result status="valid" time="0.25" steps="2895"/></proof>
+ <proof prover="1"><result status="valid" time="0.250000" steps="2893"/></proof>
  </goal>
  <goal name="consistent_reachable" proved="true">
- <proof prover="0"><result status="valid" time="0.05"/></proof>
+ <proof prover="0"><result status="valid" time="0.050000"/></proof>
  </goal>
 </theory>
 </file>
