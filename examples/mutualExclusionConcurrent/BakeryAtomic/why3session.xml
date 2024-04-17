@@ -6,6 +6,7 @@
 <prover id="1" name="CVC4" version="1.8" timelimit="1" steplimit="0" memlimit="1000"/>
 <prover id="2" name="Alt-Ergo" version="2.4.2" timelimit="1" steplimit="0" memlimit="1000"/>
 <prover id="3" name="Eprover" version="2.6" timelimit="1" steplimit="0" memlimit="1000"/>
+<prover id="4" name="Alt-Ergo" version="2.5.3" timelimit="1" steplimit="0" memlimit="1000"/>
 <file format="whyml" proved="true">
 <path name=".."/><path name="BakeryAtomic.mlw"/>
 <theory name="BakeryAtomic" proved="true">
@@ -23,68 +24,60 @@
  </transf>
  </goal>
  <goal name="a2&#39;vc" expl="VC for a2" proved="true">
- <transf name="split_vc" proved="true" >
-  <goal name="a2&#39;vc.0" expl="witness existence" proved="true">
-  <proof prover="3"><result status="valid" time="0.019003"/></proof>
-  </goal>
-  <goal name="a2&#39;vc.1" expl="postcondition" proved="true">
-  <transf name="split_vc" proved="true" >
-   <goal name="a2&#39;vc.1.0" expl="postcondition" proved="true">
-   <proof prover="2"><result status="valid" time="0.408355" steps="10785"/></proof>
+ <transf name="unfold" proved="true" arg1="inv">
+  <goal name="a2&#39;vc.0" expl="VC for a2" proved="true">
+  <transf name="split_all_full" proved="true" >
+   <goal name="a2&#39;vc.0.0" expl="witness existence" proved="true">
+   <proof prover="2"><result status="valid" time="0.013944" steps="10"/></proof>
    </goal>
-   <goal name="a2&#39;vc.1.1" expl="postcondition" proved="true">
+   <goal name="a2&#39;vc.0.1" expl="postcondition" proved="true">
+   <proof prover="1"><result status="valid" time="0.392786" steps="99911"/></proof>
+   </goal>
+   <goal name="a2&#39;vc.0.2" expl="postcondition" proved="true">
    <transf name="split_vc" proved="true" >
-    <goal name="a2&#39;vc.1.1.0" expl="postcondition" proved="true">
-    <transf name="inline_goal" proved="true" >
-     <goal name="a2&#39;vc.1.1.0.0" expl="postcondition" proved="true">
-     <transf name="split_all_full" proved="true" >
-      <goal name="a2&#39;vc.1.1.0.0.0" expl="postcondition" proved="true">
-      <proof prover="1" timelimit="2000" memlimit="10000"><result status="valid" time="0.042073" steps="18777"/></proof>
-      </goal>
-      <goal name="a2&#39;vc.1.1.0.0.1" expl="postcondition" proved="true">
-      <proof prover="1" timelimit="2000" memlimit="10000"><result status="valid" time="0.046505" steps="21138"/></proof>
-      </goal>
-      <goal name="a2&#39;vc.1.1.0.0.2" expl="postcondition" proved="true">
-      <proof prover="1"><result status="valid" time="0.336939" steps="93037"/></proof>
-      </goal>
-      <goal name="a2&#39;vc.1.1.0.0.3" expl="postcondition" proved="true">
-      <proof prover="1" timelimit="2000" memlimit="10000"><result status="valid" time="0.635963" steps="128358"/></proof>
-      </goal>
-     </transf>
-     </goal>
-    </transf>
-    </goal>
-    <goal name="a2&#39;vc.1.1.1" expl="postcondition" proved="true">
-    <transf name="inline_goal" proved="true" >
-     <goal name="a2&#39;vc.1.1.1.0" expl="postcondition" proved="true">
-     <transf name="split_all_full" proved="true" >
-      <goal name="a2&#39;vc.1.1.1.0.0" expl="postcondition" proved="true">
-      <proof prover="1" timelimit="2000" memlimit="10000"><result status="valid" time="0.040211" steps="17576"/></proof>
-      </goal>
-      <goal name="a2&#39;vc.1.1.1.0.1" expl="postcondition" proved="true">
-      <proof prover="1" timelimit="2000" memlimit="10000"><result status="valid" time="0.050864" steps="21801"/></proof>
-      </goal>
-      <goal name="a2&#39;vc.1.1.1.0.2" expl="postcondition" proved="true">
-      <proof prover="1"><result status="valid" time="0.159719" steps="58956"/></proof>
-      </goal>
-      <goal name="a2&#39;vc.1.1.1.0.3" expl="postcondition" proved="true">
-      <proof prover="1" timelimit="2000" memlimit="10000"><result status="valid" time="0.122663" steps="49002"/></proof>
-      </goal>
-     </transf>
-     </goal>
-    </transf>
+    <goal name="a2&#39;vc.0.2.0" expl="postcondition" proved="true">
+    <proof prover="0"><result status="valid" time="0.234539" steps="60059"/></proof>
     </goal>
    </transf>
    </goal>
-  </transf>
-  </goal>
-  <goal name="a2&#39;vc.2" expl="postcondition" proved="true">
-  <transf name="split_vc" proved="true" >
-   <goal name="a2&#39;vc.2.0" expl="postcondition" proved="true">
-   <proof prover="0"><result status="valid" time="0.218546" steps="59543"/></proof>
+   <goal name="a2&#39;vc.0.3" expl="postcondition" proved="true">
+   <transf name="split_vc" proved="true" >
+    <goal name="a2&#39;vc.0.3.0" expl="postcondition" proved="true">
+    <proof prover="1" timelimit="2000" memlimit="5000"><result status="valid" time="0.041926" steps="18798"/></proof>
+    <proof prover="2" timelimit="2000" memlimit="5000"><undone/></proof>
+    </goal>
+    <goal name="a2&#39;vc.0.3.1" expl="postcondition" proved="true">
+    <proof prover="2"><result status="valid" time="0.051642" steps="737"/></proof>
+    </goal>
+    <goal name="a2&#39;vc.0.3.2" expl="postcondition" proved="true">
+    <proof prover="1"><result status="valid" time="0.324752" steps="94761"/></proof>
+    </goal>
+    <goal name="a2&#39;vc.0.3.3" expl="postcondition" proved="true">
+    <proof prover="1"><result status="valid" time="0.529372" steps="128378"/></proof>
+    </goal>
+   </transf>
    </goal>
-   <goal name="a2&#39;vc.2.1" expl="postcondition" proved="true">
-   <proof prover="0"><result status="valid" time="0.071964" steps="20141"/></proof>
+   <goal name="a2&#39;vc.0.4" expl="postcondition" proved="true">
+   <proof prover="0"><result status="valid" time="0.081744" steps="23937"/></proof>
+   </goal>
+   <goal name="a2&#39;vc.0.5" expl="postcondition" proved="true">
+   <transf name="split_vc" proved="true" >
+    <goal name="a2&#39;vc.0.5.0" expl="postcondition" proved="true">
+    <proof prover="1" timelimit="2000" memlimit="5000"><result status="valid" time="0.036602" steps="17596"/></proof>
+    </goal>
+    <goal name="a2&#39;vc.0.5.1" expl="postcondition" proved="true">
+    <proof prover="2"><result status="valid" time="0.052830" steps="725"/></proof>
+    </goal>
+    <goal name="a2&#39;vc.0.5.2" expl="postcondition" proved="true">
+    <proof prover="1"><result status="valid" time="0.156518" steps="59020"/></proof>
+    </goal>
+    <goal name="a2&#39;vc.0.5.3" expl="postcondition" proved="true">
+    <proof prover="4"><result status="valid" time="0.751849" steps="11805"/></proof>
+    </goal>
+   </transf>
+   </goal>
+   <goal name="a2&#39;vc.0.6" expl="postcondition" proved="true">
+   <proof prover="0"><result status="valid" time="0.079235" steps="24841"/></proof>
    </goal>
   </transf>
   </goal>
