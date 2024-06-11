@@ -9,14 +9,14 @@ module CounterImpl
 
   use counter_alt.Counter
 
-  type state = Start | Inc | Done
+  type state = Zero | One | Two | Three | Four
   type lock = Unlocked | Locked thread
 
   (* System configurations
    *)
-  type world = { pcc :map thread state ;
-       	       	 counterc :int ;
-		 tmp :map thread int ;
+  type world = { pcc : map thread state ;
+       	       	 x : int ;
+		 y : map thread int ;
 		 lock :lock }
   
 
@@ -25,24 +25,28 @@ module CounterImpl
    *) 
   let function refn (w:world) : Counter.world
   = let pc' (t:thread) = match w.pcc[t] with
-                         | Done -> Counter.Done
+                         | Three -> Counter.Done
+                         | Four -> Counter.Done
 			 | _ -> Counter.Start
 			 end
-    in { pc = pc' ; counter = w.counterc  }
+    in { pc = pc' ; counter = w.x  }
+
 
 
   (* Inductive invariant 
      required to prove refinement conditions
    *)
-  predicate inv (w:world) = 
-    forall t :thread. 0<=t<n_threads -> 
-      w.lock = Locked t -> w.tmp[t] = w.counterc
+  predicate inv (w:world) =
+    (forall t :thread. 0<=t<n_threads -> w.pcc[t]<>Zero /\ w.pcc[t]<>Four -> w.lock = Locked t)
+     /\
+    (forall t :thread. 0<=t<n_threads -> w.pcc[t] = Two -> w.y[t] = w.x)
 
 
   (* System INIT 
    *)
-  predicate initWorld_p (w:world) = 
-    w.pcc = const Start /\ w.counterc = 0 /\ w.tmp = const 0 /\ w.lock = Unlocked 
+  predicate initWorld_p (w:world) =
+    w.pcc = const Zero /\ w.x = 0 /\ w.y = const 0 /\ w.lock = Unlocked
+
 
   let ghost predicate initWorld (w:world)
     ensures { result -> inv w }
@@ -52,48 +56,72 @@ module CounterImpl
 
   (* System actions
    *)
+   
+  predicate step_Zero_enbld (w:world) (t:thread) = 
+    0<=t<n_threads /\ w.pcc[t] = Zero /\ w.lock = Unlocked 
 
-  (* 1. If in Start state and unlocked: 
-        copy global counter to local; 
-	lock and move into Inc State
-   *)
-  predicate transSI_enbld (w:world) (t:thread) =
-    0<=t<n_threads /\
-    w.pcc[t] = Start /\ 
-    w.lock = Unlocked
-
-  let ghost function transSI (w:world) (t:thread) : world
-    requires { transSI_enbld w t }
+  let ghost function step_Zero (w:world) (t:thread) : world
+    requires { step_Zero_enbld w t }
     ensures  { inv w -> inv result }
     ensures  { inv w -> refn result = refn w \/ Counter.stepind (refn w) (refn result) }
-  = { pcc=set (w.pcc) t Inc ; counterc=w.counterc ; tmp=set (w.tmp) t (w.counterc) ; lock=Locked t }
+  = { pcc = set (w.pcc) t One ;
+      x = w.x ;
+      y = w.y ;
+      lock = Locked t }
 
 
-  (* 2. If in Inc state and thread owns lock: 
-        set global counter as local+1; 
-	lock and move into Done
-   *)
-  predicate transID_enbld (w:world) (t:thread)  = 
-    0<=t<n_threads /\
-    w.pcc[t] = Inc /\ 
-    w.lock = Locked t 
- 
-  let ghost function transID (w:world) (t:thread) : world
-    requires { transID_enbld w t }
+  predicate step_One_enbld (w:world) (t:thread) = 
+    0<=t<n_threads /\ w.pcc[t] = One
+
+  let ghost function step_One (w:world) (t:thread) : world
+    requires { step_One_enbld w t }
     ensures  { inv w -> inv result }
     ensures  { inv w -> refn result = refn w \/ Counter.stepind (refn w) (refn result) }
+  = { pcc = set (w.pcc) t Two ;
+      x = w.x ;
+      y = set (w.y) t w.x ;
+      lock = w.lock }
 
-(* ensures  { inv w -> result.counterc = w.counterc + 1 } *)
-  = { pcc=set (w.pcc) t Done ; counterc=w.tmp[t] + 1 ; tmp=w.tmp ; lock=Unlocked }
+
+  predicate step_Two_enbld (w:world) (t:thread) = 
+    0<=t<n_threads /\ w.pcc[t] = Two
+
+  let ghost function step_Two (w:world) (t:thread) : world
+    requires { step_Two_enbld w t }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ Counter.stepind (refn w) (refn result) }
+  = { pcc = set (w.pcc) t Three ;
+      x = w.y[t] +1 ;
+      y = w.y ;
+      lock = w.lock }
+
+
+  predicate step_Three_enbld (w:world) (t:thread) = 
+    0<=t<n_threads /\ w.pcc[t] = Three
+
+  let ghost function step_Three (w:world) (t:thread) : world
+    requires { step_Three_enbld w t }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w \/ Counter.stepind (refn w) (refn result) }
+  = { pcc = set (w.pcc) t Four ;
+      x = w.x ;
+      y = w.y ;
+      lock = Unlocked }
+
+
 
 
   (* Transition relation
    *)
   inductive stepind world world =
-  | trans_SI : forall w :world, t :thread.
-      transSI_enbld w t -> stepind w  (transSI w  t)
-  | trans_ID : forall w :world, t :thread.
-      transID_enbld w t -> stepind w  (transID w  t)
+  | step_Zero : forall w :world, t :thread.
+      step_Zero_enbld w t -> stepind w  (step_Zero w t )
+  | step_One : forall w :world, t :thread.
+      step_One_enbld w t -> stepind w  (step_One w t )
+  | step_Two : forall w :world, t :thread.
+      step_Two_enbld w t -> stepind w  (step_Two w t )
+  | step_Three : forall w :world, t :thread.
+      step_Three_enbld w t -> stepind w  (step_Three w t )
 
   let ghost predicate step (w1:world) (w2:world) = stepind w1 w2 
 
@@ -112,8 +140,10 @@ module CounterImpl
      Obtained from the refinement
    *) 
   lemma correctness : forall w :world. reachableC w ->
-  	(forall t :thread. 0<=t<n_threads -> w.pcc[t]=Done) 
-           -> w.counterc = n_threads
+  	(forall t :thread. 0<=t<n_threads -> w.pcc[t]=Four) 
+           -> w.x = n_threads
+
+
 
 end
 

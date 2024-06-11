@@ -11,10 +11,10 @@
  <proof prover="0"><result status="valid" time="0.010000" steps="122"/></proof>
  </goal>
  <goal name="count_lm&#39;vc" expl="VC for count_lm" proved="true">
- <proof prover="2"><result status="valid" time="0.180000" steps="48243"/></proof>
+ <proof prover="2"><result status="valid" time="0.180000" steps="55079"/></proof>
  </goal>
  <goal name="trans&#39;vc" expl="VC for trans" proved="true">
- <proof prover="0"><result status="valid" time="0.010000" steps="105"/></proof>
+ <proof prover="0"><result status="valid" time="0.010000" steps="130"/></proof>
  </goal>
  <goal name="initWorld&#39;refn&#39;vc" expl="VC for initWorld&#39;refn" proved="true">
  <proof prover="0"><result status="valid" time="0.000000" steps="31"/></proof>

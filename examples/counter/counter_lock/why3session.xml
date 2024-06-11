@@ -2,7 +2,7 @@
 <!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
 "https://www.why3.org/why3session.dtd">
 <why3session shape_version="6">
-<prover id="0" name="CVC5" version="1.0.3" timelimit="5" steplimit="0" memlimit="1000"/>
+<prover id="0" name="CVC5" version="1.0.3" timelimit="1" steplimit="0" memlimit="5000"/>
 <prover id="1" name="Alt-Ergo" version="2.4.2" timelimit="5" steplimit="0" memlimit="1000"/>
 <file format="whyml" proved="true">
 <path name=".."/><path name="counter_lock.mlw"/>
@@ -11,13 +11,19 @@
  <proof prover="1"><result status="valid" time="0.000000" steps="2"/></proof>
  </goal>
  <goal name="initWorld&#39;vc" expl="VC for initWorld" proved="true">
- <proof prover="1"><result status="valid" time="0.000000" steps="58"/></proof>
+ <proof prover="1"><result status="valid" time="0.000000" steps="87"/></proof>
  </goal>
- <goal name="transSI&#39;vc" expl="VC for transSI" proved="true">
- <proof prover="0"><result status="valid" time="0.040000" steps="5229"/></proof>
+ <goal name="step_Zero&#39;vc" expl="VC for step_Zero" proved="true">
+ <proof prover="0" timelimit="2000"><result status="valid" time="0.028038" steps="7657"/></proof>
  </goal>
- <goal name="transID&#39;vc" expl="VC for transID" proved="true">
- <proof prover="0"><result status="valid" time="0.120000" steps="18670"/></proof>
+ <goal name="step_One&#39;vc" expl="VC for step_One" proved="true">
+ <proof prover="0" memlimit="1000"><result status="valid" time="0.035440" steps="12293"/></proof>
+ </goal>
+ <goal name="step_Two&#39;vc" expl="VC for step_Two" proved="true">
+ <proof prover="0" timelimit="2000"><result status="valid" time="0.069847" steps="17800"/></proof>
+ </goal>
+ <goal name="step_Three&#39;vc" expl="VC for step_Three" proved="true">
+ <proof prover="0" memlimit="1000"><result status="valid" time="0.052396" steps="14266"/></proof>
  </goal>
  <goal name="Refinement.initWorldA&#39;refn&#39;vc" expl="VC for initWorldA&#39;refn" proved="true">
  <proof prover="1"><result status="valid" time="0.000000" steps="6"/></proof>
@@ -29,7 +35,7 @@
  <proof prover="1"><result status="valid" time="0.000000" steps="18"/></proof>
  </goal>
  <goal name="Refinement.stepC&#39;refn&#39;vc" expl="VC for stepC&#39;refn" proved="true">
- <proof prover="1"><result status="valid" time="0.010000" steps="130"/></proof>
+ <proof prover="1"><result status="valid" time="0.010000" steps="189"/></proof>
  </goal>
  <goal name="safety_by_refinement" proved="true">
  <proof prover="1"><result status="valid" time="0.000000" steps="6"/></proof>
