@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
+"https://www.why3.org/why3session.dtd">
+<why3session shape_version="6">
+<prover id="0" name="Z3" version="4.11.2" timelimit="2000" steplimit="0" memlimit="5000"/>
+<prover id="1" name="CVC5" version="1.0.3" timelimit="2000" steplimit="0" memlimit="5000"/>
+<prover id="2" name="CVC4" version="1.8" timelimit="5" steplimit="0" memlimit="1000"/>
+<prover id="3" name="Alt-Ergo" version="2.5.3" timelimit="5" steplimit="0" memlimit="1000"/>
+<prover id="5" name="Alt-Ergo" version="2.4.2" timelimit="1" steplimit="0" memlimit="1000"/>
+<file format="whyml" proved="true">
+<path name=".."/><path name="leaderElectBroadcast.mlw"/>
+<theory name="BroadcastLeaderElect" proved="true">
+ <goal name="list_hd&#39;vc" expl="VC for list_hd" proved="true">
+ <proof prover="2"><result status="valid" time="0.025132" steps="14399"/></proof>
+ </goal>
+ <goal name="refn&#39;vc" expl="VC for refn" proved="true">
+ <proof prover="5"><result status="valid" time="0.008401" steps="4"/></proof>
+ </goal>
+ <goal name="broadcast&#39;vc" expl="VC for broadcast" proved="true">
+ <proof prover="5"><result status="valid" time="0.061115" steps="990"/></proof>
+ </goal>
+ <goal name="send&#39;vc" expl="VC for send" proved="true">
+ <transf name="unfold" proved="true" arg1="inv">
+  <goal name="send&#39;vc.0" expl="VC for send" proved="true">
+  <transf name="split_vc" proved="true" >
+   <goal name="send&#39;vc.0.0" expl="precondition" proved="true">
+   <proof prover="5"><result status="valid" time="0.009863" steps="18"/></proof>
+   </goal>
+   <goal name="send&#39;vc.0.1" expl="postcondition" proved="true">
+   <proof prover="2"><result status="valid" time="0.980557" steps="155076"/></proof>
+   </goal>
+   <goal name="send&#39;vc.0.2" expl="postcondition" proved="true">
+   <transf name="split_vc" proved="true" >
+    <goal name="send&#39;vc.0.2.0" expl="postcondition" proved="true">
+    <transf name="inline_goal" proved="true" >
+     <goal name="send&#39;vc.0.2.0.0" expl="postcondition" proved="true">
+     <transf name="split_all_full" proved="true" >
+      <goal name="send&#39;vc.0.2.0.0.0" expl="postcondition" proved="true">
+      <transf name="split_vc" proved="true" >
+       <goal name="send&#39;vc.0.2.0.0.0.0" expl="postcondition" proved="true">
+       <proof prover="1"><result status="valid" time="1.412037" steps="159045"/></proof>
+       </goal>
+      </transf>
+      </goal>
+     </transf>
+     </goal>
+    </transf>
+    </goal>
+   </transf>
+   </goal>
+  </transf>
+  </goal>
+ </transf>
+ </goal>
+ <goal name="rcv&#39;vc" expl="VC for rcv" proved="true">
+ <transf name="unfold" proved="true" arg1="inv">
+  <goal name="rcv&#39;vc.0" expl="VC for rcv" proved="true">
+  <transf name="split_vc" proved="true" >
+   <goal name="rcv&#39;vc.0.0" expl="unreachable point" proved="true">
+   <proof prover="5"><result status="valid" time="0.012493" steps="58"/></proof>
+   </goal>
+   <goal name="rcv&#39;vc.0.1" expl="postcondition" proved="true">
+   <transf name="split_vc" proved="true" >
+    <goal name="rcv&#39;vc.0.1.0" expl="postcondition" proved="true">
+    <proof prover="5"><result status="valid" time="0.271970" steps="2341"/></proof>
+    </goal>
+    <goal name="rcv&#39;vc.0.1.1" expl="postcondition" proved="true">
+    <proof prover="5" timelimit="5"><result status="valid" time="1.190913" steps="9639"/></proof>
+    </goal>
+    <goal name="rcv&#39;vc.0.1.2" expl="postcondition" proved="true">
+    <proof prover="2" timelimit="1"><result status="valid" time="0.420299" steps="76659"/></proof>
+    </goal>
+    <goal name="rcv&#39;vc.0.1.3" expl="postcondition" proved="true">
+    <proof prover="2"><result status="valid" time="0.244719" steps="53447"/></proof>
+    </goal>
+   </transf>
+   </goal>
+   <goal name="rcv&#39;vc.0.2" expl="postcondition" proved="true">
+   <proof prover="2"><result status="valid" time="0.684776" steps="131442"/></proof>
+   </goal>
+   <goal name="rcv&#39;vc.0.3" expl="postcondition" proved="true">
+   <transf name="split_vc" proved="true" >
+    <goal name="rcv&#39;vc.0.3.0" expl="postcondition" proved="true">
+    <transf name="split_vc" proved="true" >
+     <goal name="rcv&#39;vc.0.3.0.0" expl="postcondition" proved="true">
+     <transf name="inline_goal" proved="true" >
+      <goal name="rcv&#39;vc.0.3.0.0.0" expl="postcondition" proved="true">
+      <transf name="split_all_full" proved="true" >
+       <goal name="rcv&#39;vc.0.3.0.0.0.0" expl="postcondition" proved="true">
+       <transf name="split_vc" proved="true" >
+        <goal name="rcv&#39;vc.0.3.0.0.0.0.0" expl="postcondition" proved="true">
+        <proof prover="2"><result status="valid" time="0.203600" steps="53216"/></proof>
+        </goal>
+       </transf>
+       </goal>
+      </transf>
+      </goal>
+     </transf>
+     </goal>
+     <goal name="rcv&#39;vc.0.3.0.1" expl="postcondition" proved="true">
+     <transf name="inline_goal" proved="true" >
+      <goal name="rcv&#39;vc.0.3.0.1.0" expl="postcondition" proved="true">
+      <transf name="split_all_full" proved="true" >
+       <goal name="rcv&#39;vc.0.3.0.1.0.0" expl="postcondition" proved="true">
+       <proof prover="2" timelimit="2000" memlimit="5000"><result status="valid" time="0.274309" steps="65001"/></proof>
+       </goal>
+      </transf>
+      </goal>
+     </transf>
+     </goal>
+    </transf>
+    </goal>
+   </transf>
+   </goal>
+  </transf>
+  </goal>
+ </transf>
+ </goal>
+ <goal name="Refinement.initWorldA&#39;refn&#39;vc" expl="VC for initWorldA&#39;refn" proved="true">
+ <proof prover="3"><result status="valid" time="0.027047" steps="75"/></proof>
+ </goal>
+ <goal name="Refinement.initWorldC&#39;refn&#39;vc" expl="VC for initWorldC&#39;refn" proved="true">
+ <proof prover="5" timelimit="2000" memlimit="5000"><result status="valid" time="2.316975" steps="21473"/></proof>
+ </goal>
+ <goal name="Refinement.stepA&#39;refn&#39;vc" expl="VC for stepA&#39;refn" proved="true">
+ <proof prover="5" timelimit="2000" memlimit="5000"><result status="valid" time="0.015098" steps="85"/></proof>
+ </goal>
+ <goal name="Refinement.stepC&#39;refn&#39;vc" expl="VC for stepC&#39;refn" proved="true">
+ <proof prover="0"><result status="valid" time="0.023008" steps="58153"/></proof>
+ </goal>
+ <goal name="uniqueMax" proved="true">
+ <proof prover="5" timelimit="5"><result status="valid" time="0.025206" steps="252"/></proof>
+ </goal>
+ <goal name="correctness" proved="true">
+ <proof prover="5" timelimit="2000" memlimit="5000"><result status="valid" time="0.237209" steps="2742"/></proof>
+ </goal>
+</theory>
+</file>
+</why3session>

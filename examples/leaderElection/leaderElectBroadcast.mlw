@@ -1,0 +1,180 @@
+
+(* Very simple maximum algorithm.
+   Nodes want to agree on the maximum id in a network.
+   For this they broadcast their ids and keep locally 
+   the maximum received so far.
+   Apparently it is not an implementation of leaderElectMax, 
+   since there is no way for a node to know that it holds 
+   the maximum id (because it doesn't know when the broadcast 
+   has ended). 
+   However, this *can* be mapped to leaderElectMax, because the
+   refinement mapping has that information: if no more messages
+   can be received and the node's maximum is its own id, then
+   it is the maximum. 
+   The refinement shows that this will be true for at most one node.
+   
+   
+*)
+
+
+module BroadcastLeaderElect
+
+  use int.Int
+  use int.EuclideanDivision
+  use list.List
+  use list.Mem
+  use list.Append
+  use list.HdTlNoOpt
+  use map.Map
+
+  use leaderElect.LeaderElect
+  use leaderElectMax.LeaderElectMax
+
+  (* Messages
+   *) 
+  type msg = id
+
+  (* System configurations
+   *)
+  type world = { value 	     : map node id ;
+       	       	 sent 	     : map node bool ;
+		 inMsgs      : map node (list msg) }
+
+  let rec lemma list_hd  (l : list int)
+    ensures  { not is_nil l -> mem (hd l) l }
+  = match l with
+    | Nil -> ()
+    | Cons _ t -> list_hd t
+    end
+
+
+
+  (* System INIT 
+   *)
+  predicate initWorld_p (w:world) =
+    forall n :node. 0<=n<n_nodes -> 
+      w.inMsgs[n] = Nil 
+        /\
+      w.sent[n] = false
+	/\
+      w.value[n] = id n
+
+
+  let ghost predicate initWorld (w:world)
+  = initWorld_p w
+
+
+
+
+  (* Refinement mapping 
+   *)
+  (* Node k will not receive more messages
+   *)
+  predicate finalNd (w:world) (k:node) =
+  	    (forall n :node. 0<=n<n_nodes -> n<>k -> w.sent[n]) /\ is_nil w.inMsgs[k]
+
+  let ghost function refn (w:world) : LeaderElectMax.world
+  = { isMax = fun (n:node) -> 0<=n<n_nodes && finalNd w n && w.value[n] = id n }
+
+
+
+
+  (* Inductive invariant 
+   *) 
+  predicate inv (w:world) = 
+    (forall n :node. 0<=n<n_nodes -> id n <= w.value[n] <= id maxId_global)
+      /\
+    (forall n :node, m :msg . 0<=n<n_nodes -> mem m w.inMsgs[n] ->
+       m <= id maxId_global)
+      /\
+    (forall k :node. 0<=k<n_nodes /\ w.sent[maxId_global] ->
+        w.value[k] = id maxId_global \/ mem (id maxId_global) w.inMsgs[k])
+
+
+  (* System actions
+   *)
+  let rec ghost function broadcast (w:world) (n:int) (sndr:node) : map node (list msg)
+    requires { 0<=n<=n_nodes /\ 0<=sndr<n_nodes }
+    ensures  { forall k:int. 0<=k<n -> k<>sndr -> result[k] = w.inMsgs[k] ++ Cons (id sndr) Nil }
+    ensures  { result[sndr] = w.inMsgs[sndr] }
+    ensures  { forall k:int. k<0 \/ n<=k -> result[k] = w.inMsgs[k] }
+    variant  { n }
+  = if n=0 then w.inMsgs
+    else let inb = broadcast w (n-1) sndr
+    in if sndr = n-1 then inb
+       else inb[n-1 <- inb[n-1] ++ Cons (id sndr) Nil]
+
+
+
+  predicate send_enbld (w:world) (h:node) = 
+    0 <= h < n_nodes /\ not w.sent[h] 
+
+  let ghost function send (w:world) (h:node) : world
+    requires { send_enbld w h }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> refn result = refn w }
+  = { value = w.value ;
+      sent = w.sent[h<-true] ; 
+      inMsgs = broadcast w n_nodes h }
+
+
+
+  predicate rcv_enbld (w:world) (h:node) = 
+    0 <= h < n_nodes /\ not is_nil w.inMsgs[h] 
+
+  let ghost function rcv (w:world) (h:node) : world
+    requires { rcv_enbld w h }
+    ensures  { inv w -> inv result }
+    ensures  { inv w -> finalNd result h /\ h=maxId_global -> refn result = LeaderElectMax.act (refn w) h }
+    ensures  { inv w -> refn result = refn w
+                     \/ LeaderElectMax.stepind (refn w) (refn result) }
+  = match w.inMsgs[h] with  
+    | Nil -> absurd 
+    | Cons m t -> 
+      let max = if m > w.value[h] then m else w.value[h]
+      in { value = w.value[h<-max] ;
+           sent = w.sent ; 
+           inMsgs = w.inMsgs[h<-t] }
+    end
+
+
+  (* Transition relation
+   *)
+  inductive stepind world world =
+  | send_msg : forall w :world, n :node.
+      send_enbld w n -> stepind w (send w n)
+  | rcv_msg : forall w :world, n :node.
+      rcv_enbld w n -> stepind w (rcv w n)
+
+  let ghost predicate step (w1:world) (w2:world) = stepind w1 w2 
+
+
+
+
+  (* Proof of refinement 
+   *)
+  clone refinement.Refinement with
+    type worldC=world, type worldA=LeaderElectMax.world, val refn,
+    predicate invC=inv, predicate invA=LeaderElectMax.inv,
+    val initWorldC=initWorld, val initWorldA=LeaderElectMax.initWorld,
+    val stepC=step, val stepA=LeaderElectMax.step
+
+
+  (* Safety Property
+   *)
+  goal uniqueMax : forall w :world, i j :node.
+    0<=i<n_nodes /\ 0<=j<n_nodes /\ reachableC w 
+      /\ (refn w).isMax[i] /\ (refn w).isMax[j]-> i=j
+
+
+
+  (* This property does not depend on refinement
+   *)
+  goal correctness :
+    forall w :world. reachableC w ->
+      forall n :node. 0<=n<n_nodes -> finalNd w n -> w.value[n] = id maxId_global
+
+
+
+
+end

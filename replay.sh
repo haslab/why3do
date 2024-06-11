@@ -60,6 +60,8 @@ echo "## ChangRoberts"
 why3 replay examples/leaderElection/ChangRoberts -L stateMachineModels -L examples/leaderElection
 echo "## ChangRobertsNetwork"
 why3 replay examples/leaderElection/ChangRobertsNetwork -L stateMachineModels -L examples/leaderElection
+echo "## leaderElectBroadcast"
+why3 replay examples/leaderElection/leaderElectBroadcast -L stateMachineModels -L examples/leaderElection
 echo "--------------------------------"
 
 echo "# examples/mutualExclusionToken"
