@@ -22,6 +22,7 @@ all_tests=(
 "examples/leaderElection/leaderElectMax -L stateMachineModels -L examples/leaderElection"
 "examples/leaderElection/ChangRoberts -L stateMachineModels -L examples/leaderElection"
 "examples/leaderElection/ChangRobertsNetwork -L stateMachineModels -L examples/leaderElection"
+"examples/leaderElection/leaderElectBroadcast -L stateMachineModels -L examples/leaderElection"
 "examples/mutualExclusionToken/oneToken -L stateMachineModels -L examples/mutualExclusionToken"
 "examples/mutualExclusionToken/selfstab-ring -L stateMachineModels -L examples/mutualExclusionToken"
 "examples/mutualExclusionToken/selfstab-biarray-2states -L stateMachineModels -L examples/mutualExclusionToken"
