@@ -161,7 +161,7 @@
     <proof prover="0"><result status="valid" time="0.242569" steps="1416623"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.8.8" expl="postcondition" proved="true">
-    <proof prover="2"><result status="valid" time="0.767450" steps="23681"/></proof>
+    <proof prover="2" timelimit="10"><result status="valid" time="1.372515" steps="29257"/></proof>
     </goal>
     <goal name="trans&#39;vc.0.8.9" expl="postcondition" proved="true">
     <proof prover="1"><result status="valid" time="0.183842" steps="43552"/></proof>
