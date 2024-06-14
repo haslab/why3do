@@ -18,11 +18,20 @@ jobs:
     - name: install tools with opam
       run: |
         opam update
-        opam install why3.1.6.0
+        opam install why3.1.7.2
+        # install both alt-ergo 2.4.2 and alt-ergo 2.5.3
+        # install both eprover-2.6 and eprover-3.0
+        # probably not the best way to do this but, it works for now
         opam install alt-ergo.2.4.2
         opam install eprover.2.6
-        # it's possible to install z3 as follows
-        # opam install z3.4.11.2
+        eval $(opam env)
+        cp $(which alt-ergo) $(which alt-ergo)-2.4.2
+        cp $(which eprover) $(which eprover)-2.6
+        opam install alt-ergo.2.5.3
+        opam install eprover.3.0
+        eval $(opam env)
+        cp $(which alt-ergo) $(which alt-ergo)-2.5.3
+        cp $(which eprover) $(which eprover)-3.0
     - name: download z3, cvc4, and cvc5
       run: |
         mkdir downloads
@@ -30,41 +39,32 @@ jobs:
         wget $CVC4_URL
         chmod +x ${CVC4_URL##*/}
         mv ${CVC4_URL##*/} /usr/local/bin/cvc4
-        # echo "deb http://cvc4.cs.nyu.edu/debian/ unstable/" | sudo tee -a /etc/apt/sources.list
-        # echo "deb-src http://cvc4.cs.nyu.edu/debian/ unstable/" | sudo tee -a /etc/apt/sources.list
-        # sudo apt-get update
-        # sudo apt-get install cvc4 --force-yes
         wget $CVC5_URL
         chmod +x ${CVC5_URL##*/}
         mv ${CVC5_URL##*/} /usr/local/bin/cvc5
-        # also possible to use opam to install z3, but the compilation is very slow
         wget $Z3_URL
         z3folder=${Z3_URL##*/}
         unzip $z3folder
         mv ${z3folder%.*}/bin/z3 /usr/local/bin
-    - name: test installation
+    - name: debug info about installed tools
       run: |
         eval $(opam env)
-        echo "which why3"
-        which why3
-        echo "why3 version"
-        why3 --version
-        echo "which alt-ergo"
-        which alt-ergo
-        echo "alt-ergo --version"
-        alt-ergo --version
-        echo "which z3"
-        which z3
-        echo "z3 --version"
-        z3 --version
-        echo "which cvc4"
-        which cvc4
-        echo "cvc4 --version"
-        cvc4 --version
-        echo "which cvc5"
-        which cvc5
-        echo "cvc5 --version"
-        cvc5 --version
+        tools=(why3
+               alt-ergo-2.4.2
+               alt-ergo-2.5.3
+               eprover-2.6
+               eprover-3.0
+               z3
+               cvc4
+               cvc5)
+        for tool in ${tools[@]}; do
+          cmd="which ${tool}"
+          echo $cmd
+          eval $cmd
+          cmd="${tool} --version"
+          echo $cmd
+          eval $cmd
+        done
     - name: replay proofs
       run: |
         echo "eval $(opam env)"
