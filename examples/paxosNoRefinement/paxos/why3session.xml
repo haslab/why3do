@@ -118,6 +118,7 @@
        <goal name="propose&#39;vc.0.0.13.0.0.0" expl="VC for propose" proved="true">
        <transf name="split_vc" proved="true" >
         <goal name="propose&#39;vc.0.0.13.0.0.0.0" expl="VC for propose" proved="true">
+        <proof prover="3" timelimit="10000" memlimit="5000"><result status="valid" time="102.291433" steps="845460"/></proof>
         <transf name="remove" proved="true" arg1="zero,one,(-),(&gt;),(&lt;=),(&gt;=),get,set,([]),([&lt;-]),validNd,initWorld,inv,indpred,start_round_enbld,join_round_enbld,phi_jr,phi_p,phi_p&#39;result&#39;unused,max&#39;result&#39;unused,result&#39;unused,Assoc1,Unit_def_l,Unit_def_r,Inv_def_l,Inv_def_r,Comm1,Assoc,Mul_distr_l,Mul_distr_r,Comm,Unitary,NonTrivialRing,Refl,Trans,Antisymm,Total,ZeroLessOne,CompatOrderAdd,CompatOrderMult,indpred&#39;spec,start_round&#39;def,max_jb_1,max_jb_3,join_round&#39;spec,Requires,H31,H30,H29,H27,H24,H23,Assert3,Assert2,H21,H20,H19,H18,H16,H14,H12,H11,H10,H9,H8,H7,H3,max_jb_21,max_jb_2">
          <goal name="propose&#39;vc.0.0.13.0.0.0.0.0" expl="VC for propose" proved="true">
          <proof prover="3" timelimit="10000" memlimit="5000"><result status="valid" time="0.278951" steps="1907"/></proof>
