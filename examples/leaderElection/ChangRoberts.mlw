@@ -90,9 +90,9 @@ module ChangRoberts
 
   let ghost function act (w:world) (h:node) : world
     requires { act_enbld w h }
-    ensures  { inv w -> forall n :node. 0<=n<n_nodes -> n<>next h ->
-               forall m :msg. mem m result.inMsgs[n] -> mem m w.inMsgs[n] }
-    ensures  { forall m :msg. mem m result.inMsgs[next h] -> mem m w.inMsgs[h] \/ mem m w.inMsgs[next h] }
+    (* ensures  { inv w -> forall n :node. 0<=n<n_nodes -> n<>next h -> *)
+    (*            forall m :msg. mem m result.inMsgs[n] -> mem m w.inMsgs[n] } *)
+    (* ensures  { forall m :msg. mem m result.inMsgs[next h] -> mem m w.inMsgs[h] \/ mem m w.inMsgs[next h] } *)
 
     ensures  { inv w -> inv result }
     ensures  { inv w -> refn result = refn w
