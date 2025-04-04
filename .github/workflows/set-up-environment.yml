@@ -12,7 +12,7 @@ jobs:
     - name: Check out repository code
       uses: actions/checkout@v4
     - name: Use OCaml
-      uses: ocaml/setup-ocaml@v2
+      uses: ocaml/setup-ocaml@v3
       with:
         ocaml-compiler: 4.13.x
     - name: install tools with opam
